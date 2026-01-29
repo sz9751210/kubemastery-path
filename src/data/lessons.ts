@@ -1,13 +1,15 @@
 export interface Lesson {
   id: string;
   title: string;
-  category: 'Novice' | 'Admin' | 'Security';
+  category: 'Novice' | 'Admin' | 'Security' | 'Expert';
   duration: string;
   markdown: string;
 }
 
 const lessons: Record<string, Lesson> = {
-  // --- LEVEL 1: NOVICE (CKAD Focus) ---
+  // ==========================================
+  // LEVEL 1: NOVICE (Foundations)
+  // ==========================================
   '1': {
     id: '1',
     title: 'Container Basics',
@@ -16,36 +18,22 @@ const lessons: Record<string, Lesson> = {
     markdown: `
 # Container Basics: Beyond Docker
 
-Welcome to your first step in mastering Kubernetes! To understand K8s, we must first understand the atomic unit it manages: the **Container**.
+To master Kubernetes, you must strictly understand concepts like **Namespaces**, **Cgroups**, and the **CRI**.
 
 ## What is a Container?
-A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another.
+It's just a process! But it's isolated.
+- **Namespaces**: Isolate what the process *sees* (PID, Network, Mounts).
+- **Cgroups**: Isolate what the process *uses* (CPU, RAM).
+- **Union Filesystem**: Efficient, layered storage (OverlayFS).
 
-### Core Technologies
-Containers are not "magic"; they are processes isolated by Linux kernel features:
-1. **Namespaces**: Provide isolation (Process ID, Network, Mounts, IPC). Each container thinks it's the only Thing running.
-2. **Cgroups (Control Groups)**: Controls resource usage (CPU, Memory limits). Prevents one container from eating all server RAM.
-3. **Union Filesystem (OverlayFS)**: Layered images which allow efficient storage and caching.
-
-## Docker vs. CRI (Container Runtime Interface)
-Kubernetes doesn't just "run Docker". It uses an interface called **CRI** to communicate with container runtimes.
-
+## Docker vs CRI
+Kubernetes uses the **Container Runtime Interface (CRI)**.
 > [!IMPORTANT]
-> **Deprecation Alert**: As of Kubernetes v1.24, the "Dockershim" was removed. K8s now primarily uses **containerd** or **CRI-O**. Understanding \`crictl\` is now important for CKA exams.
+> \`dockershim\` is dead. You are likely using **containerd** or **CRI-O**. Learn \`crictl\`.
 
 \`\`\`bash
-# Checking your runtime
-kubectl get nodes -o wide
-# Output helps identify if you are running containerd or docker shim
-\`\`\`
-
-## Hands-on Lab: Inspecting a Container
-In the browser terminal, try creating a simple Nginx pod and executing strict commands inside it.
-
-\`\`\`bash
-kubectl run nginx --image=nginx:alpine
-kubectl exec -it nginx -- sh
-# Inside the container, run 'ps aux' to see PID 1
+# List containers using CRI
+crictl ps
 \`\`\`
     `
   },
@@ -57,152 +45,111 @@ kubectl exec -it nginx -- sh
     markdown: `
 # The Pod Lifecycle
 
-In Kubernetes, the smallest deployable unit is not a container, but a **Pod**.
+A **Pod** is the atomic unit of K8s. It wraps one or more containers.
 
-## What is a Pod?
-A Pod represents a single instance of a running process in your cluster. It encapsulates:
-- One or more containers (usually one).
-- Storage resources (Volumes).
-- A unique network IP.
-- Options that govern how the container(s) should run.
+## States
+1. **Pending**: Scheduler is finding a node.
+2. **ContainerCreating**: Pulling images.
+3. **Running**: At least one container is up.
+4. **Succeeded/Failed**: Process exited.
 
-> [!NOTE]
-> Pods are **ephemeral**. They are designed to die and be replaced. Never rely on a Pod IP staying the same.
-
-## Pod Phases
-1. **Pending**: Accepted by the cluster, but not scheduled to a node yet (downloading images, etc.).
-2. **Running**: Bound to a node, all containers created, at least one is running.
-3. **Succeeded**: Terminated with exit code 0 (common in Jobs).
-4. **Failed**: Terminated with non-zero exit code (crashed).
-5. **Unknown**: State cannot be obtained (network partition).
-
-## YAML Definition
-Every Pod is defined by a Manifest.
-
-\`\`\`yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-pod
-  labels:
-    app: nginx
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
-    resources:
-      limits:
-        memory: "128Mi"
-        cpu: "500m"
-\`\`\`
+## Sidecars (Multi-Container)
+Containers in a Pod share **Network (localhost)** and **Volumes**.
     `
   },
   '3': {
     id: '3',
-    title: 'YAML & Configuration',
+    title: 'YAML Configuration',
     category: 'Novice',
     duration: '30 mins',
     markdown: `
-# Mastering YAML for Kubernetes
+# Mastering YAML
 
-Kubernetes uses YAML (Yet Another Markup Language) for almost everything. It is **declarative**: you tell K8s *what* you want (desired state), not *how* to do it (imperative).
+Kubernetes is **Declarative**. syntax matters.
 
-## Anatomy of a Manifest
-Every K8s resource has 4 top-level fields:
-1. **apiVersion**: Which version of the API to use (e.g., \`v1\`, \`apps/v1\`, \`networking.k8s.io/v1\`).
-2. **kind**: The type of resource (Pod, Service, Deployment).
-3. **metadata**: Name, labels, annotations (crucial for organization).
-4. **spec**: The desired state (containers, replicas, ports).
-
-## ConfigMaps & Secrets
-**The 12-Factor App methodology** states that config should be separated from code.
-- **ConfigMap**: For non-sensitive data (env vars, config files).
-- **Secret**: For sensitive data (passwords, keys), base64 encoded.
-
-### Managing Secrets
-Secrets are **not encrypted** by default; they are just base64 encoded!
-\`\`\`bash
-# Create a secret imperatively
-kubectl create secret generic db-pass --from-literal=password='hunter2'
-\`\`\`
-
-> [!WARNING]
-> In production, use external secret stores (Vault, AWS Secrets Manager) or enable Encryption at Rest in etcd.
-    `
-  },
-  '4': {
-    id: '4',
-    title: 'Multi-Container Pods',
-    category: 'Novice',
-    duration: '20 mins',
-    markdown: `
-# Multi-Container Pods
-
-While most Pods run a single container, sometimes you need helper containers to assist the main application. This is a core **CKAD** concept.
-
-## Design Patterns
-1. **Sidecar**: Extends the functionality of the main container (e.g., log shipper, proxy, config reloader). The helper runs *alongside* the app.
-2. **Adapter**: Transforms output to a standard format (e.g., converting custom metrics to Prometheus format).
-3. **Ambassador**: Proxies connection to the outside world (e.g., connecting to a database through a local proxy).
-
-## Shared Context
-All containers in a Pod share:
-- **Network Namespace**: They share the same IP and define ports on \`localhost\`.
-- **IPC Namespace**: They can communicate via SystemV IPC or POSIX message queues.
-- **Volumes**: They can mount the same disk volumes to share files.
-
-### Lab Scenario: Log Sidecar
-Create a Pod where a main container writes logs to \`/var/log/app.log\`, and a sidecar container tails that file to stdout.
+## The 4 Pillars
+1. **apiVersion**: \`v1\`, \`apps/v1\`.
+2. **kind**: \`Pod\`, \`Service\`.
+3. **metadata**: \`name\`, \`labels\`.
+4. **spec**: The desired state.
 
 \`\`\`yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: multi-container-pod
+  name: demo
 spec:
-  volumes:
-  - name: shared-logs
-    emptyDir: {}
   containers:
-  - name: app
-    image: busybox
-    command: ['sh', '-c', 'while true; do echo "$(date) - Running" >> /var/log/app.log; sleep 5; done']
-    volumeMounts:
-    - name: shared-logs
-      mountPath: /var/log
-  - name: sidecar
-    image: busybox
-    command: ['sh', '-c', 'tail -f /var/log/app.log']
-    volumeMounts:
-    - name: shared-logs
-      mountPath: /var/log
+  - name: nginx
+    image: nginx
 \`\`\`
     `
   },
 
-  // --- LEVEL 2: ADMIN (CKA Focus) ---
-  '5': {
-    id: '5',
-    title: 'Cluster Architecture',
+  // ==========================================
+  // LEVEL 2: ADMIN (CKA - Orchestration)
+  // ==========================================
+  '20': {
+    id: '20',
+    title: 'Workloads: Deployments',
+    category: 'Admin',
+    duration: '45 mins',
+    markdown: `
+# Workloads: Deployments & ReplicaSets
+
+Pods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.
+
+## The Hierarchy
+\`Deployment\` manages \`ReplicaSet\` manages \`Pod\`.
+
+## Features
+- **Self-healing**: Restarts crashed pods.
+- **Scaling**: \`kubectl scale deployment my-app --replicas=5\`
+- **Rolling Updates**: Zero-downtime deployments.
+
+\`\`\`yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+\`\`\`
+    `
+  },
+  '21': {
+    id: '21',
+    title: 'StatefulSets & DaemonSets',
     category: 'Admin',
     duration: '40 mins',
     markdown: `
-# Kubernetes Cluster Architecture
+# StatefulSets & DaemonSets
 
-A K8s cluster consists of **Control Plane** nodes and **Worker** nodes.
+Not everything is a stateless web server.
 
-## Control Plane Components (The Brain)
-1. **kube-apiserver**: The frontend for the K8s control plane. All components talk to this. The only component that talks to etcd.
-2. **etcd**: Consistent and highly-available key value store for all cluster data.
-3. **kube-scheduler**: Watches for newly created Pods with no assigned node, and selects a node for them to run on.
-4. **kube-controller-manager**: Runs controller processes (Node controller, Job controller, EndpointSlice controller).
+## StatefulSet
+Used for databases or apps needing:
+- **Stable Network ID**: \`web-0\`, \`web-1\`.
+- **Stable Storage**: VolumeClaims templates.
+- **Ordered Deployment**: 0 -> 1 -> 2.
 
-## Worker Node Components (The Muscle)
-1. **kubelet**: An agent that runs on each node. It ensures that containers are running in a Pod.
-2. **kube-proxy**: Maintains network rules on nodes. These rules allow network communication to your Pods.
-3. **Container Runtime**: Software that is responsible for running containers (containerd, CRI-O).
+## DaemonSet
+Ensures a copy of a Pod runs on **all** (or some) Nodes.
+- Examples: \`kube-proxy\`, \`fluentd\` (logging), \`weave-net\` (CNI).
+
+> [!NOTE]
+> DaemonSets bypass the scheduler mostly, though they respect taints/tolerations.
     `
   },
   '6': {
@@ -211,24 +158,67 @@ A K8s cluster consists of **Control Plane** nodes and **Worker** nodes.
     category: 'Admin',
     duration: '45 mins',
     markdown: `
-# Services & Networking
-
-Kubernetes networking is a massive topic. For CKA, focus on how Pods communicate and how to expose them.
-
-## The Model
-- Every Pod gets its own IP address.
-- Pods on any node can communicate with all other Pods on all other nodes without NAT.
+# Services: Exposing Applications
 
 ## Service Types
-Services provide a stable network abstraction over a set of ephemeral Pods.
-1. **ClusterIP** (Default): Exposes the Service on a cluster-internal IP. Reachable only from within the cluster.
-2. **NodePort**: Exposes the Service on each Node's IP at a static port (30000-32767).
-3. **LoadBalancer**: Exposes the Service externally using a cloud provider's load balancer.
+1. **ClusterIP**: Internal only.
+2. **NodePort**: Exposure on static port (30000+).
+3. **LoadBalancer**: Cloud provider LB.
 
-## DNS
-Kubernetes runs an internal DNS service (CoreDNS).
-- Service A in namespace \`default\` is reachable at \`http://service-a:80\`.
-- Service B in namespace \`dev\` is reachable at \`http://service-b.dev:80\`.
+## Service Discovery
+DNS names are formatted:
+\`<service-name>.<namespace>.svc.cluster.local\`
+
+\`\`\`yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+\`\`\`
+    `
+  },
+  '22': {
+    id: '22',
+    title: 'Ingress & DNS',
+    category: 'Admin',
+    duration: '50 mins',
+    markdown: `
+# Ingress & Advanced Networking
+
+**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).
+
+## Ingress Controller
+An Ingress resource does nothing without a controller (e.g., Nginx, Traefik).
+
+## Ingress Resource
+Defines rules to route traffic.
+- **Path Based**: \`/api\` -> Service A, \`/web\` -> Service B.
+- **Host Based**: \`foo.bar.com\` -> Service A.
+
+\`\`\`yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: test
+            port:
+              number: 80
+\`\`\`
     `
   },
   '7': {
@@ -239,32 +229,15 @@ Kubernetes runs an internal DNS service (CoreDNS).
     markdown: `
 # Storage Orchestration
 
-Containers have ephemeral filesystems. If a container crashes, changes are lost. **Volumes** solve this.
+Decoupling storage from Pod lifecycle.
 
-## The PV / PVC Abstraction
-Admin manages underlying storage; Developer requests storage.
-
-1. **PersistentVolume (PV)**: A piece of storage in the cluster provisioning by an administrator or dynamically via a StorageClass.
-2. **PersistentVolumeClaim (PVC)**: A request for storage by a user. It mimics a Pod. Pods consume node resources; PVCs consume PV resources.
+## PV vs PVC
+- **PV (PersistentVolume)**: The physical storage resource (provisioned by Admin).
+- **PVC (Claim)**: The request for storage (by Developer).
 
 ## Access Modes
-- **ReadWriteOnce (RWO)**: Mounted by a single node as read-write.
-- **ReadOnlyMany (ROX)**: Mounted by many nodes as read-only.
-- **ReadWriteMany (RWX)**: Mounted by many nodes as read-write (requires support like NFS).
-
-\`\`\`yaml
-# PVC Example
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: my-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
-\`\`\`
+- **RWO**: ReadWriteOnce (Block storage usually).
+- **RWX**: ReadWriteMany (NFS/File storage).
     `
   },
   '8': {
@@ -275,48 +248,49 @@ spec:
     markdown: `
 # Scheduling
 
-How does Kubernetes decide where to place a Pod?
+Controlling where Pods go.
 
-## Manual Scheduling
-You can force a Pod to a node by setting \`nodeName\` in the spec (bypassing the scheduler).
+## Taints & Tolerations
+"Repel" pods from nodes.
+- Master nodes are tainted \`NoSchedule\`.
 
-## Taints and Tolerations
-A "Taint" on a Node repels Pods. **Taints** are applied to nodes; **Tolerations** are applied to Pods.
-- **Effect**: \`NoSchedule\`, \`PreferNoSchedule\`, \`NoExecute\`.
-- Master nodes usually have a \`NoSchedule\` taint so user apps don't run there.
-
-## Node Affinity
-Allows you to constrain which nodes your pod is eligible to be scheduled on based on labels on the node.
-- \`requiredDuringSchedulingIgnoredDuringExecution\` (Hard rule)
-- \`preferredDuringSchedulingIgnoredDuringExecution\` (Soft rule)
+## Affinity
+"Attract" pods to nodes.
+- \`nodeAffinity\`: Run on nodes with SSD.
+- \`podAffinity\`: Run co-located with Redis pod.
     `
   },
 
-  // --- LEVEL 3: SECURITY (CKS Focus) ---
-  '9': {
-    id: '9',
-    title: 'Cluster Hardening',
+  // ==========================================
+  // LEVEL 3: SECURITY (CKS - Hardening)
+  // ==========================================
+  '30': {
+    id: '30',
+    title: 'RBAC: Authorization',
     category: 'Security',
-    duration: '40 mins',
+    duration: '60 mins',
     markdown: `
-# Cluster Hardening (CKS)
-Security starts at the setup.
+# Role Based Access Control (RBAC)
 
-## Limiting API Access
-- Use **RBAC** (Role Based Access Control) strictly. No \`cluster-admin\` for everyone!
-- Disable anonymous access (\`--anonymous-auth=false\`).
+**Authentication** (Who are you?) vs **Authorization** (What can you do?).
 
-## Securing Kubelet
-- Ensure the kubelet API is authenticated and authorized.
-- Disable the read-only port (10255).
+## Core Objects
+1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.
+2. **ClusterRole**: Rules scoped linearly (Cluster-wide).
+3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.
+4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.
 
-## Upgrade Kubernetes
-Keeping the cluster up to date is the best security patch.
-\`\`\`bash
-# Drain node before upgrade
-kubectl drain node-1 --ignore-daemonsets
-# Upgrade kubeadm, kubelet, kubectl
-apt-get install -y kubeadm=1.30.0-00
+\`\`\`yaml
+# Can view pods in 'default' ns
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "watch", "list"]
 \`\`\`
     `
   },
@@ -328,14 +302,13 @@ apt-get install -y kubeadm=1.30.0-00
     markdown: `
 # Network Policies
 
-By default, all Pods in a cluster can talk to each other (Flat Network). This is insecure for multi-tenant clusters.
+The firewall for Kubernetes.
 
-## Features
-- Implemented by the CNI plugin (Calico, weave, Cilium). **Flannel does NOT support NetworkPolicy**.
-- Acts as a Layer 3/4 Firewall for Pods.
+> [!WARNING]
+> By default, K8s is a **Flat Network**. Any pod can talk to any pod.
 
-## The "Default Deny" Pattern
-Best practice: Deny all traffic, then whitelist what you need.
+## Default Deny Logic
+Start by denying everything, then allow specific traffic.
 
 \`\`\`yaml
 apiVersion: networking.k8s.io/v1
@@ -350,31 +323,101 @@ spec:
 \`\`\`
     `
   },
-  '11': {
-    id: '11',
-    title: 'System Hardening',
+  '31': {
+    id: '31',
+    title: 'Secrets Management',
     category: 'Security',
-    duration: '45 mins',
+    duration: '40 mins',
     markdown: `
-# System Hardening
+# Secrets & Security Contexts
 
-Securing the host on which Kubernetes runs.
+## Secrets
+Base64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.
+- Mount as Environment Variables.
+- Mount as Files (Volume).
 
-## AppArmor & Seccomp
-- **AppArmor**: Restricts capabilities of individual programs (Linux security module). defined in profiles.
-- **Seccomp** (Secure Computing Mode): Restricts the system calls a process can make.
-  - e.g., Prevent a container from making \`time_set\` or \`reboot\` calls.
-
-## Runtime Classes
-Use **gVisor** (runsc) or **Kata Containers** for untrusted workloads to provide stronger isolation than standard runc containers.
+## Security Contexts
+Define privileges and access control for a Pod/Container.
+- \`runAsUser\`: UID to run process.
+- \`fsGroup\`: GID for volumes.
+- \`privileged\`: Give full host access (Danger!).
 
 \`\`\`yaml
-apiVersion: node.k8s.io/v1
-kind: RuntimeClass
-metadata:
-  name: gvisor
-handler: runsc
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
 \`\`\`
+    `
+  },
+
+  // ==========================================
+  // LEVEL 4: EXPERT (Scale & Ops)
+  // ==========================================
+  '40': {
+    id: '40',
+    title: 'Helm: Package Management',
+    category: 'Expert',
+    duration: '50 mins',
+    markdown: `
+# Helm: Kubernetes Package Manager
+
+Managing thousands of YAML files is painful. **Helm** solves this using **Charts**.
+
+## Concepts
+- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.
+- **Config**: Contains configuration information that can be merged into a packaged chart to create a releaseable object.
+- **Release**: A running instance of a chart, combined with a specific config.
+
+## Templating
+Helm uses Go templates.
+
+\`\`\`yaml
+# values.yaml
+replicaCount: 2
+
+# deploy.yaml
+replicas: {{ .Values.replicaCount }}
+\`\`\`
+    `
+  },
+  '41': {
+    id: '41',
+    title: 'Operators & CRDs',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# Operators & Custom Resource Definitions (CRDs)
+
+Extending the Kubernetes API.
+
+## CRD (Custom Resource Definition)
+Allows you to create your own API types. e.g., \`kind: MySQLDatabase\`.
+
+## The Operator Pattern
+An Operator is a Controller that watches a CRD and acts on it.
+- Replaces human operation knowledge with code.
+- Example: **Prometheus Operator** automatically manages Prometheus config based on \`ServiceMonitor\` resources.
+    `
+  },
+  '42': {
+    id: '42',
+    title: 'Service Mesh (Istio)',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# Service Mesh
+
+Managing network traffic between services (East-West traffic).
+
+## Why use a Mesh?
+1. **Observability**: Tracing, Metrics (Graphana/Prometheus automatic).
+2. **Traffic Control**: Canary types, Split traffic (90% v1, 10% v2).
+3. **Security**: mTLS (Mutual TLS) between all pods automatically.
+
+## Sidecar Proxy
+Istio injects an \`envoy\` proxy container into every Pod to intercept all network traffic.
     `
   }
 };

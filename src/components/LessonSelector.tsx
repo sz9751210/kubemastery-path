@@ -23,7 +23,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
         return acc;
     }, {} as Record<string, Lesson[]>);
 
-    const categories = ['Novice', 'Admin', 'Security'];
+    const categories = ['Novice', 'Admin', 'Security', 'Expert'];
 
     return (
         <div className="relative inline-block text-left">
@@ -57,6 +57,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
                             if (category === 'Novice') accentColor = 'bg-emerald-50 text-emerald-600 border-l-2 border-emerald-400';
                             if (category === 'Admin') accentColor = 'bg-blue-50 text-blue-600 border-l-2 border-blue-400';
                             if (category === 'Security') accentColor = 'bg-purple-50 text-purple-600 border-l-2 border-purple-400';
+                            if (category === 'Expert') accentColor = 'bg-orange-50 text-orange-600 border-l-2 border-orange-400';
 
                             return (
                                 <div key={category} className="mb-2 last:mb-0">
