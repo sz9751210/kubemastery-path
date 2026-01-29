@@ -81,6 +81,26 @@ const expertEdges: Edge[] = [
   { id: 'e41-99', source: '41', target: '99', animated: true, style: { stroke: '#ef4444', strokeWidth: 3 } },
   { id: 'e42-99', source: '42', target: '99', animated: true, style: { stroke: '#ef4444', strokeWidth: 3 } },
 ];
+
+const ckaNodes: Node[] = [
+  { id: '50', type: 'input', data: { label: 'Cluster Maint.' }, position: { x: 100, y: 0 }, style: { background: '#dbeafe', border: '1px solid #2563eb' } },
+  { id: '51', type: 'input', data: { label: 'Security & Identity' }, position: { x: 350, y: 0 }, style: { background: '#dbeafe', border: '1px solid #2563eb' } },
+  { id: '52', data: { label: 'Advanced Storage' }, position: { x: 100, y: 100 } },
+  { id: '53', data: { label: 'Cluster Networking' }, position: { x: 350, y: 100 } },
+  { id: '54', data: { label: 'Observability' }, position: { x: 225, y: 200 } },
+  { id: '201', type: 'output', data: { label: 'CKA Mock 1' }, position: { x: 100, y: 300 }, style: { background: '#fef3c7', border: '2px solid #d97706', fontWeight: 'bold' } },
+  { id: '202', type: 'output', data: { label: 'CKA Mock 2' }, position: { x: 350, y: 300 }, style: { background: '#fef3c7', border: '2px solid #d97706', fontWeight: 'bold' } }
+];
+
+const ckaEdges: Edge[] = [
+  { id: 'e50-52', source: '50', target: '52' },
+  { id: 'e51-53', source: '51', target: '53' },
+  { id: 'e52-54', source: '52', target: '54' },
+  { id: 'e53-54', source: '53', target: '54' },
+  { id: 'e54-201', source: '54', target: '201', animated: true },
+  { id: 'e54-202', source: '54', target: '202', animated: true }
+];
+
 const shiftNodes = (nodes: Node[], yOffset: number): Node[] => {
   return nodes.map(node => ({
     ...node,
@@ -115,7 +135,8 @@ export const getNodesForChapter = (chapter: Chapter): Node[] => {
     case 'cka':
       return [
         ...foundationNodes,
-        ...shiftNodes(adminNodes, 400)
+        ...shiftNodes(adminNodes, 400),
+        ...shiftNodes(ckaNodes, 1000)
       ];
     case 'cks':
       // CKS Focus
@@ -146,10 +167,15 @@ export const getEdgesForChapter = (chapter: Chapter): Edge[] => {
         connectingEdgeFoundAdmin
       ];
     case 'cka':
+      const connectingEdgeAdminCka: Edge = { id: 'e15-50', source: '15', target: '50', animated: true, style: { stroke: '#bdbdbd' } };
+      const connectingEdgeAdminCkaSec: Edge = { id: 'e15-51', source: '15', target: '51', animated: true, style: { stroke: '#bdbdbd' } };
       return [
         ...foundationEdges,
         ...adminEdges,
-        connectingEdgeFoundAdmin
+        ...ckaEdges,
+        connectingEdgeFoundAdmin,
+        connectingEdgeAdminCka,
+        connectingEdgeAdminCkaSec
       ];
     case 'cks':
       return securityEdges;

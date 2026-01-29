@@ -666,6 +666,191 @@ You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` comm
 2.  **Fix** the underlying issue.
 3.  **Restore** cluster connectivity.
     `
+  },
+  // LEVEL 2+: CKA ADVANCED
+  '50': {
+    id: '50',
+    title: 'Cluster Maintenance',
+    category: 'CKA',
+    duration: '45 mins',
+    markdown: `
+# Cluster Maintenance
+
+Keeping the lights on.
+
+## Cluster Upgrade
+Using \`kubeadm\` to upgrade the cluster.
+1.  Upgrade Control Plane node.
+2.  Upgrade Worker nodes.
+
+\`\`\`bash
+# Drain the node first
+kubectl drain node-1 --ignore-daemonsets
+
+# Upgrade kubeadm
+apt-get update && apt-get install -y kubeadm=1.27.0-00
+
+# Plan the upgrade
+kubeadm upgrade plan
+
+# Apply
+kubeadm upgrade apply v1.27.0
+\`\`\`
+
+## Backup & Restore
+**Etcd** is the source of truth. You MUST know how to snapshot it.
+
+\`\`\`bash
+# Take a snapshot
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\
+  --cert=/etc/kubernetes/pki/etcd/server.crt \\
+  --key=/etc/kubernetes/pki/etcd/server.key \\
+  snapshot save /tmp/etcd-backup.db
+\`\`\`
+    `
+  },
+  '51': {
+    id: '51',
+    title: 'Security & Identity',
+    category: 'CKA',
+    duration: '40 mins',
+    markdown: `
+# Security & Identity
+
+## Authentication (AuthN)
+Who are you?
+-   **Certificates**: Most common for users/admins (CN=User, O=Group).
+-   **ServiceAccounts**: For Pods.
+
+\`\`\`bash
+# Create a CSR (CertificateSigningRequest)
+kubectl create -f my-user-csr.yaml
+kubectl certificate approve my-user
+\`\`\`
+
+## Authorization (AuthZ) & RBAC
+What can you do?
+See 'RBAC: Authorization' lesson for details. Kubeadm enables Node and RBAC authorizers by default.
+    `
+  },
+  '52': {
+    id: '52',
+    title: 'Advanced Storage',
+    category: 'CKA/CKAD',
+    duration: '35 mins',
+    markdown: `
+# Advanced Storage
+
+## Storage Class
+Defines "classes" of storage (e.g., "fast", "slow"). Enables **Dynamic Provisioning**.
+
+\`\`\`yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast
+provisioner: k8s.io/minikube-hostpath
+\`\`\`
+
+## Dynamic Provisioning
+Instead of creating a PV manually, creating a PVC with a \`storageClassName\` triggers the provisioner to create the PV automatically.
+    `
+  },
+  '53': {
+    id: '53',
+    title: 'Cluster Networking',
+    category: 'CKA',
+    duration: '50 mins',
+    markdown: `
+# Cluster Networking
+
+## CNI (Container Network Interface)
+The plugin that configures network interfaces.
+-   **Flannel, Calico, Weave**.
+-   Every Pod gets a unique IP.
+
+## DNS (CoreDNS)
+Service discovery.
+-   Service: \`my-svc.my-ns.svc.cluster.local\`
+-   Pod: \`1-2-3-4.my-ns.pod.cluster.local\`
+
+\`\`\`bash
+# Debug DNS
+kubectl run busybox --image=busybox:1.28 --restart=Never -- sleep 3600
+kubectl exec -it busybox -- nslookup kubernetes
+\`\`\`
+    `
+  },
+  '54': {
+    id: '54',
+    title: 'Observability',
+    category: 'CKA',
+    duration: '30 mins',
+    markdown: `
+# Observability
+
+## Metrics Server
+Aggregates resource usage data. Required for \`kubectl top\` and HPA (Horizontal Pod Autoscaler).
+
+\`\`\`bash
+# Check node usage
+kubectl top nodes
+
+# Check pod usage
+kubectl top pods
+\`\`\`
+
+## Logging architecture
+-   **Node level**: \`/var/log/containers\`
+-   **Cluster level**: Fluentd/Prometheus stack (usually).
+    `
+  },
+  '201': {
+    id: '201',
+    title: 'CKA Mock Exam 1',
+    category: 'CKA',
+    duration: '120 mins',
+    markdown: `
+# CKA Mock Exam 1
+
+Time: 2 Hours. Pass: 66%.
+
+## Task 1: Backup Etcd
+Save a snapshot of etcd to \`/opt/etcd-backup.db\`.
+
+## Task 2: Upgrade Master Node
+Upgrade the controlplane node to version \`1.27.0\`.
+
+## Task 3: Create a Pod with Sidecar
+Create a pod named \`legacy-app\` with image \`busybox\` that logs to \`/var/log/legacy.log\`. Add a sidecar container that prints this log file to stdout.
+
+## Task 4: Troubleshoot Node
+Node \`worker-1\` is NotReady. Fix it.
+    `
+  },
+  '202': {
+    id: '202',
+    title: 'CKA Mock Exam 2',
+    category: 'CKA',
+    duration: '120 mins',
+    markdown: `
+# CKA Mock Exam 2
+
+Time: 2 Hours. Pass: 66%.
+
+## Task 1: Network Policy
+Create a NetworkPolicy named \`deny-all\` in namespace \`probation\` that denies all ingress traffic.
+
+## Task 2: RBAC
+Create a Role \`developer\` that can \`create\`, \`get\`, \`list\` pods in namespace \`dev\`. Bind it to user \`jane\`.
+
+## Task 3: Ingress
+Expose service \`frontend\` on path \`/store\` using an Ingress resource.
+
+## Task 4: Persistent Volume
+Create a PV named \`local-pv\` with capacity \`1Gi\`, access mode \`RWO\`, hostPath \`/mnt/data\`.
+    `
   }
 };
 
