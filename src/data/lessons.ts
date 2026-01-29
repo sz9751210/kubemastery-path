@@ -711,6 +711,37 @@ spec:
 ## Aggregation Layer
 Allows the Kubernetes API server to be extended with additional APIs that aren't part of the core Kubernetes API.
     `
+  },
+  '99': {
+    id: '99',
+    title: 'Chaos Challenge: The Broken Cluster',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# Chaos Challenge: The Broken Cluster
+
+> [!WARNING]
+> This is a **live fire** exercise. We have deliberately broken this cluster.
+
+## Scenario
+You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` commands started failing with connection errors. The monitoring system indicates the API Server is down.
+
+## Your Mission
+1.  **Diagnose** why the API Server is failing.
+2.  **Fix** the underlying issue.
+3.  **Restore** cluster connectivity.
+
+## Hints
+- Use \`crictl ps\` to check running containers.
+- Logs are your best friend: \`cat /var/log/simulated_alert.log\`.
+- Check the PKI directory: \`/etc/kubernetes/pki/\`.
+
+\`\`\`bash
+# Access the node shell to begin troubleshooting (Simulated)
+# In the real lab, you would SSH into the node.
+echo "Connecting to control-plane-01..."
+\`\`\`
+    `
   }
 };
 

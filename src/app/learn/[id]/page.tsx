@@ -8,9 +8,11 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getLessonById, getLessons } from '@/data/lessons';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal } from 'lucide-react';
+import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap } from 'lucide-react';
 import LessonSelector from '@/components/LessonSelector';
 import CollapsibleTerminal, { CollapsibleTerminalRef } from '@/components/CollapsibleTerminal';
+import { useProgress } from '@/lib/useProgress';
+import { useGame } from '@/lib/useGame';
 
 export default function LessonPage() {
     const params = useParams();
@@ -19,6 +21,10 @@ export default function LessonPage() {
     const router = useRouter();
     const allLessons = getLessons();
     const terminalRef = useRef<CollapsibleTerminalRef>(null);
+
+    // Progress & Game System
+    const { isCompleted: isLessonCompleted, markAsComplete: markLessonAsComplete } = useProgress();
+    const { gameState, addXp, showLevelUp, xpGained, xpProgress } = useGame();
 
     const [copiedValues, setCopiedValues] = useState<Record<string, boolean>>({});
 
@@ -37,6 +43,12 @@ export default function LessonPage() {
         }
     };
 
+    const handleCompletion = () => {
+        if (!lesson) return;
+        markLessonAsComplete(lesson.id);
+        addXp(100);
+    };
+
     if (!lesson) {
         return (
             <div className="flex h-screen items-center justify-center">
@@ -51,9 +63,28 @@ export default function LessonPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="min-h-screen bg-slate-50 pb-20 relative overflow-hidden">
+            {/* Level Up Overlay */}
+            {showLevelUp && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl text-center transform scale-110 animate-in zoom-in duration-300">
+                        <Trophy size={80} className="text-yellow-400 mx-auto mb-6" />
+                        <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 mb-2">LEVEL UP!</h2>
+                        <p className="text-2xl text-slate-700 font-bold mb-8">Achieved: Level {gameState.level}</p>
+                        <button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-full font-bold">Continue the Path</button>
+                    </div>
+                </div>
+            )}
+
+            {/* XP gain toast */}
+            {xpGained && (
+                <div className="fixed top-24 right-10 z-[60] bg-amber-500 text-white font-black px-4 py-2 rounded-full shadow-lg animate-in slide-in-from-right duration-300">
+                    +{xpGained} XP
+                </div>
+            )}
+
             {/* Header */}
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-10 px-6 py-4 flex items-center justify-between shadow-sm">
+            <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => router.push('/')}
@@ -62,31 +93,48 @@ export default function LessonPage() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <div className="flex flex-col">
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">{lesson.category} • {lesson.duration}</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">{lesson.category} • {lesson.duration}</span>
+                            {isLessonCompleted(lesson.id) && <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>}
+                        </div>
                         <LessonSelector currentLessonId={lesson.id} lessons={allLessons} />
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => terminalRef.current?.toggle()}
-                        className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
-                    >
-                        <Terminal className="w-4 h-4" />
-                        <span>Terminal</span>
-                    </button>
-                    <button
-                        onClick={() => router.push('/lab')}
-                        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md active:scale-95 text-sm"
-                    >
-                        <PlayCircle className="w-5 h-5" />
-                        <span>Open Lab</span>
-                    </button>
+
+                <div className="flex items-center gap-8">
+                    {/* XP HUD */}
+                    <div className="hidden md:flex flex-col items-end gap-1 w-40">
+                        <div className="flex justify-between w-full text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                            <span>Lvl {gameState.level}</span>
+                            <span>{gameState.xp} XP</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                            <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000" style={{ width: `${xpProgress}%` }}></div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => terminalRef.current?.toggle()}
+                            className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
+                        >
+                            <Terminal className="w-4 h-4" />
+                            <span>Terminal</span>
+                        </button>
+                        <button
+                            onClick={() => router.push('/lab')}
+                            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:shadow-lg transition-all active:scale-95 text-sm"
+                        >
+                            <PlayCircle className="w-5 h-5" />
+                            <span>Open Lab</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
             {/* Content */}
             <main className="max-w-4xl mx-auto mt-10 px-6 mb-32">
-                <article className="prose prose-slate lg:prose-lg xl:prose-xl bg-white p-12 rounded-2xl shadow-lg border border-slate-100">
+                <article className="prose prose-slate lg:prose-lg xl:prose-xl bg-white p-12 lg:p-16 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -94,7 +142,7 @@ export default function LessonPage() {
                                 const match = /language-(\w+)/.exec(className || '');
                                 const isInline = !match;
                                 const codeContent = String(children).replace(/\n$/, '');
-                                const blockId = Math.random().toString(36).substr(2, 9); // Simple ID for copy state
+                                const blockId = Math.random().toString(36).substr(2, 9);
                                 const isBash = match && (match[1] === 'bash' || match[1] === 'sh');
 
                                 if (isInline) {
@@ -111,9 +159,9 @@ export default function LessonPage() {
                                         <div className="flex items-center justify-between bg-[#2d2d2d] px-4 py-2.5 text-xs border-b border-black">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex gap-1.5">
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></div>
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></div>
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></div>
                                                 </div>
                                                 <span className="font-mono font-bold text-slate-400 uppercase tracking-wider">{match?.[1] || 'TEXT'}</span>
                                             </div>
@@ -130,9 +178,8 @@ export default function LessonPage() {
                                                     </button>
                                                 )}
                                                 <button
-                                                    onClick={() => handleCopy(codeContent, codeContent)} // Use content as key for simplicity in loop, or unique ID
+                                                    onClick={() => handleCopy(codeContent, codeContent)}
                                                     className="p-1.5 text-slate-400 hover:text-white transition-colors rounded-md hover:bg-white/10"
-                                                    title="Copy code"
                                                 >
                                                     {copiedValues[codeContent] ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
                                                 </button>
@@ -157,34 +204,51 @@ export default function LessonPage() {
                                     </div>
                                 );
                             },
-                            // Custom Heading Styles with IDs for anchors if needed
                             h1: ({ children }) => <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-8 pb-4 border-b border-slate-100">{children}</h1>,
                             h2: ({ children }) => <h2 className="text-2xl font-bold text-slate-800 mt-12 mb-6 flex items-center gap-2">
                                 <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block"></span>
                                 {children}
                             </h2>,
-                            h3: ({ children }) => <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">{children}</h3>,
                             blockquote: ({ children }) => (
                                 <div className="border-l-4 border-blue-500 bg-blue-50 p-6 my-8 rounded-r-lg italic text-slate-700 shadow-sm relative">
                                     <span className="absolute top-2 left-2 text-blue-200 text-4xl leading-none select-none">"</span>
                                     <div className="relative z-10">{children}</div>
                                 </div>
                             ),
-                            ul: ({ children }) => <ul className="list-disc list-outside ml-6 space-y-3 text-slate-700 my-6">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal list-outside ml-6 space-y-3 text-slate-700 my-6">{children}</ol>,
                             p: ({ children }) => <p className="leading-7 text-slate-600 mb-6">{children}</p>,
-                            // Add table styling
-                            table: ({ children }) => <div className="overflow-x-auto my-8 border border-slate-200 rounded-lg"><table className="w-full text-left text-sm text-slate-600">{children}</table></div>,
-                            thead: ({ children }) => <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-xs border-b border-slate-200">{children}</thead>,
-                            tbody: ({ children }) => <tbody className="divide-y divide-slate-100">{children}</tbody>,
-                            tr: ({ children }) => <tr className="hover:bg-slate-50 transition-colors">{children}</tr>,
-                            th: ({ children }) => <th className="px-6 py-3">{children}</th>,
-                            td: ({ children }) => <td className="px-6 py-4">{children}</td>,
-                            a: ({ href, children }) => <a href={href} className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium">{children}</a>
                         }}
                     >
                         {lesson.markdown}
                     </ReactMarkdown>
+
+                    {/* Completion Reward Section */}
+                    <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col items-center gap-6">
+                        <div className="text-center">
+                            <h3 className="text-xl font-bold text-slate-900 mb-2 font-mono uppercase tracking-tighter">Mission Accomplished?</h3>
+                            <p className="text-slate-500 text-sm">Mark as complete to claim your <strong className="text-amber-500">100 XP</strong>.</p>
+                        </div>
+                        <button
+                            onClick={handleCompletion}
+                            disabled={isLessonCompleted(lesson.id)}
+                            className={`flex items-center gap-3 px-8 py-4 rounded-full font-black transition-all transform active:scale-95 shadow-xl
+                                ${isLessonCompleted(lesson.id)
+                                    ? 'bg-green-50 text-green-600 border border-green-200 cursor-default shadow-none'
+                                    : 'bg-black text-white hover:bg-slate-800'
+                                }`}
+                        >
+                            {isLessonCompleted(lesson.id) ? (
+                                <>
+                                    <CheckCircle size={24} />
+                                    <span>Completed (+100 XP)</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Flame size={24} className="text-amber-500" />
+                                    <span>MARK AS COMPLETE</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </article>
             </main>
 
@@ -192,4 +256,5 @@ export default function LessonPage() {
             <CollapsibleTerminal ref={terminalRef} />
         </div>
     );
+
 }
