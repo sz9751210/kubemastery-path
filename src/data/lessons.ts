@@ -521,6 +521,196 @@ Istio injects an \`envoy\` proxy container into every Pod to intercept all netwo
 kubectl get pods -l istio-injection=enabled
 \`\`\`
     `
+  },
+  '12': {
+    id: '12',
+    title: 'ReplicaSets & Deployments',
+    category: 'Novice',
+    duration: '25 mins',
+    markdown: `
+# ReplicaSets & Deployments
+
+Ensuring your application is always running and easily updated.
+
+## ReplicaSet
+The primary goal of a **ReplicaSet** is to maintain a stable set of replica Pods running at any given time.
+
+\`\`\`bash
+# Look at the replicasets in your cluster
+kubectl get rs
+\`\`\`
+
+## Deployment
+**Deployments** allow you to manage the rollout of new versions of your application.
+
+\`\`\`bash
+# Create a deployment with 3 replicas
+kubectl create deployment web-server --image=nginx --replicas=3
+
+# Update the image
+kubectl set image deployment/web-server nginx=nginx:1.16.1
+\`\`\`
+    `
+  },
+  '13': {
+    id: '13',
+    title: 'Jobs & CronJobs',
+    category: 'Novice',
+    duration: '20 mins',
+    markdown: `
+# Jobs & CronJobs
+
+For tasks that are intended to run to completion.
+
+## Jobs
+A **Job** creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate.
+
+\`\`\`bash
+# Run a one-off job
+kubectl create job hello --image=busybox -- echo "Hello Kubernetes"
+\`\`\`
+
+## CronJobs
+A **CronJob** creates Jobs on a repeating schedule.
+
+\`\`\`bash
+# Create a cronjob
+kubectl create cronjob heartbeat --image=busybox --schedule="*/1 * * * *" -- echo "Beating..."
+\`\`\`
+    `
+  },
+  '14': {
+    id: '14',
+    title: 'Control Plane & API Server',
+    category: 'Admin',
+    duration: '45 mins',
+    markdown: `
+# Control Plane & API Server
+
+The brains of the cluster.
+
+## Components
+- **kube-apiserver**: The gateway for all REST commands.
+- **etcd**: Consistent and highly-available key value store.
+- **kube-scheduler**: Watches for newly created Pods with no assigned node.
+- **kube-controller-manager**: Runs controller processes.
+
+\`\`\`bash
+# Check the status of control plane components
+kubectl get pods -n kube-system -l tier=control-plane
+\`\`\`
+
+> [!IMPORTANT]
+> Always check the logs of the API server when the cluster is behaving unexpectedly.
+    `
+  },
+  '15': {
+    id: '15',
+    title: 'Troubleshooting & Logs',
+    category: 'Admin',
+    duration: '40 mins',
+    markdown: `
+# Troubleshooting & Logs
+
+When things go wrong, here is how to find out why.
+
+## Basic Commands
+- \`kubectl describe\`: Detailed information about a resource.
+- \`kubectl logs\`: Print the logs for a container in a pod.
+
+\`\`\`bash
+# Describe a failing pod
+kubectl describe pod <pod-name>
+
+# Check logs for a specific pod
+kubectl logs <pod-name>
+\`\`\`
+
+## Events
+Kubernetes captures events for almost every state change.
+
+\`\`\`bash
+# List recent events in the namespace
+kubectl get events --sort-by='.lastTimestamp'
+\`\`\`
+    `
+  },
+  '16': {
+    id: '16',
+    title: 'Admission Controllers',
+    category: 'Security',
+    duration: '50 mins',
+    markdown: `
+# Admission Controllers
+
+Intercepting requests to the API server before an object is persisted.
+
+## Types
+- **Mutating**: Can modify the object.
+- **Validating**: Can only accept or reject.
+
+\`\`\`bash
+# Check which admission plugins are enabled
+kubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins
+\`\`\`
+
+## Common Plugins
+- \`AlwaysPullImages\`
+- \`LimitRanger\`
+- \`NamespaceExists\`
+    `
+  },
+  '17': {
+    id: '17',
+    title: 'Runtime Security',
+    category: 'Security',
+    duration: '45 mins',
+    markdown: `
+# Runtime Security
+
+Protecting the running process.
+
+## Tools
+- **AppArmor**: Restrict programs' capabilities with per-program profiles.
+- **Seccomp**: Restrict system calls a process can make.
+
+\`\`\`bash
+# Check if AppArmor is loaded on the node
+cat /sys/module/apparmor/parameters/enabled
+\`\`\`
+
+## Scanning
+Use tools like **Trivy** or **Falco** to detect vulnerabilities or suspicious behavior at runtime.
+    `
+  },
+  '18': {
+    id: '18',
+    title: 'CRDs & API Extensions',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# CRDs & API Extensions
+
+Making Kubernetes your own.
+
+## Custom Resource Definitions (CRDs)
+Allows you to define your own API resources.
+
+\`\`\`yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: crontabs.stable.example.com
+spec:
+  group: stable.example.com
+  versions:
+    - name: v1
+...
+\`\`\`
+
+## Aggregation Layer
+Allows the Kubernetes API server to be extended with additional APIs that aren't part of the core Kubernetes API.
+    `
   }
 };
 
