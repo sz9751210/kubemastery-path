@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3002:3000"
+      - "3000:3000"
     environment:
       - NEXT_PUBLIC_BACKEND_URL=ws://localhost:4000
     depends_on:

@@ -1,7 +1,7 @@
 export interface Lesson {
   id: string;
   title: string;
-  category: 'CORE' | 'CKA' | 'CKAD' | 'CKA/CKAD' | 'CKS' | 'EXPERT';
+  category: 'CORE' | 'CKA' | 'CKAD' | 'CKA/CKAD' | 'CKS' | 'EXPERT' | 'INTERNALS';
   duration: string;
   markdown: string;
   flashcards?: { question: string; answer: string }[];
@@ -338,13 +338,79 @@ When things go wrong, here is how to find out why.
 - \`kubectl describe\`: Detailed information about a resource.
 - \`kubectl logs\`: Print the logs for a container in a pod.
 
+## Common Pod States
+- **Pending**: Scheduler can't find a node (CPU/RAM insufficient, Taints).
+- **CrashLoopBackOff**: Application is starting and immediately failing. Check logs!
+- **ImagePullBackOff**: Can't pull image (Auth, Typo, Network).
+
+## Debugging Services
+Service not working? Check the **Endpoints**.
+\`\`\`bash
+# Does the service have endpoints?
+kubectl get endpoints my-svc
+\`\`\`
+
 \`\`\`bash
 # Describe a failing pod
 kubectl describe pod <pod-name>
 
-# Check logs for a specific pod
-kubectl logs <pod-name>
+# Check logs for a specific pod (and previous instance if crashed)
+kubectl logs <pod-name> --previous
 \`\`\`
+    `
+  },
+  '90': {
+    id: '90',
+    title: 'Command Line Fu: JSONPath',
+    category: 'CKA/CKAD',
+    duration: '45 mins',
+    markdown: `
+# Command Line Fu: JSONPath & Custom Columns
+
+Mastering \`kubectl\` output is mandatory for CKA/CKAD.
+
+## JSONPath
+Filter and format output programmatically.
+- **Syntax**: \`{.items[*].metadata.name}\`
+
+\`\`\`bash
+# Get all pod names
+kubectl get pods -o jsonpath='{.items[*].metadata.name}'
+
+# Get InternalIP of all nodes
+kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'
+\`\`\`
+
+## Custom Columns
+Create your own table output.
+\`\`\`bash
+# Show Pod Name and Node Name
+kubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName
+\`\`\`
+    `
+  },
+  '91': {
+    id: '91',
+    title: 'Cluster Bootstrap Deep Dive',
+    category: 'CKA',
+    duration: '60 mins',
+    markdown: `
+# Cluster Bootstrap: Kubeadm
+
+Understanding how the cluster comes alive.
+
+## The Init Process (\`kubeadm init\`)
+1.  **Pre-flight checks**: Kernel version, Swap disabled?
+2.  **Certs**: Generates CA, API server, Etcd certs in \`/etc/kubernetes/pki\`.
+3.  **Kubeconfigs**: Generates admin.conf, kubelet.conf.
+4.  **Manifests**: Static pods for Control Plane (API, Controller, Sched, Etcd) in \`/etc/kubernetes/manifests\`.
+5.  **Taints**: Marks node as ControlPlane (NoSchedule).
+6.  **Bootstrap Token**: For workers to join.
+
+## CNI Installation
+The cluster is **NotReady** until a CNI (Network Plugin) is installed.
+- The CNI binaires go to \`/opt/cni/bin\`.
+- The config goes to \`/etc/cni/net.d\`.
     `
   },
   '20': {
@@ -430,12 +496,20 @@ kubectl get pods -n ingress-nginx
 Locking down the fortress.
 
 ## Center for Internet Security (CIS) Benchmarks
-The gold standard for K8s security.
+The gold standard for K8s security. \`kube-bench\` is a common tool to check these.
 
 ## Key Principles
 1.  **Least Privilege**: RBAC, SecurityContexts.
 2.  **Minimize Attack Surface**: Remove shells, use distroless images.
 3.  **encrypt-secret-data-at-rest**: Check etcd configuration.
+
+## Platform Binary Verification
+Ensure the binaries (kubelet, kubectl, kube-apiserver) are legitimate.
+- Check SHA512 sums against official releases.
+
+## Minimize GUI Use
+The Kubernetes Dashboard is a frequent attack vector.
+- **Best Practice**: Disable it in production.
 
 \`\`\`bash
 # Check if anonymous auth is enabled (Should be false)
@@ -518,8 +592,14 @@ kubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h
 Protecting the running process.
 
 ## Tools
+- **Falco**: The runtime security engine. Uses rules to detect abnormal behavior (e.g., shell in container, modifying /etc).
 - **AppArmor**: Restrict programs' capabilities with per-program profiles.
 - **Seccomp**: Restrict system calls a process can make.
+
+## Behavioral Analytics
+Detecting threats based on *patterns* rather than known signatures.
+- Process spawning unexpected children.
+- Unexpected outbound network connections.
     `
   },
   '11': {
@@ -535,6 +615,11 @@ Kubernetes is only as secure as the Linux nodes it runs on.
 ## Kernel Hardening
 -   **Seccomp**: Restrict syscalls.
 -   **AppArmor**: Restrict file access / capabilities.
+
+## Container Sandboxing
+For high-risk workloads, standard containers (shared kernel) might not be enough.
+-   **gVisor (runsc)**: Userspace kernel, intercepts syscalls.
+-   **Kata Containers**: Lightweight VMs for strong isolation.
 
 ## Reducing Attack Surface
 -   Disable unused services (SSH, FTP).
@@ -566,6 +651,95 @@ kubectl create secret generic my-pass --from-literal=password=secret123
 Define privileges and access control for a Pod/Container.
 - \`runAsUser\`: UID to run process.
 - \`fsGroup\`: GID for volumes.
+    `
+  },
+
+  '60': {
+    id: '60',
+    title: 'Supply Chain Security',
+    category: 'CKS',
+    duration: '45 mins',
+    markdown: `
+# Supply Chain Security
+
+Securing the pipeline from code to cluster.
+
+## Image Scanning
+Find vulnerabilities (CVEs) in your images *before* they run.
+- **Tools**: Trivy, Clair.
+- **Action**: Fix Critical/High CVEs.
+
+\`\`\`bash
+# Scan an image with Trivy
+trivy image nginx:latest
+\`\`\`
+
+## Image Signing
+Prove the image comes from you and hasn't been tampered with.
+- **Cosign (Sigstore)**: Sign and verify container images.
+
+## Static Analysis
+Scan your YAML manifests for misconfigurations.
+- **Kubesec**: Security risk analysis for Kubernetes resources.
+- **KubeLinter**: Static analysis tool.
+    `
+  },
+  '61': {
+    id: '61',
+    title: 'Audit Logging & Monitoring',
+    category: 'CKS',
+    duration: '50 mins',
+    markdown: `
+# Audit Logging & Monitoring
+
+If you didn't log it, it didn't happen.
+
+## Audit Logs
+Records the sequence of actions taken by the cluster (API Server).
+- **Stages**: RequestReceived, ResponseStarted, ResponseComplete, Panic.
+- **Policy**: Defines rules for what to log and how much detail.
+
+\`\`\`yaml
+# audit-policy.yaml example
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: Metadata
+    resources:
+    - group: ""
+      resources: ["secrets"]
+\`\`\`
+
+## Monitoring (Syscall)
+Using **Falco** to monitor system calls at the kernel level.
+- Detects: File access, Process execution, Network activity.
+    `
+  },
+  '62': {
+    id: '62',
+    title: 'Advanced Pod Security',
+    category: 'CKS',
+    duration: '45 mins',
+    markdown: `
+# Advanced Pod Security
+
+## Pod Security Standards (PSS)
+Replaced PodSecurityPolicies (PSP). Defined in 3 levels:
+1. **Privileged**: Unrestricted (Admin level).
+2. **Baseline**: Minimally restrictive (Default).
+3. **Restricted**: Heavily restricted (Best practice).
+
+## Pod Security Admission (PSA)
+The built-in admission controller to enforce PSS via Namespace labels.
+
+\`\`\`bash
+# Enforce restricted standard on 'dev' namespace
+kubectl label ns dev pod-security.kubernetes.io/enforce=restricted
+\`\`\`
+
+## mTLS (Mutual TLS)
+Encrypting traffic *between* pods.
+- Usually handled by a Service Mesh (Linkerd, Istio), but understanding the concept is key for CKS.
     `
   },
 
@@ -665,6 +839,108 @@ You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` comm
 1.  **Diagnose** why the API Server is failing.
 2.  **Fix** the underlying issue.
 3.  **Restore** cluster connectivity.
+    `
+  },
+  '70': {
+    id: '70',
+    title: 'Application Build & Images',
+    category: 'CKAD',
+    duration: '40 mins',
+    markdown: `
+# Application Build & Images
+
+## Dockerfile Best Practices
+- **Multi-stage builds**: Keep the final image small by separating build and runtime environments.
+- **User Permissions**: Never run as root. Use \`USER\`.
+- **Layers**: Combine commands to reduce layers.
+
+\`\`\`dockerfile
+# Multi-stage example
+FROM golang:1.21 as builder
+WORKDIR /app
+COPY . .
+RUN go build -o myapp
+
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/myapp .
+CMD ["./myapp"]
+\`\`\`
+    `
+  },
+  '71': {
+    id: '71',
+    title: 'Advanced Deployment Strategies',
+    category: 'CKAD',
+    duration: '50 mins',
+    markdown: `
+# Advanced Deployment Strategies
+
+## Blue/Green Deployment
+- Two identical environments.
+- **Switch**: Update the Service selector to point to the new version.
+- **Pros**: Instant rollback. **Cons**: Double resources.
+
+## Canary Deployment
+- Roll out to a small subset of users.
+- **Implementation**: Two Deployments (Stable & Canary) with common labels targeted by one Service.
+- **Traffic Splitting**: Use Ingress or Service Mesh for % based splitting.
+
+## Rolling Update
+- Default strategy.
+- **Parameters**: \`maxSurge\` (how many extra) and \`maxUnavailable\` (how many down).
+    `
+  },
+  '72': {
+    id: '72',
+    title: 'Application Observability',
+    category: 'CKAD',
+    duration: '45 mins',
+    markdown: `
+# Application Observability
+
+## Probes
+Kubelet needs to know if your app is okay.
+1.  **Liveness**: Restart if dead (deadlock).
+2.  **Readiness**: Don't send traffic until ready (loading data).
+3.  **Startup**: Wait for slow starts before other probes kick in.
+
+\`\`\`yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+\`\`\`
+
+## Debugging
+- **Logs**: \`kubectl logs my-pod -c my-container\`
+- **Exec**: \`kubectl exec -it my-pod -- sh\`
+- **Ephemeral Containers**: \`kubectl debug -it my-pod --image=busybox --target=my-container\` (Great for distroless images).
+    `
+  },
+  '73': {
+    id: '73',
+    title: 'Services & Networking Design',
+    category: 'CKAD',
+    duration: '40 mins',
+    markdown: `
+# Services & Networking Design
+
+## Network Policies
+Isolate your applications.
+- **Ingress**: Incoming traffic.
+- **Egress**: Outgoing traffic.
+
+## Service Discovery
+- **DNS**: Every Service gets a DNS name.
+- **Debugging DNS**: Use \`nslookup\` or \`dig\` from within a pod.
+
+\`\`\`bash
+# Test connectivity
+kubectl run test --rm -it --image=busybox -- wget -O- http://my-service
+\`\`\`
     `
   },
   // LEVEL 2+: CKA ADVANCED
@@ -850,6 +1126,92 @@ Expose service \`frontend\` on path \`/store\` using an Ingress resource.
 
 ## Task 4: Persistent Volume
 Create a PV named \`local-pv\` with capacity \`1Gi\`, access mode \`RWO\`, hostPath \`/mnt/data\`.
+    `
+  },
+  // LEVEL 5: INTERNALS
+  '100': {
+    id: '100',
+    title: 'Service Internals: Iptables vs IPVS',
+    category: 'INTERNALS',
+    duration: '60 mins',
+    markdown: `
+# Service Implementation: Deep Dive
+
+How does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.
+
+## kube-proxy
+The component responsible for watching the API Server for Services/Endpoints and configuring rules.
+
+## Iptables Mode (Default)
+Traffic is captured by PREROUTING/OUTPUT chains and redirected.
+- **Chain KUBE-SERVICES**: The entry point.
+- **Chain KUBE-SVC-***: Round-robin load balancing (using statistic mode random probability).
+- **Chain KUBE-SEP-***: Service EndPoint (DNAT to actual Pod IP).
+
+\`\`\`bash
+# View service rules
+sudo iptables -t nat -L KUBE-SERVICES
+\`\`\`
+
+## IPVS Mode
+Uses Linux Kernel's IP Virtual Server (Netfilter).
+- **Performance**: O(1) matching vs O(n) for iptables (sequential scan).
+- **Scalability**: Better for thousands of services.
+    `
+  },
+  '101': {
+    id: '101',
+    title: 'CNI Deep Dive: Pod Networking',
+    category: 'INTERNALS',
+    duration: '75 mins',
+    markdown: `
+# CNI Deep Dive
+
+How do Pods talk to each other across nodes?
+
+## The "Pause" Container
+Exists solely to hold the Network Namespace. Application containers join this namespace (share localhost).
+
+## VETH Pairs (Virtual Ethernet)
+Connects the Pod namespace to the Host namespace.
+- **eth0 (Pod)** <--> **veth*** (Host).
+
+## Bridge Mode (e.g., cbr0)
+VETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.
+
+## Overlay Networks (VXLAN / IPIP)
+Encapsulating L2 frames inside L3 packets to cross node boundaries.
+- **Flannel**: UDP/VXLAN.
+- **Calico**: BGP (Direct Routing) or IPIP.
+    `
+  },
+  '102': {
+    id: '102',
+    title: 'CRI & Container Runtime Internals',
+    category: 'INTERNALS',
+    duration: '60 mins',
+    markdown: `
+# CRI & Runtime Internals
+
+Docker is gone (from K8s). Long live CRI.
+
+## CRI (Container Runtime Interface)
+Standard gRPC protocol for Kubelet to talk to runtimes.
+- **Images Service**: Pull/List images.
+- **Runtime Service**: Run/Stop containers.
+
+## OCI (Open Container Initiative)
+1.  **Image Spec**: How the filesystem layers + JSON config are packed.
+2.  **Runtime Spec**: \`config.json\` + \`rootfs\` -> Running process.
+
+## The Flow
+1.  **Kubelet** calls CRI (containerd).
+2.  **containerd** sets up snapshot/storage.
+3.  **containerd** calls OCI Runtime (runc).
+4.  **runc** interacts with kernel (namespaces/cgroups) to spawn process.
+
+## Shims
+\`containerd-shim\` sits between containerd and runc to allow daemonless containers (runc exits after creating the container).
     `
   }
 };
