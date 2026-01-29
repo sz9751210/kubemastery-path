@@ -15,6 +15,7 @@ import 'reactflow/dist/style.css';
 import { initialNodes, initialEdges } from '@/data/curriculum';
 import SkillNode from './SkillNode';
 import { useProgress } from '@/lib/useProgress';
+import { useSRS } from '@/lib/useSRS';
 
 const nodeTypes = {
     skillNode: SkillNode,
@@ -22,6 +23,7 @@ const nodeTypes = {
 
 export default function SkillTree() {
     const { completedLessons } = useProgress();
+    const { cards } = useSRS();
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -29,19 +31,31 @@ export default function SkillTree() {
 
     // Map initial nodes to include progress state and custom type
     const styledNodes = useMemo(() => {
-        return nodes.map(node => ({
-            ...node,
-            type: 'skillNode',
-            data: {
-                ...node.data,
-                isCompleted: completedLessons.includes(node.id),
-                // Infer category from position or id if not explicitly in data
-                category: parseInt(node.id) < 5 || ['12', '13'].includes(node.id) ? 'Novice' :
-                    parseInt(node.id) < 9 || ['14', '15'].includes(node.id) ? 'Admin' :
-                        parseInt(node.id) < 12 || ['16', '17'].includes(node.id) ? 'Security' : 'Expert'
+        const cardArray = Object.values(cards);
+
+        return nodes.map(node => {
+            const lessonCards = cardArray.filter(c => c.lessonId === node.id);
+            let mastery = 0;
+            if (lessonCards.length > 0) {
+                const totalMastery = lessonCards.reduce((acc, c) => acc + Math.min(100, (c.consecutiveCorrect * 20)), 0);
+                mastery = Math.round(totalMastery / lessonCards.length);
             }
-        }));
-    }, [nodes, completedLessons]);
+
+            return {
+                ...node,
+                type: 'skillNode',
+                data: {
+                    ...node.data,
+                    isCompleted: completedLessons.includes(node.id),
+                    mastery: mastery,
+                    // Infer category from position or id if not explicitly in data
+                    category: parseInt(node.id) < 5 || ['12', '13'].includes(node.id) ? 'Novice' :
+                        parseInt(node.id) < 9 || ['14', '15'].includes(node.id) ? 'Admin' :
+                            parseInt(node.id) < 12 || ['16', '17'].includes(node.id) ? 'Security' : 'Expert'
+                }
+            };
+        });
+    }, [nodes, completedLessons, cards]);
 
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         router.push(`/learn/${node.id}`);

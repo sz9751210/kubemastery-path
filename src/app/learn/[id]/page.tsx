@@ -10,9 +10,11 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap } from 'lucide-react';
 import LessonSelector from '@/components/LessonSelector';
+import Header from '@/components/Header';
 import CollapsibleTerminal, { CollapsibleTerminalRef } from '@/components/CollapsibleTerminal';
 import { useProgress } from '@/lib/useProgress';
 import { useGame } from '@/lib/useGame';
+import { useSRS } from '@/lib/useSRS';
 
 export default function LessonPage() {
     const params = useParams();
@@ -25,6 +27,7 @@ export default function LessonPage() {
     // Progress & Game System
     const { isCompleted: isLessonCompleted, markAsComplete: markLessonAsComplete } = useProgress();
     const { gameState, addXp, showLevelUp, xpGained, xpProgress } = useGame();
+    const { addCardsForLesson } = useSRS();
 
     const [copiedValues, setCopiedValues] = useState<Record<string, boolean>>({});
 
@@ -47,6 +50,9 @@ export default function LessonPage() {
         if (!lesson) return;
         markLessonAsComplete(lesson.id);
         addXp(100);
+        if (lesson.flashcards) {
+            addCardsForLesson(lesson.id, lesson.flashcards);
+        }
     };
 
     if (!lesson) {
@@ -84,53 +90,34 @@ export default function LessonPage() {
             )}
 
             {/* Header */}
-            <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
+            <Header
+                showBack
+                subtitle={`${lesson.category} • ${lesson.duration}`}
+                title={lesson.title}
+            />
+
+            <div className="bg-slate-50 border-b border-slate-200 px-6 py-2 flex items-center justify-between sticky top-[65px] z-40">
                 <div className="flex items-center gap-4">
+                    <LessonSelector currentLessonId={lesson.id} lessons={allLessons} />
+                    {isLessonCompleted(lesson.id) && <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>}
+                </div>
+                <div className="flex items-center gap-3">
                     <button
-                        onClick={() => router.push('/')}
-                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-700"
+                        onClick={() => terminalRef.current?.toggle()}
+                        className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
                     >
-                        <ChevronLeft className="w-6 h-6" />
+                        <Terminal className="w-4 h-4" />
+                        <span>Terminal</span>
                     </button>
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">{lesson.category} • {lesson.duration}</span>
-                            {isLessonCompleted(lesson.id) && <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>}
-                        </div>
-                        <LessonSelector currentLessonId={lesson.id} lessons={allLessons} />
-                    </div>
+                    <button
+                        onClick={() => router.push('/lab')}
+                        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:shadow-lg transition-all active:scale-95 text-sm"
+                    >
+                        <PlayCircle className="w-5 h-5" />
+                        <span>Open Lab</span>
+                    </button>
                 </div>
-
-                <div className="flex items-center gap-8">
-                    {/* XP HUD */}
-                    <div className="hidden md:flex flex-col items-end gap-1 w-40">
-                        <div className="flex justify-between w-full text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                            <span>Lvl {gameState.level}</span>
-                            <span>{gameState.xp} XP</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                            <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000" style={{ width: `${xpProgress}%` }}></div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => terminalRef.current?.toggle()}
-                            className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
-                        >
-                            <Terminal className="w-4 h-4" />
-                            <span>Terminal</span>
-                        </button>
-                        <button
-                            onClick={() => router.push('/lab')}
-                            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:shadow-lg transition-all active:scale-95 text-sm"
-                        >
-                            <PlayCircle className="w-5 h-5" />
-                            <span>Open Lab</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
+            </div>
 
             {/* Content */}
             <main className="max-w-4xl mx-auto mt-10 px-6 mb-32">

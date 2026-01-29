@@ -4,6 +4,7 @@ export interface Lesson {
   category: 'Novice' | 'Admin' | 'Security' | 'Expert';
   duration: string;
   markdown: string;
+  flashcards?: { question: string; answer: string }[];
 }
 
 const lessons: Record<string, Lesson> = {
@@ -38,7 +39,12 @@ crictl version
 # List running containers
 crictl ps
 \`\`\`
-    `
+    `,
+    flashcards: [
+      { question: 'What isolates what a process SEES?', answer: 'Namespaces' },
+      { question: 'What isolates what a process USES?', answer: 'Cgroups' },
+      { question: 'Which runtime interface does K8s use instead of Docker?', answer: 'CRI (Container Runtime Interface)' }
+    ]
   },
   '2': {
     id: '2',
@@ -66,7 +72,11 @@ kubectl get pod nginx-demo -w
 
 ## Sidecars (Multi-Container)
 Containers in a Pod share **Network (localhost)** and **Volumes**.
-    `
+    `,
+    flashcards: [
+      { question: 'What is the state when a Pod is waiting for a node?', answer: 'Pending' },
+      { question: 'In a multi-container Pod, what do containers share?', answer: 'Network (localhost) and Volumes' }
+    ]
   },
   '3': {
     id: '3',
