@@ -41,8 +41,16 @@ export default function LessonPage() {
 
     const handleRun = (code: string) => {
         if (terminalRef.current) {
-            terminalRef.current.write(code); // Write to terminal
-            terminalRef.current.write('\r'); // Execute (ENTER)
+            // Clean up code: remove comment lines and empty lines
+            const lines = code.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0 && !line.startsWith('#'));
+
+            // Join with newline and send
+            const cleanCode = lines.join('\n');
+            if (cleanCode) {
+                terminalRef.current.write(cleanCode + '\n');
+            }
         }
     };
 

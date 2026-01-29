@@ -23,7 +23,7 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref
     useImperativeHandle(ref, () => ({
         write: (data: string) => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                wsRef.current.send(data);
+                wsRef.current.send(JSON.stringify({ type: 'data', data }));
                 // Also echo to local terminal for immediate feedback if needed, 
                 // but typically backend echoes. 
                 // If relying on backend echo (which we are), we just send.
@@ -88,19 +88,26 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref
         // Send input to backend
         term.onData((data) => {
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(data);
+                ws.send(JSON.stringify({ type: 'data', data }));
             }
         });
 
         // Handle Resize
         const handleResize = () => {
             fitAddon.fit();
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'resize',
+                    cols: term.cols,
+                    rows: term.rows
+                }));
+            }
         };
         window.addEventListener('resize', handleResize);
 
         // ResizeObserver to handle container size changes (e.g. drawer open)
         const resizeObserver = new ResizeObserver(() => {
-            fitAddon.fit();
+            handleResize();
         });
         resizeObserver.observe(terminalRef.current);
 
