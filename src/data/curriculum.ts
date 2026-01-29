@@ -89,7 +89,8 @@ const ckaNodes: Node[] = [
   { id: '53', data: { label: 'Cluster Networking' }, position: { x: 350, y: 100 } },
   { id: '54', data: { label: 'Observability' }, position: { x: 225, y: 200 } },
   { id: '201', type: 'output', data: { label: 'CKA Mock 1' }, position: { x: 100, y: 300 }, style: { background: '#fef3c7', border: '2px solid #d97706', fontWeight: 'bold' } },
-  { id: '202', type: 'output', data: { label: 'CKA Mock 2' }, position: { x: 350, y: 300 }, style: { background: '#fef3c7', border: '2px solid #d97706', fontWeight: 'bold' } }
+  { id: '202', type: 'output', data: { label: 'CKA Mock 2' }, position: { x: 350, y: 300 }, style: { background: '#fef3c7', border: '2px solid #d97706', fontWeight: 'bold' } },
+  { id: 'cka-random-mock', type: 'output', data: { label: 'Random CKA Mock 🎲' }, position: { x: 225, y: 350 }, style: { background: '#d97706', color: 'white', border: '2px dashed #fff', fontWeight: 'bold', width: 220 } }
 ];
 
 const ckaEdges: Edge[] = [
@@ -98,7 +99,8 @@ const ckaEdges: Edge[] = [
   { id: 'e52-54', source: '52', target: '54' },
   { id: 'e53-54', source: '53', target: '54' },
   { id: 'e54-201', source: '54', target: '201', animated: true },
-  { id: 'e54-202', source: '54', target: '202', animated: true }
+  { id: 'e54-202', source: '54', target: '202', animated: true },
+  { id: 'e54-cka-random', source: '54', target: 'cka-random-mock', animated: true, style: { stroke: '#d97706', strokeWidth: 2 } }
 ];
 
 const shiftNodes = (nodes: Node[], yOffset: number): Node[] => {
