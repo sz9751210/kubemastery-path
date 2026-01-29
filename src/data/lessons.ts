@@ -32,7 +32,10 @@ Kubernetes uses the **Container Runtime Interface (CRI)**.
 > \`dockershim\` is dead. You are likely using **containerd** or **CRI-O**. Learn \`crictl\`.
 
 \`\`\`bash
-# List containers using CRI
+# Check the container runtime version
+crictl version
+
+# List running containers
 crictl ps
 \`\`\`
     `
@@ -52,6 +55,14 @@ A **Pod** is the atomic unit of K8s. It wraps one or more containers.
 2. **ContainerCreating**: Pulling images.
 3. **Running**: At least one container is up.
 4. **Succeeded/Failed**: Process exited.
+
+\`\`\`bash
+# Create a simple Nginx pod
+kubectl run nginx-demo --image=nginx
+
+# Watch the pod status change
+kubectl get pod nginx-demo -w
+\`\`\`
 
 ## Sidecars (Multi-Container)
 Containers in a Pod share **Network (localhost)** and **Volumes**.
@@ -83,6 +94,11 @@ spec:
   - name: nginx
     image: nginx
 \`\`\`
+
+\`\`\`bash
+# Explain the Pod spec to learn available fields
+kubectl explain pod.spec.containers
+\`\`\`
     `
   },
 
@@ -102,9 +118,20 @@ Pods are ephemeral. **Deployments** provide declarative updates for Pods and Rep
 ## The Hierarchy
 \`Deployment\` manages \`ReplicaSet\` manages \`Pod\`.
 
+\`\`\`bash
+# Create a deployment
+kubectl create deployment my-dep --image=nginx --replicas=3
+
+# View the hierarchy
+kubectl get deploy,rs,po
+\`\`\`
+
 ## Features
 - **Self-healing**: Restarts crashed pods.
-- **Scaling**: \`kubectl scale deployment my-app --replicas=5\`
+- **Scaling**: 
+\`\`\`bash
+kubectl scale deployment my-dep --replicas=5
+\`\`\`
 - **Rolling Updates**: Zero-downtime deployments.
 
 \`\`\`yaml
@@ -144,9 +171,19 @@ Used for databases or apps needing:
 - **Stable Storage**: VolumeClaims templates.
 - **Ordered Deployment**: 0 -> 1 -> 2.
 
+\`\`\`bash
+# List StatefulSets in the cluster
+kubectl get statefulsets -A
+\`\`\`
+
 ## DaemonSet
 Ensures a copy of a Pod runs on **all** (or some) Nodes.
 - Examples: \`kube-proxy\`, \`fluentd\` (logging), \`weave-net\` (CNI).
+
+\`\`\`bash
+# Check the kube-proxy daemonset
+kubectl get ds -n kube-system
+\`\`\`
 
 > [!NOTE]
 > DaemonSets bypass the scheduler mostly, though they respect taints/tolerations.
@@ -164,6 +201,14 @@ Ensures a copy of a Pod runs on **all** (or some) Nodes.
 1. **ClusterIP**: Internal only.
 2. **NodePort**: Exposure on static port (30000+).
 3. **LoadBalancer**: Cloud provider LB.
+
+\`\`\`bash
+# Expose a deployment
+kubectl expose deployment my-dep --port=80 --target-port=80 --type=NodePort --name=my-svc
+
+# Get the service details
+kubectl get svc my-svc
+\`\`\`
 
 ## Service Discovery
 DNS names are formatted:
@@ -196,6 +241,11 @@ spec:
 
 ## Ingress Controller
 An Ingress resource does nothing without a controller (e.g., Nginx, Traefik).
+
+\`\`\`bash
+# Check for ingress controllers
+kubectl get pods -n ingress-nginx
+\`\`\`
 
 ## Ingress Resource
 Defines rules to route traffic.
@@ -235,6 +285,14 @@ Decoupling storage from Pod lifecycle.
 - **PV (PersistentVolume)**: The physical storage resource (provisioned by Admin).
 - **PVC (Claim)**: The request for storage (by Developer).
 
+\`\`\`bash
+# List Persistent Volumes
+kubectl get pv
+
+# List Claims
+kubectl get pvc
+\`\`\`
+
 ## Access Modes
 - **RWO**: ReadWriteOnce (Block storage usually).
 - **RWX**: ReadWriteMany (NFS/File storage).
@@ -253,6 +311,11 @@ Controlling where Pods go.
 ## Taints & Tolerations
 "Repel" pods from nodes.
 - Master nodes are tainted \`NoSchedule\`.
+
+\`\`\`bash
+# View taints on nodes
+kubectl describe node controlplane | grep Taint
+\`\`\`
 
 ## Affinity
 "Attract" pods to nodes.
@@ -279,6 +342,14 @@ Controlling where Pods go.
 2. **ClusterRole**: Rules scoped linearly (Cluster-wide).
 3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.
 4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.
+
+\`\`\`bash
+# Check my permissions
+kubectl auth can-i create pods
+
+# Check permissions for a service account
+kubectl auth can-i list secrets --as=system:serviceaccount:default:my-sa
+\`\`\`
 
 \`\`\`yaml
 # Can view pods in 'default' ns
@@ -310,6 +381,11 @@ The firewall for Kubernetes.
 ## Default Deny Logic
 Start by denying everything, then allow specific traffic.
 
+\`\`\`bash
+# See if any policies exist
+kubectl get networkpolicies
+\`\`\`
+
 \`\`\`yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -335,6 +411,14 @@ spec:
 Base64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.
 - Mount as Environment Variables.
 - Mount as Files (Volume).
+
+\`\`\`bash
+# Create a generic secret
+kubectl create secret generic my-pass --from-literal=password=secret123
+
+# Decode a secret
+echo "c2VjcmV0MTIz" | base64 -d
+\`\`\`
 
 ## Security Contexts
 Define privileges and access control for a Pod/Container.
@@ -370,6 +454,14 @@ Managing thousands of YAML files is painful. **Helm** solves this using **Charts
 - **Config**: Contains configuration information that can be merged into a packaged chart to create a releaseable object.
 - **Release**: A running instance of a chart, combined with a specific config.
 
+\`\`\`bash
+# List helm releases
+helm list -A
+
+# Search for a chart
+helm search hub nginx
+\`\`\`
+
 ## Templating
 Helm uses Go templates.
 
@@ -395,6 +487,11 @@ Extending the Kubernetes API.
 ## CRD (Custom Resource Definition)
 Allows you to create your own API types. e.g., \`kind: MySQLDatabase\`.
 
+\`\`\`bash
+# List custom resources
+kubectl get crd
+\`\`\`
+
 ## The Operator Pattern
 An Operator is a Controller that watches a CRD and acts on it.
 - Replaces human operation knowledge with code.
@@ -418,6 +515,11 @@ Managing network traffic between services (East-West traffic).
 
 ## Sidecar Proxy
 Istio injects an \`envoy\` proxy container into every Pod to intercept all network traffic.
+
+\`\`\`bash
+# Check for istio proxy sidecars
+kubectl get pods -l istio-injection=enabled
+\`\`\`
     `
   }
 };

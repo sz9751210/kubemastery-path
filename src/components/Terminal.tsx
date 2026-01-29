@@ -1,18 +1,37 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
 import { Terminal as XTerminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
+
+export interface TerminalRef {
+    write: (data: string) => void;
+}
 
 interface TerminalProps {
     welcomeMessage?: string;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
+const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerminal | null>(null);
     const fitAddonRef = useRef<FitAddon | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
+
+    useImperativeHandle(ref, () => ({
+        write: (data: string) => {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.send(data);
+                // Also echo to local terminal for immediate feedback if needed, 
+                // but typically backend echoes. 
+                // If relying on backend echo (which we are), we just send.
+            } else {
+                xtermRef.current?.writeln('\r\n\x1b[31m[Cannot execute: Terminal not connected]\x1b[0m');
+            }
+        }
+    }));
 
     useEffect(() => {
         if (!terminalRef.current) return;
@@ -44,8 +63,10 @@ const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
         // WebSocket Connection
         const wsUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:4000';
         const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
 
         ws.onopen = () => {
+            setIsConnected(true);
             term.write('\r\n\x1b[32m[Connected to KubeMastery Shell]\x1b[0m\r\n');
         };
 
@@ -54,12 +75,14 @@ const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
         };
 
         ws.onclose = () => {
+            setIsConnected(false);
             term.write('\r\n\x1b[31m[Connection closed]\x1b[0m\r\n');
         };
 
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
             term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n');
+            setIsConnected(false);
         };
 
         // Send input to backend
@@ -75,19 +98,34 @@ const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
         };
         window.addEventListener('resize', handleResize);
 
+        // ResizeObserver to handle container size changes (e.g. drawer open)
+        const resizeObserver = new ResizeObserver(() => {
+            fitAddon.fit();
+        });
+        resizeObserver.observe(terminalRef.current);
+
         return () => {
             window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
             term.dispose();
             ws.close();
         };
     }, [welcomeMessage]);
 
     return (
-        <div
-            className="w-full h-full bg-[#1e1e1e] p-2 overflow-hidden rounded-md"
-            ref={terminalRef}
-        />
+        <div className="relative w-full h-full">
+            <div
+                className="w-full h-full bg-[#1e1e1e] p-2 overflow-hidden rounded-md"
+                ref={terminalRef}
+            />
+            {/* Connection Status Indicator */}
+            <div className={`absolute top-2 right-4 w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 box-shadow-green' : 'bg-red-500'} transition-colors duration-300`} title={isConnected ? "Connected" : "Disconnected"}>
+                <span className={`${isConnected ? 'animate-ping opacity-75' : 'hidden'} absolute inline-flex h-full w-full rounded-full bg-green-400`}></span>
+            </div>
+        </div>
     );
-};
+});
+
+Terminal.displayName = 'Terminal';
 
 export default Terminal;
