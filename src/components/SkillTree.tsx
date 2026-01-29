@@ -27,6 +27,7 @@ const chapters: { id: Chapter; label: string; icon: React.ReactNode; color: stri
     { id: 'cka', label: 'CKA (Admin)', icon: <Layers size={16} />, color: 'bg-blue-100 text-blue-700' },
     { id: 'ckad', label: 'CKAD (Dev)', icon: <Box size={16} />, color: 'bg-amber-100 text-amber-700' },
     { id: 'cks', label: 'CKS (Security)', icon: <Shield size={16} />, color: 'bg-red-100 text-red-700' },
+    { id: 'internals', label: 'Internals (Deep Dive)', icon: <Layers size={16} />, color: 'bg-slate-100 text-slate-700' },
     { id: 'all', label: 'All (Student)', icon: <Zap size={16} />, color: 'bg-purple-100 text-purple-700' },
 ];
 
@@ -106,7 +107,8 @@ export default function SkillTree() {
             <div className="w-full h-[600px] border border-slate-200 rounded-2xl shadow-xl bg-slate-50/50 backdrop-blur-sm overflow-hidden relative">
                 <div className={`absolute top-0 left-0 w-full h-1 ${currentChapter === 'cka' ? 'bg-blue-500' :
                     currentChapter === 'ckad' ? 'bg-amber-500' :
-                        currentChapter === 'cks' ? 'bg-red-500' : 'bg-purple-500'
+                        currentChapter === 'cks' ? 'bg-red-500' :
+                            currentChapter === 'internals' ? 'bg-slate-500' : 'bg-purple-500'
                     } z-10`} />
 
                 <ReactFlow

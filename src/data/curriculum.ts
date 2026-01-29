@@ -1,6 +1,6 @@
 import { Node, Edge } from 'reactflow';
 
-export type Chapter = 'all' | 'cka' | 'ckad' | 'cks';
+export type Chapter = 'all' | 'cka' | 'ckad' | 'cks' | 'internals';
 
 const foundationNodes: Node[] = [
   { id: '1', type: 'input', data: { label: 'Container Basics' }, position: { x: 250, y: 0 }, style: { background: '#fef3c7', border: '1px solid #d97706', width: 180 } },
@@ -103,6 +103,22 @@ const ckaEdges: Edge[] = [
   { id: 'e54-cka-random', source: '54', target: 'cka-random-mock', animated: true, style: { stroke: '#d97706', strokeWidth: 2 } }
 ];
 
+const internalsNodes: Node[] = [
+  { id: '100', type: 'input', data: { label: 'Service Implementation' }, position: { x: 50, y: 0 }, style: { background: '#f1f5f9', border: '1px solid #475569' } },
+  { id: '101', data: { label: 'CNI Deep Dive' }, position: { x: 300, y: 0 }, style: { background: '#f1f5f9', border: '1px solid #475569' } },
+  { id: '102', data: { label: 'Etcd & Raft' }, position: { x: 50, y: 100 } },
+  { id: '103', data: { label: 'Controller Pattern' }, position: { x: 300, y: 100 } },
+  { id: '104', type: 'output', data: { label: 'OCI & runc' }, position: { x: 175, y: 200 }, style: { background: '#0f172a', color: '#fff', border: '2px solid #94a3b8', fontWeight: 'bold' } },
+];
+
+const internalsEdges: Edge[] = [
+  { id: 'e100-101', source: '100', target: '101' },
+  { id: 'e100-102', source: '100', target: '102' },
+  { id: 'e101-103', source: '101', target: '103' },
+  { id: 'e102-104', source: '102', target: '104' },
+  { id: 'e103-104', source: '103', target: '104', animated: true },
+];
+
 const shiftNodes = (nodes: Node[], yOffset: number): Node[] => {
   return nodes.map(node => ({
     ...node,
@@ -143,12 +159,15 @@ export const getNodesForChapter = (chapter: Chapter): Node[] => {
     case 'cks':
       // CKS Focus
       return securityNodes;
+    case 'internals':
+      return internalsNodes;
     case 'all':
       return [
         ...foundationNodes,
         ...shiftNodes(adminNodes, 400),
         ...shiftNodes(securityNodes, 1000),
-        ...shiftNodes(expertNodes, 1400)
+        ...shiftNodes(expertNodes, 1400),
+        ...shiftNodes(internalsNodes, 1800)
       ];
     default:
       return foundationNodes;
@@ -159,6 +178,7 @@ export const getEdgesForChapter = (chapter: Chapter): Edge[] => {
   const connectingEdgeFoundAdmin: Edge = { id: 'e4-5', source: '4', target: '5', animated: true, style: { stroke: '#bdbdbd' } };
   const connectingEdgeAdminSec: Edge = { id: 'e15-9', source: '15', target: '9', animated: true, style: { stroke: '#bdbdbd' } };
   const connectingEdgeSecExpert: Edge = { id: 'e11-40', source: '11', target: '40', animated: true, style: { stroke: '#bdbdbd' } };
+  const connectingEdgeExpertInt: Edge = { id: 'e99-100', source: '99', target: '100', animated: true, style: { stroke: '#bdbdbd' } };
 
   switch (chapter) {
     case 'ckad':
@@ -181,15 +201,19 @@ export const getEdgesForChapter = (chapter: Chapter): Edge[] => {
       ];
     case 'cks':
       return securityEdges;
+    case 'internals':
+      return internalsEdges;
     case 'all':
       return [
         ...foundationEdges,
         ...adminEdges,
         ...securityEdges,
         ...expertEdges,
+        ...internalsEdges,
         connectingEdgeFoundAdmin,
         connectingEdgeAdminSec,
-        connectingEdgeSecExpert
+        connectingEdgeSecExpert,
+        connectingEdgeExpertInt
       ];
     default:
       return foundationEdges;

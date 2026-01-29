@@ -346,6 +346,30 @@ export const generatedExams: Record<string, Lesson> = {
     "markdown": "\n# CNI Deep Dive\n\nHow do Pods talk to each other across nodes?\n\n## The \"Pause\" Container\nExists solely to hold the Network Namespace. Application containers join this namespace (share localhost).\n\n## VETH Pairs (Virtual Ethernet)\nConnects the Pod namespace to the Host namespace.\n- **eth0 (Pod)** <--> **veth*** (Host).\n\n## Bridge Mode (e.g., cbr0)\nVETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.\n\n## Overlay Networks (VXLAN / IPIP)\nEncapsulating L2 frames inside L3 packets to cross node boundaries.\n- **Flannel**: UDP/VXLAN.\n- **Calico**: BGP (Direct Routing) or IPIP.\n",
     "tasks": []
   },
+  "102": {
+    "id": "102",
+    "title": "Etcd & Raft Consensus",
+    "category": "INTERNALS",
+    "duration": "60 mins",
+    "markdown": "\n# Etcd & The Raft Consensus Algorithm\n\nHow does Kubernetes maintain a consistent state across multiple control plane nodes? It relies entirely on **Etcd**.\n\n## What is Etcd?\nEtcd is a distributed, reliable key-value store. It is the \"source of truth\" for Kubernetes.\n\n## The Raft Algorithm\nEtcd uses **Raft** to achieve consensus.\n1.  **Leader Election**: One node is elected leader. All writes go to the leader.\n2.  **Log Replication**: The leader replicates the entry to followers.\n3.  **Commit**: Once a majority (Quorum) acknowledges the entry, it is committed.\n\n### Quorum\n$N/2 + 1$. For a 3-node cluster, you need 2 nodes to agree.\n-   **3 Nodes**: Tolerate 1 failure.\n-   **5 Nodes**: Tolerate 2 failures.\n\n```bash\n# Check endpoint health\nETCDCTL_API=3 etcdctl endpoint health\n```\n",
+    "tasks": []
+  },
+  "103": {
+    "id": "103",
+    "title": "The Controller Pattern",
+    "category": "INTERNALS",
+    "duration": "70 mins",
+    "markdown": "\n# The Controller Pattern & Reconciliation Loop\n\nKubernetes is a system of **eventually consistent** control loops.\n\n## The Loop\n1.  **Observe**: Watch the current state (via API Server).\n2.  **Diff**: Compare against desired state (Spec).\n3.  **Act**: Make changes to move closer to desired state.\n\n## Under the Hood (client-go)\nHow does a controller actually work?\n1.  **Reflector**: Watches the API and puts objects in a localized Queue (`DeltaFIFO`).\n2.  **Informer**: Reads from Queue and updates the **Local Store (Cache)**. This avoids hammering the API server.\n3.  **Workqueue**: When an object changes, its key (e.g., `default/my-pod`) is added here.\n4.  **Reconciler**: The worker logic that pops the key and does the business logic.\n\n> [!NOTE]\n> This is why \"Level Triggered\" logic is preferred over \"Edge Triggered\". If you miss an event, you just reconcile the current state next time.\n",
+    "tasks": []
+  },
+  "104": {
+    "id": "104",
+    "title": "OCI & Low-Level Runtimes",
+    "category": "INTERNALS",
+    "duration": "60 mins",
+    "markdown": "\n# OCI & RunC: How a Container Starts\n\nWhen you ask K8s to run a Pod, `kubelet` calls the CRI (e.g., `containerd`). But what does `containerd` do?\n\n## The OCI (Open Container Initiative)\nIt defines two specs:\n1.  **Image Spec**: How the filesystem and metadata are bundled.\n2.  **Runtime Spec**: `config.json` that defines *how* to run it (namespaces, cgroups, commands).\n\n## The Flow\n`Kubelet` -> `CRI (containerd)` -> `Shim (containerd-shim)` -> `OCI Runtime (runc)` -> `Kernel`.\n\n### What is runc?\nIt is a CLI tool for spawning and running containers according to the OCI spec. It interacts directly with Linux kernel features like:\n-   **unshare**: To create namespaces.\n-   **cgroups**: To set limits.\n-   **pivot_root**: To change the root filesystem.\n\n```bash\n# You can run a container manually with runc!\nmkdir -p mycontainer/rootfs\n# Export a docker image to rootfs...\nrunc spec # Generates config.json\nrunc run mycontainer\n```\n",
+    "tasks": []
+  },
   "201": {
     "id": "201",
     "title": "CKA Mock Exam 1",
