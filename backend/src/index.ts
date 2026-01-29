@@ -68,53 +68,53 @@ wss.on('connection', (ws: WebSocket, req: any) => {
         }
     });
 
-    // Setup Script
-    let setupCmd = '';
+    // Setup Script Content
+    let setupScriptContent = '';
 
     if (mode === 'mock') {
-        // In Mock Mode, we inject the 'kubectl' wrapper to talk to our Express API
-        setupCmd = `
-        function kubectl() {
-          if [ "$1" = "get" ] || [ "$1" = "create" ] || [ "$1" = "delete" ] || [ "$1" = "apply" ]; then
-             # Naive wrapper to intercept commands
-             # See backend/src/index.ts for logic
-             :
-          fi
-          command kubectl "$@"
-        }
-        
-        # ACTUALLY, checking previous step... the wrapper logic was just a placeholder comment in previous file view?
-        # NO, I need to RESTORE the mock wrapper logic if I overwrote it.
-        # Wait, the previous file view showed a long 'setupCmd' string.
-        # I am rewriting this block. I should preserve the mock logic or simplify it.
-        # For simplicity in this edit, I will re-declare the essential mock env.
-        
-        export KUBEMASTERY_MOCK=true
-        echo "Welcome to KubeMastery (Mock Mode) - Room: ${roomId}"
+        setupScriptContent = `
+export KUBEMASTERY_MOCK=true
+echo "Welcome to KubeMastery (Mock Mode) - Room: ${roomId}"
         `;
     } else {
         // Real Mode
-        setupCmd = `
-        export KUBEMASTERY_REAL=true
-        echo "Welcome to KubeMastery (Real K3s Cluster) - Room: ${roomId}"
-        echo "WARNING: You are root on a real control plane!"
-        
-        function node-shell() {
-            echo "Spawning privileged shell on node k3s..."
-            # Using kubectl debug (Ephemeral Containers) or a specialized pod
-            # Use overrides for hostPID/hostNetwork to get real node access
-            kubectl run node-shell-\${RANDOM} --rm -it --restart=Never \
-              --image=alpine --privileged \
-              --overrides='{"spec": {"hostPID": true, "hostNetwork": true, "containers": [{"name": "shell", "image": "alpine", "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "/bin/sh"], "securityContext": {"privileged": true}}]}}'
-        }
+        setupScriptContent = `
+export KUBEMASTERY_REAL=true
+echo "Welcome to KubeMastery (Real K3s Cluster) - Room: ${roomId}"
+echo "WARNING: You are root on a real control plane!"
+
+function node-shell() {
+    NODE_NAME="\$1"
+    if [ -z "\$NODE_NAME" ]; then
+        echo "Usage: node-shell <node-name>"
+        echo "Available nodes:"
+        kubectl get nodes --no-headers -o custom-columns=":metadata.name"
+        return 1
+    fi
+
+    echo "Spawning privileged shell on node \$NODE_NAME..."
+    kubectl run node-shell-${Math.floor(Math.random() * 10000)} --rm -it --restart=Never \
+      --image=alpine --privileged \
+      --overrides='{"spec": {"nodeName": "'"\$NODE_NAME"'", "hostPID": true, "hostNetwork": true, "containers": [{"name": "shell", "image": "alpine", "stdin": true, "tty": true, "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "/bin/sh"], "securityContext": {"privileged": true}}]}}'
+}
         `;
     }
 
     // Pass Room ID env
-    setupCmd += `\nexport KB_ROOM_ID="${roomId}"\n`;
+    setupScriptContent += `\nexport KB_ROOM_ID="${roomId}"\n`;
 
-    // We can write this setup script to the PTY initially
-    ptyProcess.write(setupCmd + '\r');
+    // Write setup script to a unique temp file
+    const setupScriptPath = `/tmp/setup-${Date.now()}-${Math.floor(Math.random() * 1000)}.sh`;
+    const fs = require('fs');
+    try {
+        fs.writeFileSync(setupScriptPath, setupScriptContent);
+        // Source the script to load functions and env vars, then remove it
+        // We use a slight delay or just pure execution
+        ptyProcess.write(`source ${setupScriptPath} && rm ${setupScriptPath}\r`);
+        ptyProcess.write('clear\r'); // Optional: clear the screen to hide the source command
+    } catch (e) {
+        console.error("Failed to write setup script:", e);
+    }
 
 
     // Data from pty -> WebSocket
@@ -140,7 +140,7 @@ wss.on('connection', (ws: WebSocket, req: any) => {
     });
 
     ws.on('close', () => {
-        console.log(`Connection closed for Room: ${roomId}`);
+        console.log(`Connection closed for Room: ${roomId} `);
         ptyProcess.kill();
     });
 });
