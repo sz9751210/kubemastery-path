@@ -49,25 +49,6 @@ wss.on('connection', (ws: WebSocket, req: any) => {
         }
     }
 
-    const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    const args = os.platform() === 'win32' ? [] : ['--login'];
-
-    // Spawn a pty process
-    const ptyProcess = pty.spawn(shell, args, {
-        name: 'xterm-color',
-        cols: 80,
-        rows: 30,
-        cwd: process.env.HOME,
-        env: {
-            ...process.env,
-            // If real mode, use the real config. specific file.
-            // If mock mode, we use /tmp/kubeconfig (which might be empty/dummy, relying on the wrapper)
-            KUBECONFIG: mode === 'real' ? '/tmp/kubeconfig-real' : '/tmp/kubeconfig',
-            KB_ROOM_ID: roomId,
-            TERM: 'xterm-256color'
-        }
-    });
-
     // Setup Script Content
     let setupScriptContent = '';
 
@@ -82,6 +63,14 @@ echo "Welcome to KubeMastery (Mock Mode) - Room: ${roomId}"
 export KUBEMASTERY_REAL=true
 echo "Welcome to KubeMastery (Real K3s Cluster) - Room: ${roomId}"
 echo "WARNING: You are root on a real control plane!"
+
+# Aliases
+alias k="kubectl"
+# Try to enable completion for k
+if command -v kubectl >/dev/null 2>&1; then
+    source <(kubectl completion bash)
+    complete -o default -F __start_kubectl k
+fi
 
 function node-shell() {
     NODE_NAME="\$1"
@@ -108,13 +97,30 @@ function node-shell() {
     const fs = require('fs');
     try {
         fs.writeFileSync(setupScriptPath, setupScriptContent);
-        // Source the script to load functions and env vars, then remove it
-        // We use a slight delay or just pure execution
-        ptyProcess.write(`source ${setupScriptPath} && rm ${setupScriptPath}\r`);
-        ptyProcess.write('clear\r'); // Optional: clear the screen to hide the source command
     } catch (e) {
         console.error("Failed to write setup script:", e);
     }
+
+    const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+    // Use --rcfile to load our setup script instead of standard .bashrc
+    // Pass -i to ensure it's interactive
+    const args = os.platform() === 'win32' ? [] : ['--rcfile', setupScriptPath, '-i'];
+
+    // Spawn a pty process
+    const ptyProcess = pty.spawn(shell, args, {
+        name: 'xterm-color',
+        cols: 80,
+        rows: 30,
+        cwd: process.env.HOME,
+        env: {
+            ...process.env,
+            // If real mode, use the real config. specific file.
+            // If mock mode, we use /tmp/kubeconfig (which might be empty/dummy, relying on the wrapper)
+            KUBECONFIG: mode === 'real' ? '/tmp/kubeconfig-real' : '/tmp/kubeconfig',
+            KB_ROOM_ID: roomId,
+            TERM: 'xterm-256color'
+        }
+    });
 
 
     // Data from pty -> WebSocket
