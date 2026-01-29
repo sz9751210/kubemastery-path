@@ -194,6 +194,50 @@ router.get('/api/v1/nodes', (req, res) => {
     res.json({ kind: 'NodeList', apiVersion: 'v1', items: state.nodes });
 });
 
+router.get('/api/v1/nodes/:name', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    const node = state.nodes.find(n => n.metadata.name === req.params.name);
+    if (node) res.json(node);
+    else res.status(404).json({ message: "Node not found" });
+});
+
+router.patch('/api/v1/nodes/:name', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    const node = state.nodes.find(n => n.metadata.name === req.params.name);
+    if (node) {
+        // Simple merge for mock
+        Object.assign(node, req.body);
+        // Special handling for taints if passed via generic merge? 
+        // Kubectl patch strategy is complex, but for JSON patch or merge patch:
+        // If req.body has spec, we merge it.
+        if (req.body.spec) {
+            node.spec = { ...node.spec, ...req.body.spec };
+        }
+        res.json(node);
+    } else {
+        res.status(404).json({ message: "Node not found" });
+    }
+});
+
+
+// Pod Patching (for edit)
+router.patch('/api/v1/namespaces/:ns/pods/:name', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    const pod = state.pods.find(p => p.metadata.name === req.params.name);
+    if (pod) {
+        // Allow updating spec (which k8s usually forbids, but creating scenarios requires flexibility)
+        // Usually nodeName cannot be changed after schedule. But for a lab "assign manually",
+        // maybe they create it with nodeName OR they edit it?
+        // Let's assume broad permission.
+        if (req.body.spec) {
+            pod.spec = { ...pod.spec, ...req.body.spec };
+        }
+        res.json(pod);
+    } else {
+        res.status(404).json({ message: "Pod not found" });
+    }
+});
+
 
 // DEBUG & SCENARIO
 router.post('/api/debug/scenario', (req: any, res: any) => {
