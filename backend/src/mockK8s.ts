@@ -3,83 +3,149 @@ import { scenarios, ScenarioState } from './scenarios';
 
 const router = Router();
 
-// Simulated State (Mutable)
-let state: ScenarioState = { ...scenarios['default'] };
+// ==========================================
+// SCENARIO STATE MANAGEMENT (MULTI-ROOM)
+// ==========================================
+interface RoomState extends ScenarioState {
+    scores: { red: number; blue: number };
+    lastChaosTime: number;
+}
 
-// SCENARIO MANAGEMENT
-router.post('/api/debug/scenario', (req: any, res: any) => {
-    const { lessonId } = req.body;
-    if (lessonId && scenarios[lessonId]) {
-        state = { ...scenarios[lessonId] };
-        console.log(`[MockK8s] Switched to scenario for Lesson ${lessonId}`);
-        res.json({ message: `Switched to scenario ${lessonId}`, stateSummary: Object.keys(state) });
-    } else {
-        // Reset to default if not found
-        state = { ...scenarios['default'] };
-        console.log(`[MockK8s] Reset to default scenario`);
-        res.json({ message: "Reset to default scenario" });
+const rooms = new Map<string, RoomState>();
+
+// Helper: Get or Create Room State
+export const getRoomState = (roomId: string = 'default'): RoomState => {
+    if (!rooms.has(roomId)) {
+        console.log(`[MockK8s] Creating new room: ${roomId}`);
+        const initialState = JSON.parse(JSON.stringify(scenarios['default']));
+        rooms.set(roomId, {
+            ...initialState,
+            scores: { red: 0, blue: 0 },
+            lastChaosTime: 0
+        });
     }
-});
+    return rooms.get(roomId)!;
+};
+
+// Helper: Reset Room
+export const resetRoomState = (roomId: string, scenarioId: string = 'default') => {
+    const template = scenarios[scenarioId] || scenarios['default'];
+    rooms.set(roomId, {
+        ...JSON.parse(JSON.stringify(template)),
+        scores: { red: 0, blue: 0 },
+        lastChaosTime: 0
+    });
+    console.log(`[MockK8s] Reset room ${roomId} to scenario ${scenarioId}`);
+    return rooms.get(roomId)!;
+};
+
+// Middleware to resolve Room ID from Header
+const getRoomId = (req: any) => (req.headers['x-room-id'] as string) || 'default';
 
 // Logger for debugging
 router.use((req: any, res: any, next: any) => {
-    console.log(`[MockK8s] ${req.method} ${req.url}`);
+    const roomId = getRoomId(req);
+    // Don't log k8s discovery spam
+    if (!req.url.includes('/api/v1') && !req.url.includes('/apis')) {
+        console.log(`[MockK8s][${roomId}] ${req.method} ${req.url}`);
+    }
     next();
 });
 
-// DISCOVERY
-router.get('/apis', (req, res) => {
+
+// ==========================================
+// BATTLE ARENA API
+// ==========================================
+
+// Get Arena Stats (Scores + Health)
+router.get('/api/arena/stats', (req, res) => {
+    const roomId = getRoomId(req);
+    const state = getRoomState(roomId);
+
+    // Auto-scorer simulation
+    const healthyPods = state.pods.filter(p => p.status.phase === 'Running').length;
+
+    if (healthyPods >= 3) {
+        state.scores.blue += 10;
+    } else {
+        state.scores.red += 5;
+    }
+
     res.json({
-        kind: 'APIGroupList',
-        apiVersion: 'v1',
-        groups: [
-            {
-                name: 'apps',
-                versions: [{ groupVersion: 'apps/v1', version: 'v1' }],
-                preferredVersion: { groupVersion: 'apps/v1', version: 'v1' }
-            }
+        scores: state.scores,
+        podCount: state.pods.length,
+        healthyPods,
+        lastChaos: state.lastChaosTime
+    });
+});
+
+// Trigger Chaos (Red Team Action)
+router.post('/api/arena/chaos', (req, res) => {
+    const roomId = getRoomId(req);
+    const state = getRoomState(roomId);
+    const { type } = req.body;
+
+    let message = '';
+    if (type === 'kill-pod') {
+        if (state.pods.length > 0) {
+            const randomIndex = Math.floor(Math.random() * state.pods.length);
+            const victim = state.pods[randomIndex];
+            state.pods.splice(randomIndex, 1);
+            message = `Chaos Monkey killed pod: ${victim.metadata.name}`;
+            state.scores.red += 50;
+        } else {
+            message = 'No pods left to kill!';
+        }
+    } else if (type === 'scale-down') {
+        state.deployments.forEach(d => {
+            if (d.spec?.replicas) d.spec.replicas = Math.max(0, d.spec.replicas - 1);
+        });
+        message = 'Scaled down all deployments!';
+        state.scores.red += 30;
+    } else {
+        message = 'Chaos deployed!';
+    }
+
+    state.lastChaosTime = Date.now();
+    res.json({ success: true, message, scores: state.scores });
+});
+
+
+// ==========================================
+// KUBERNETES API HANDLERS
+// ==========================================
+
+router.get('/api/v1', (req, res) => {
+    res.json({
+        kind: "APIResourceList",
+        groupVersion: "v1",
+        resources: [
+            { name: "pods", namespaced: true, kind: "Pod", verbs: ["get", "list", "watch", "create", "delete", "update"] },
+            { name: "services", namespaced: true, kind: "Service", verbs: ["get", "list", "watch", "create", "delete"] },
+            { name: "nodes", namespaced: false, kind: "Node", verbs: ["get", "list"] },
+            { name: 'namespaces', namespaced: false, kind: 'Namespace', verbs: ['get', 'list'] }
         ]
     });
 });
 
 router.get('/apis/apps/v1', (req, res) => {
     res.json({
-        kind: 'APIResourceList',
-        groupVersion: 'apps/v1',
+        kind: "APIResourceList",
+        groupVersion: "apps/v1",
         resources: [
-            { name: 'deployments', namespaced: true, kind: 'Deployment', verbs: ['get', 'list'], singularName: 'deployment' }
-        ]
-    });
-});
-
-router.get('/api', (req, res) => {
-    res.json({
-        kind: 'APIVersions',
-        versions: ['v1'],
-        serverAddressByClientCIDRs: [{ clientCIDR: '0.0.0.0/0', serverAddress: '127.0.0.1:8080' }]
-    });
-});
-
-router.get('/api/v1', (req, res) => {
-    res.json({
-        kind: 'APIResourceList',
-        groupVersion: 'v1',
-        resources: [
-            { name: 'pods', namespaced: true, kind: 'Pod', verbs: ['get', 'list', 'watch'], singularName: 'pod' },
-            { name: 'nodes', namespaced: false, kind: 'Node', verbs: ['get', 'list'], singularName: 'node' },
-            { name: 'namespaces', namespaced: false, kind: 'Namespace', verbs: ['get', 'list'], singularName: 'namespace' },
-            { name: 'configmaps', namespaced: true, kind: 'ConfigMap', verbs: ['get', 'list'], singularName: 'configmap' },
-            { name: 'secrets', namespaced: true, kind: 'Secret', verbs: ['get', 'list'], singularName: 'secret' }
+            { name: "deployments", namespaced: true, kind: "Deployment", verbs: ["get", "list", "create", "delete", "update", "patch"] }
         ]
     });
 });
 
 // Resources
 router.get('/api/v1/pods', (req, res) => {
+    const state = getRoomState(getRoomId(req));
     res.json({ kind: 'PodList', apiVersion: 'v1', metadata: { selfLink: '/api/v1/pods' }, items: state.pods });
 });
 
 router.get('/api/v1/namespaces/:ns/pods', (req, res) => {
+    const state = getRoomState(getRoomId(req));
     const ns = req.params.ns;
     res.json({
         kind: 'PodList',
@@ -89,52 +155,58 @@ router.get('/api/v1/namespaces/:ns/pods', (req, res) => {
     });
 });
 
-router.get('/api/v1/namespaces/:ns/pods/:name', (req, res) => {
-    const { ns, name } = req.params;
-    const pod = state.pods.find((p: any) => p.metadata.namespace === ns && p.metadata.name === name);
-    if (pod) {
-        res.json({ kind: 'Pod', apiVersion: 'v1', ...pod });
-    } else {
-        res.status(404).json({ kind: 'Status', status: 'Failure', message: `pods "${name}" not found` });
-    }
+router.post('/api/v1/namespaces/:ns/pods', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    const newPod = {
+        ...req.body,
+        status: { phase: "Running", hostIP: "10.0.0.4", podIP: "10.244.0.12" }
+    };
+    state.pods.push(newPod);
+    res.status(201).json(newPod);
 });
 
-// SUBRESOURCES (exec, logs, etc)
-router.all([
-    '/api/v1/namespaces/:ns/pods/:name/exec',
-    '/api/v1/namespaces/:ns/pods/:name/log'
-], (req, res) => {
-    const { name } = req.params;
-    const command = req.query.command as string;
+router.delete('/api/v1/namespaces/:ns/pods/:name', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    state.pods = state.pods.filter(p => p.metadata.name !== req.params.name);
+    res.json({ kind: "Status", status: "Success", message: "Pod deleted" });
+});
 
-    if (name.includes('kube-apiserver') && command?.includes('kube-apiserver -h')) {
-        res.send(`
-Usage:
-  kube-apiserver [flags]
+router.get('/apis/apps/v1/namespaces/:ns/deployments', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    res.json({
+        kind: "DeploymentList",
+        apiVersion: "apps/v1",
+        items: state.deployments
+    });
+});
 
-Generic flags:
-      --allow-privileged                                                    If true, allow privileged containers.
-      --enable-admission-plugins strings                                    admission plugins that should be enabled in addition to default ones. (AlwaysAdmit, AlwaysDeny, AlwaysPullImages, DefaultStorageClass, DefaultTolerationSeconds, LimitRanger, MutatingAdmissionWebhook, NamespaceAutoProvision, NamespaceExists, NamespaceLifecycle, NodeRestriction, OwnerReferencesPermissionEnforcement, PersistentVolumeClaimResize, PodNodeSelector, PodPreset, PodSecurityPolicy, PodTolerationRestriction, Priority, ResourceQuota, RuntimeClass, ServiceAccount, StorageObjectInUseProtection, TaintNodesByCondition, ValidatingAdmissionWebhook)
-      --encrypt-asset-config-file string                                    The file containing the configuration for encrypting the assets in etcd.
-...
-        `);
-    } else {
-        res.send(`Simulated output for ${req.method} on ${name} in ${req.params.ns}`);
-    }
+router.get('/api/v1/namespaces/:ns/services', (req, res) => {
+    const state = getRoomState(getRoomId(req));
+    res.json({
+        kind: "ServiceList",
+        apiVersion: "v1",
+        items: state.services
+    });
 });
 
 router.get('/api/v1/nodes', (req, res) => {
+    const state = getRoomState(getRoomId(req));
     res.json({ kind: 'NodeList', apiVersion: 'v1', items: state.nodes });
 });
 
-router.get('/api/v1/namespaces', (req, res) => {
-    res.json({
-        kind: 'NamespaceList',
-        items: [
-            { metadata: { name: 'default' } },
-            { metadata: { name: 'kube-system' } }
-        ]
-    });
+
+// DEBUG & SCENARIO
+router.post('/api/debug/scenario', (req: any, res: any) => {
+    const { lessonId } = req.body;
+    const roomId = getRoomId(req);
+
+    if (lessonId && scenarios[lessonId]) {
+        resetRoomState(roomId, lessonId);
+        res.json({ message: `Switched to scenario ${lessonId}`, roomId });
+    } else {
+        resetRoomState(roomId, 'default');
+        res.json({ message: "Reset to default scenario", roomId });
+    }
 });
 
 export default router;
