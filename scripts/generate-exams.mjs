@@ -39,8 +39,12 @@ async function generateExams() {
 
                     const finalTasks = tasks.length > 1 ? tasks : [];
 
-                    exams[data.id] = {
+                    // Ensure ID is a string
+                    const lessonId = String(data.id);
+
+                    exams[lessonId] = {
                         ...data,
+                        id: lessonId,
                         markdown: markdownBody,
                         tasks: finalTasks,
                     };

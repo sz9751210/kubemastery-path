@@ -14,20 +14,20 @@ export const getLessons = () => Object.values(lessons);
 export const getLessonById = (id: string): Lesson | undefined => {
   // Check for special random exam IDs
   if (id === 'cka-random-mock') {
-    return generateRandomExam('CKA', 'Random CKA Mock Exam');
+    return generateRandomExam(id, 'CKA', 'Random CKA Mock Exam');
   }
   if (id === 'ckad-random-mock') {
-    return generateRandomExam('CKAD', 'Random CKAD Mock Exam');
+    return generateRandomExam(id, 'CKAD', 'Random CKAD Mock Exam');
   }
   if (id === 'cks-random-mock') {
-    return generateRandomExam('CKS', 'Random CKS Mock Exam');
+    return generateRandomExam(id, 'CKS', 'Random CKS Mock Exam');
   }
 
   return lessons[id];
 };
 
 // Helper to generate a random exam from the pool of tasks
-function generateRandomExam(category: string, title: string): Lesson {
+function generateRandomExam(id: string, category: string, title: string): Lesson {
   const pool = Object.values(lessons).filter(l => l.category === category || l.category.includes(category));
   const allTasks: string[] = [];
 

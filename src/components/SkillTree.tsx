@@ -13,7 +13,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { getNodesForChapter, getEdgesForChapter, Chapter } from '@/data/curriculum';
-import { getLessons } from '@/data/lessons';
+import { lessons } from '@/data/lessons';
 import SkillNode from './SkillNode';
 import { useProgress } from '@/lib/useProgress';
 import { useSRS } from '@/lib/useSRS';
@@ -47,7 +47,7 @@ export default function SkillTree() {
         setEdges(getEdgesForChapter(currentChapter));
     }, [currentChapter, setNodes, setEdges]);
 
-    const allLessonData = useMemo(() => getLessons(), []);
+    const allLessonData = useMemo(() => lessons, []);
 
     // Map initial nodes to include progress state and custom type
     const styledNodes = useMemo(() => {

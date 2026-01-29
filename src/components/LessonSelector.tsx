@@ -7,7 +7,7 @@ import { Lesson } from '@/data/lessons';
 
 interface LessonSelectorProps {
     currentLessonId: string;
-    lessons: Record<string, Lesson>;
+    lessons: Lesson[];
 }
 
 export default function LessonSelector({ currentLessonId, lessons }: LessonSelectorProps) {
@@ -15,7 +15,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
     const [isOpen, setIsOpen] = React.useState(false);
 
     // Group lessons by category
-    const groupedLessons = Object.values(lessons).reduce((acc, lesson) => {
+    const groupedLessons = lessons.reduce((acc, lesson) => {
         if (!acc[lesson.category]) {
             acc[lesson.category] = [];
         }
@@ -36,7 +36,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
                     aria-haspopup="true"
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    <span className="truncate max-w-[200px]">{lessons[currentLessonId]?.title || 'Select Lesson'}</span>
+                    <span className="truncate max-w-[200px]">{lessons.find(l => l.id === currentLessonId)?.title || 'Select Lesson'}</span>
                     <ChevronDown className={`-mr-1 h-4 w-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
             </div>

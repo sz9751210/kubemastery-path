@@ -3,7 +3,7 @@ import { Lesson } from './types';
 
 export const generatedExams: Record<string, Lesson> = {
   "1": {
-    "id": 1,
+    "id": "1",
     "title": "Container Basics",
     "category": "CORE",
     "duration": "20 mins",
@@ -11,7 +11,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "2": {
-    "id": 2,
+    "id": "2",
     "title": "Pod Lifecycle",
     "category": "CORE",
     "duration": "25 mins",
@@ -19,7 +19,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "3": {
-    "id": 3,
+    "id": "3",
     "title": "YAML Configuration",
     "category": "CORE",
     "duration": "30 mins",
@@ -27,7 +27,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "4": {
-    "id": 4,
+    "id": "4",
     "title": "Multi-Container Pods",
     "category": "CORE",
     "duration": "35 mins",
@@ -35,7 +35,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "5": {
-    "id": 5,
+    "id": "5",
     "title": "Cluster Architecture",
     "category": "CKA/CKAD",
     "duration": "40 mins",
@@ -43,7 +43,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "6": {
-    "id": 6,
+    "id": "6",
     "title": "Services & Networking",
     "category": "CKA/CKAD",
     "duration": "45 mins",
@@ -51,7 +51,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "7": {
-    "id": 7,
+    "id": "7",
     "title": "Storage (PV/PVC)",
     "category": "CKA/CKAD",
     "duration": "35 mins",
@@ -59,7 +59,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "8": {
-    "id": 8,
+    "id": "8",
     "title": "Scheduling",
     "category": "CKA/CKAD",
     "duration": "30 mins",
@@ -67,7 +67,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "9": {
-    "id": 9,
+    "id": "9",
     "title": "Cluster Hardening",
     "category": "CKS",
     "duration": "50 mins",
@@ -75,7 +75,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "10": {
-    "id": 10,
+    "id": "10",
     "title": "Network Policies",
     "category": "CKS",
     "duration": "35 mins",
@@ -83,7 +83,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "11": {
-    "id": 11,
+    "id": "11",
     "title": "System Hardening",
     "category": "CKS",
     "duration": "45 mins",
@@ -91,7 +91,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "12": {
-    "id": 12,
+    "id": "12",
     "title": "ReplicaSets & Deployments",
     "category": "CORE",
     "duration": "25 mins",
@@ -99,7 +99,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "13": {
-    "id": 13,
+    "id": "13",
     "title": "Jobs & CronJobs",
     "category": "CORE",
     "duration": "20 mins",
@@ -107,7 +107,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "14": {
-    "id": 14,
+    "id": "14",
     "title": "Control Plane & API Server",
     "category": "CKA/CKAD",
     "duration": "45 mins",
@@ -115,7 +115,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "15": {
-    "id": 15,
+    "id": "15",
     "title": "Troubleshooting & Logs",
     "category": "CKA/CKAD",
     "duration": "40 mins",
@@ -123,7 +123,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "16": {
-    "id": 16,
+    "id": "16",
     "title": "Admission Controllers",
     "category": "CKS",
     "duration": "50 mins",
@@ -131,7 +131,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "17": {
-    "id": 17,
+    "id": "17",
     "title": "Runtime Security",
     "category": "CKS",
     "duration": "45 mins",
@@ -139,7 +139,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "18": {
-    "id": 18,
+    "id": "18",
     "title": "CRDs & API Extensions",
     "category": "EXPERT",
     "duration": "60 mins",
@@ -147,16 +147,15 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "20": {
-    "id": 20,
-    "title": "",
-    "Workloads\"": "Deployments\"",
+    "id": "20",
+    "title": "Workloads: Deployments",
     "category": "CKA/CKAD",
     "duration": "45 mins",
     "markdown": "\n# Workloads: Deployments & ReplicaSets\n\nPods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.\n\n## The Hierarchy\n\\`Deployment\\` manages \\`ReplicaSet\\` manages \\`Pod\\`.\n\n\\`\\`\\`bash\n# Create a deployment\nkubectl create deployment my-dep --image=nginx --replicas=3\n\\`\\`\\`\n\n## Features\n- **Self-healing**: Restarts crashed pods.\n- **Scaling**: \n\\`\\`\\`bash\nkubectl scale deployment my-dep --replicas=5\n\\`\\`\\`\n",
     "tasks": []
   },
   "21": {
-    "id": 21,
+    "id": "21",
     "title": "StatefulSets & DaemonSets",
     "category": "CKA/CKAD",
     "duration": "40 mins",
@@ -164,7 +163,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "22": {
-    "id": 22,
+    "id": "22",
     "title": "Ingress & DNS",
     "category": "CKA/CKAD",
     "duration": "50 mins",
@@ -172,16 +171,15 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "30": {
-    "id": 30,
-    "title": "",
-    "RBAC\"": "Authorization\"",
+    "id": "30",
+    "title": "RBAC: Authorization",
     "category": "CKS",
     "duration": "60 mins",
     "markdown": "\n# Role Based Access Control (RBAC)\n\n**Authentication** (Who are you?) vs **Authorization** (What can you do?).\n\n## Core Objects\n1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.\n2. **ClusterRole**: Rules scoped linearly (Cluster-wide).\n3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.\n4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.\n\n\\`\\`\\`bash\n# Check my permissions\nkubectl auth can-i create pods\n\\`\\`\\`\n",
     "tasks": []
   },
   "31": {
-    "id": 31,
+    "id": "31",
     "title": "Secrets Management",
     "category": "CKS",
     "duration": "40 mins",
@@ -189,16 +187,15 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "40": {
-    "id": 40,
-    "title": "",
-    "Helm\"": "Package Management\"",
+    "id": "40",
+    "title": "Helm: Package Management",
     "category": "EXPERT",
     "duration": "50 mins",
     "markdown": "\n# Helm: Kubernetes Package Manager\n\nManaging thousands of YAML files is painful. **Helm** solves this using **Charts**.\n\n## Concepts\n- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.\n- **Release**: A running instance of a chart.\n\n\\`\\`\\`bash\n# List helm releases\nhelm list -A\n\\`\\`\\`\n",
     "tasks": []
   },
   "41": {
-    "id": 41,
+    "id": "41",
     "title": "Operators & CRDs",
     "category": "EXPERT",
     "duration": "60 mins",
@@ -206,7 +203,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "42": {
-    "id": 42,
+    "id": "42",
     "title": "Service Mesh (Istio)",
     "category": "EXPERT",
     "duration": "60 mins",
@@ -214,7 +211,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "50": {
-    "id": 50,
+    "id": "50",
     "title": "Cluster Maintenance",
     "category": "CKA",
     "duration": "45 mins",
@@ -222,7 +219,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "51": {
-    "id": 51,
+    "id": "51",
     "title": "Security & Identity",
     "category": "CKA",
     "duration": "40 mins",
@@ -230,7 +227,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "52": {
-    "id": 52,
+    "id": "52",
     "title": "Advanced Storage",
     "category": "CKA/CKAD",
     "duration": "35 mins",
@@ -238,7 +235,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "53": {
-    "id": 53,
+    "id": "53",
     "title": "Cluster Networking",
     "category": "CKA",
     "duration": "50 mins",
@@ -246,7 +243,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "54": {
-    "id": 54,
+    "id": "54",
     "title": "Observability",
     "category": "CKA",
     "duration": "30 mins",
@@ -254,7 +251,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "60": {
-    "id": 60,
+    "id": "60",
     "title": "Supply Chain Security",
     "category": "CKS",
     "duration": "45 mins",
@@ -262,7 +259,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "61": {
-    "id": 61,
+    "id": "61",
     "title": "Audit Logging & Monitoring",
     "category": "CKS",
     "duration": "50 mins",
@@ -270,7 +267,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "62": {
-    "id": 62,
+    "id": "62",
     "title": "Advanced Pod Security",
     "category": "CKS",
     "duration": "45 mins",
@@ -278,7 +275,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "70": {
-    "id": 70,
+    "id": "70",
     "title": "Application Build & Images",
     "category": "CKAD",
     "duration": "40 mins",
@@ -286,7 +283,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "71": {
-    "id": 71,
+    "id": "71",
     "title": "Advanced Deployment Strategies",
     "category": "CKAD",
     "duration": "50 mins",
@@ -294,7 +291,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "72": {
-    "id": 72,
+    "id": "72",
     "title": "Application Observability",
     "category": "CKAD",
     "duration": "45 mins",
@@ -302,7 +299,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "73": {
-    "id": 73,
+    "id": "73",
     "title": "Services & Networking Design",
     "category": "CKAD",
     "duration": "40 mins",
@@ -310,16 +307,15 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "90": {
-    "id": 90,
-    "title": "",
-    "Command Line Fu\"": "JSONPath\"",
+    "id": "90",
+    "title": "Command Line Fu: JSONPath",
     "category": "CKA/CKAD",
     "duration": "45 mins",
     "markdown": "\n# Command Line Fu: JSONPath & Custom Columns\n\nMastering \\`kubectl\\` output is mandatory for CKA/CKAD.\n\n## JSONPath\nFilter and format output programmatically.\n- **Syntax**: \\`{.items[*].metadata.name}\\`\n\n\\`\\`\\`bash\n# Get all pod names\nkubectl get pods -o jsonpath='{.items[*].metadata.name}'\n\n# Get InternalIP of all nodes\nkubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type==\"InternalIP\")].address}'\n\\`\\`\\`\n\n## Custom Columns\nCreate your own table output.\n\\`\\`\\`bash\n# Show Pod Name and Node Name\nkubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName\n\\`\\`\\`\n",
     "tasks": []
   },
   "91": {
-    "id": 91,
+    "id": "91",
     "title": "Cluster Bootstrap Deep Dive",
     "category": "CKA",
     "duration": "60 mins",
@@ -327,34 +323,31 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "99": {
-    "id": 99,
-    "title": "",
-    "Chaos Challenge\"": "The Broken Cluster\"",
+    "id": "99",
+    "title": "Chaos Challenge: The Broken Cluster",
     "category": "EXPERT",
     "duration": "60 mins",
     "markdown": "\n# Chaos Challenge: The Broken Cluster\n\n> [!WARNING]\n> This is a **live fire** exercise. We have deliberately broken this cluster.\n\n## Scenario\nYou are the on-call Site Reliability Engineer. Minutes ago, all \\`kubectl\\` commands started failing.\n\n## Your Mission\n1.  **Diagnose** why the API Server is failing.\n2.  **Fix** the underlying issue.\n3.  **Restore** cluster connectivity.\n",
     "tasks": []
   },
   "100": {
-    "id": 100,
-    "title": "",
-    "Service Internals\"": "Iptables vs IPVS\"",
+    "id": "100",
+    "title": "Service Internals: Iptables vs IPVS",
     "category": "INTERNALS",
     "duration": "60 mins",
     "markdown": "\n# Service Implementation: Deep Dive\n\nHow does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.\n\n## kube-proxy\nThe component responsible for watching the API Server for Services/Endpoints and configuring rules.\n\n## Iptables Mode (Default)\nTraffic is captured by PREROUTING/OUTPUT chains and redirected.\n- **Chain KUBE-SERVICES**: The entry point.\n- **Chain KUBE-SVC-***: Round-robin load balancing (using statistic mode random probability).\n- **Chain KUBE-SEP-***: Service EndPoint (DNAT to actual Pod IP).\n\n\\`\\`\\`bash\n# View service rules\nsudo iptables -t nat -L KUBE-SERVICES\n\\`\\`\\`\n\n## IPVS Mode\nUses Linux Kernel's IP Virtual Server (Netfilter).\n- **Performance**: O(1) matching vs O(n) for iptables (sequential scan).\n- **Scalability**: Better for thousands of services.\n",
     "tasks": []
   },
   "101": {
-    "id": 101,
-    "title": "",
-    "CNI Deep Dive\"": "Pod Networking\"",
+    "id": "101",
+    "title": "CNI Deep Dive: Pod Networking",
     "category": "INTERNALS",
     "duration": "75 mins",
     "markdown": "\n# CNI Deep Dive\n\nHow do Pods talk to each other across nodes?\n\n## The \"Pause\" Container\nExists solely to hold the Network Namespace. Application containers join this namespace (share localhost).\n\n## VETH Pairs (Virtual Ethernet)\nConnects the Pod namespace to the Host namespace.\n- **eth0 (Pod)** <--> **veth*** (Host).\n\n## Bridge Mode (e.g., cbr0)\nVETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.\n\n## Overlay Networks (VXLAN / IPIP)\nEncapsulating L2 frames inside L3 packets to cross node boundaries.\n- **Flannel**: UDP/VXLAN.\n- **Calico**: BGP (Direct Routing) or IPIP.\n",
     "tasks": []
   },
   "201": {
-    "id": 201,
+    "id": "201",
     "title": "CKA Mock Exam 1",
     "category": "CKA",
     "duration": "120 mins",
@@ -362,7 +355,7 @@ export const generatedExams: Record<string, Lesson> = {
     "tasks": []
   },
   "202": {
-    "id": 202,
+    "id": "202",
     "title": "CKA Mock Exam 2",
     "category": "CKA",
     "duration": "120 mins",
