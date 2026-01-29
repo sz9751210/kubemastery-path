@@ -4,10 +4,12 @@ import * as pty from 'node-pty';
 import os from 'os';
 import cors from 'cors';
 import mockK8s from './mockK8s';
+import labRouter from './labRoutes';
 
 const app = express();
 app.use(cors());
-app.use(mockK8s); // Mount Kubernetes Mock API
+app.use(mockK8s);
+app.use(labRouter);
 
 const PORT = 4000;
 const K8S_PORT = 8080;

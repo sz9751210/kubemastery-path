@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.env.local
+.env
+build
+dist
+backend/node_modules
+webapp/node_modules
