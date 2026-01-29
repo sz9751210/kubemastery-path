@@ -8,9 +8,7 @@ export interface Lesson {
 }
 
 const lessons: Record<string, Lesson> = {
-  // ==========================================
-  // LEVEL 1: NOVICE (Foundations)
-  // ==========================================
+  // LEVEL 1: NOVICE
   '1': {
     id: '1',
     title: 'Container Basics',
@@ -43,7 +41,7 @@ crictl ps
     flashcards: [
       { question: 'What isolates what a process SEES?', answer: 'Namespaces' },
       { question: 'What isolates what a process USES?', answer: 'Cgroups' },
-      { question: 'Which runtime interface does K8s use instead of Docker?', answer: 'CRI (Container Runtime Interface)' }
+      { question: 'Which runtime interface does K8s use instead of Docker?', answer: 'CRI' }
     ]
   },
   '2': {
@@ -69,9 +67,6 @@ kubectl run nginx-demo --image=nginx
 # Watch the pod status change
 kubectl get pod nginx-demo -w
 \`\`\`
-
-## Sidecars (Multi-Container)
-Containers in a Pod share **Network (localhost)** and **Volumes**.
     `,
     flashcards: [
       { question: 'What is the state when a Pod is waiting for a node?', answer: 'Pending' },
@@ -104,431 +99,49 @@ spec:
   - name: nginx
     image: nginx
 \`\`\`
-
-\`\`\`bash
-# Explain the Pod spec to learn available fields
-kubectl explain pod.spec.containers
-\`\`\`
     `
   },
-
-  // ==========================================
-  // LEVEL 2: ADMIN (CKA - Orchestration)
-  // ==========================================
-  '20': {
-    id: '20',
-    title: 'Workloads: Deployments',
-    category: 'Admin',
-    duration: '45 mins',
+  '4': {
+    id: '4',
+    title: 'Multi-Container Pods',
+    category: 'Novice',
+    duration: '35 mins',
     markdown: `
-# Workloads: Deployments & ReplicaSets
+# Multi-Container Pods
 
-Pods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.
+Sharing is caring. Sometimes one container isn't enough.
 
-## The Hierarchy
-\`Deployment\` manages \`ReplicaSet\` manages \`Pod\`.
+## Patterns
+1.  **Sidecar**: Helper container (e.g., Log shipper, Proxy).
+2.  **Adapter**: Standardizes output (e.g., Metrics converter).
+3.  **Ambassador**: Proxies connection to outside world.
 
-\`\`\`bash
-# Create a deployment
-kubectl create deployment my-dep --image=nginx --replicas=3
-
-# View the hierarchy
-kubectl get deploy,rs,po
-\`\`\`
-
-## Features
-- **Self-healing**: Restarts crashed pods.
-- **Scaling**: 
-\`\`\`bash
-kubectl scale deployment my-dep --replicas=5
-\`\`\`
-- **Rolling Updates**: Zero-downtime deployments.
-
-\`\`\`yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-\`\`\`
-    `
-  },
-  '21': {
-    id: '21',
-    title: 'StatefulSets & DaemonSets',
-    category: 'Admin',
-    duration: '40 mins',
-    markdown: `
-# StatefulSets & DaemonSets
-
-Not everything is a stateless web server.
-
-## StatefulSet
-Used for databases or apps needing:
-- **Stable Network ID**: \`web-0\`, \`web-1\`.
-- **Stable Storage**: VolumeClaims templates.
-- **Ordered Deployment**: 0 -> 1 -> 2.
-
-\`\`\`bash
-# List StatefulSets in the cluster
-kubectl get statefulsets -A
-\`\`\`
-
-## DaemonSet
-Ensures a copy of a Pod runs on **all** (or some) Nodes.
-- Examples: \`kube-proxy\`, \`fluentd\` (logging), \`weave-net\` (CNI).
-
-\`\`\`bash
-# Check the kube-proxy daemonset
-kubectl get ds -n kube-system
-\`\`\`
-
-> [!NOTE]
-> DaemonSets bypass the scheduler mostly, though they respect taints/tolerations.
-    `
-  },
-  '6': {
-    id: '6',
-    title: 'Services & Networking',
-    category: 'Admin',
-    duration: '45 mins',
-    markdown: `
-# Services: Exposing Applications
-
-## Service Types
-1. **ClusterIP**: Internal only.
-2. **NodePort**: Exposure on static port (30000+).
-3. **LoadBalancer**: Cloud provider LB.
-
-\`\`\`bash
-# Expose a deployment
-kubectl expose deployment my-dep --port=80 --target-port=80 --type=NodePort --name=my-svc
-
-# Get the service details
-kubectl get svc my-svc
-\`\`\`
-
-## Service Discovery
-DNS names are formatted:
-\`<service-name>.<namespace>.svc.cluster.local\`
+## Shared Resources
+Containers in a Pod share:
+-   **Network Namespace**: Same IP, same localhost.
+-   **Volumes**: Shared filesystems.
 
 \`\`\`yaml
 apiVersion: v1
-kind: Service
+kind: Pod
 metadata:
-  name: my-service
+  name: sidecar-demo
 spec:
-  selector:
-    app: MyApp
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
-\`\`\`
-    `
-  },
-  '22': {
-    id: '22',
-    title: 'Ingress & DNS',
-    category: 'Admin',
-    duration: '50 mins',
-    markdown: `
-# Ingress & Advanced Networking
-
-**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).
-
-## Ingress Controller
-An Ingress resource does nothing without a controller (e.g., Nginx, Traefik).
-
-\`\`\`bash
-# Check for ingress controllers
-kubectl get pods -n ingress-nginx
-\`\`\`
-
-## Ingress Resource
-Defines rules to route traffic.
-- **Path Based**: \`/api\` -> Service A, \`/web\` -> Service B.
-- **Host Based**: \`foo.bar.com\` -> Service A.
-
-\`\`\`yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: minimal-ingress
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /testpath
-        pathType: Prefix
-        backend:
-          service:
-            name: test
-            port:
-              number: 80
-\`\`\`
-    `
-  },
-  '7': {
-    id: '7',
-    title: 'Storage (PV/PVC)',
-    category: 'Admin',
-    duration: '35 mins',
-    markdown: `
-# Storage Orchestration
-
-Decoupling storage from Pod lifecycle.
-
-## PV vs PVC
-- **PV (PersistentVolume)**: The physical storage resource (provisioned by Admin).
-- **PVC (Claim)**: The request for storage (by Developer).
-
-\`\`\`bash
-# List Persistent Volumes
-kubectl get pv
-
-# List Claims
-kubectl get pvc
-\`\`\`
-
-## Access Modes
-- **RWO**: ReadWriteOnce (Block storage usually).
-- **RWX**: ReadWriteMany (NFS/File storage).
-    `
-  },
-  '8': {
-    id: '8',
-    title: 'Scheduling',
-    category: 'Admin',
-    duration: '30 mins',
-    markdown: `
-# Scheduling
-
-Controlling where Pods go.
-
-## Taints & Tolerations
-"Repel" pods from nodes.
-- Master nodes are tainted \`NoSchedule\`.
-
-\`\`\`bash
-# View taints on nodes
-kubectl describe node controlplane | grep Taint
-\`\`\`
-
-## Affinity
-"Attract" pods to nodes.
-- \`nodeAffinity\`: Run on nodes with SSD.
-- \`podAffinity\`: Run co-located with Redis pod.
-    `
-  },
-
-  // ==========================================
-  // LEVEL 3: SECURITY (CKS - Hardening)
-  // ==========================================
-  '30': {
-    id: '30',
-    title: 'RBAC: Authorization',
-    category: 'Security',
-    duration: '60 mins',
-    markdown: `
-# Role Based Access Control (RBAC)
-
-**Authentication** (Who are you?) vs **Authorization** (What can you do?).
-
-## Core Objects
-1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.
-2. **ClusterRole**: Rules scoped linearly (Cluster-wide).
-3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.
-4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.
-
-\`\`\`bash
-# Check my permissions
-kubectl auth can-i create pods
-
-# Check permissions for a service account
-kubectl auth can-i list secrets --as=system:serviceaccount:default:my-sa
-\`\`\`
-
-\`\`\`yaml
-# Can view pods in 'default' ns
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: default
-  name: pod-reader
-rules:
-- apiGroups: [""]
-  resources: ["pods", "pods/log"]
-  verbs: ["get", "watch", "list"]
-\`\`\`
-    `
-  },
-  '10': {
-    id: '10',
-    title: 'Network Policies',
-    category: 'Security',
-    duration: '35 mins',
-    markdown: `
-# Network Policies
-
-The firewall for Kubernetes.
-
-> [!WARNING]
-> By default, K8s is a **Flat Network**. Any pod can talk to any pod.
-
-## Default Deny Logic
-Start by denying everything, then allow specific traffic.
-
-\`\`\`bash
-# See if any policies exist
-kubectl get networkpolicies
-\`\`\`
-
-\`\`\`yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-all
-spec:
-  podSelector: {}
-  policyTypes:
-  - Ingress
-  - Egress
-\`\`\`
-    `
-  },
-  '31': {
-    id: '31',
-    title: 'Secrets Management',
-    category: 'Security',
-    duration: '40 mins',
-    markdown: `
-# Secrets & Security Contexts
-
-## Secrets
-Base64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.
-- Mount as Environment Variables.
-- Mount as Files (Volume).
-
-\`\`\`bash
-# Create a generic secret
-kubectl create secret generic my-pass --from-literal=password=secret123
-
-# Decode a secret
-echo "c2VjcmV0MTIz" | base64 -d
-\`\`\`
-
-## Security Contexts
-Define privileges and access control for a Pod/Container.
-- \`runAsUser\`: UID to run process.
-- \`fsGroup\`: GID for volumes.
-- \`privileged\`: Give full host access (Danger!).
-
-\`\`\`yaml
-spec:
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 3000
-    fsGroup: 2000
-\`\`\`
-    `
-  },
-
-  // ==========================================
-  // LEVEL 4: EXPERT (Scale & Ops)
-  // ==========================================
-  '40': {
-    id: '40',
-    title: 'Helm: Package Management',
-    category: 'Expert',
-    duration: '50 mins',
-    markdown: `
-# Helm: Kubernetes Package Manager
-
-Managing thousands of YAML files is painful. **Helm** solves this using **Charts**.
-
-## Concepts
-- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.
-- **Config**: Contains configuration information that can be merged into a packaged chart to create a releaseable object.
-- **Release**: A running instance of a chart, combined with a specific config.
-
-\`\`\`bash
-# List helm releases
-helm list -A
-
-# Search for a chart
-helm search hub nginx
-\`\`\`
-
-## Templating
-Helm uses Go templates.
-
-\`\`\`yaml
-# values.yaml
-replicaCount: 2
-
-# deploy.yaml
-replicas: {{ .Values.replicaCount }}
-\`\`\`
-    `
-  },
-  '41': {
-    id: '41',
-    title: 'Operators & CRDs',
-    category: 'Expert',
-    duration: '60 mins',
-    markdown: `
-# Operators & Custom Resource Definitions (CRDs)
-
-Extending the Kubernetes API.
-
-## CRD (Custom Resource Definition)
-Allows you to create your own API types. e.g., \`kind: MySQLDatabase\`.
-
-\`\`\`bash
-# List custom resources
-kubectl get crd
-\`\`\`
-
-## The Operator Pattern
-An Operator is a Controller that watches a CRD and acts on it.
-- Replaces human operation knowledge with code.
-- Example: **Prometheus Operator** automatically manages Prometheus config based on \`ServiceMonitor\` resources.
-    `
-  },
-  '42': {
-    id: '42',
-    title: 'Service Mesh (Istio)',
-    category: 'Expert',
-    duration: '60 mins',
-    markdown: `
-# Service Mesh
-
-Managing network traffic between services (East-West traffic).
-
-## Why use a Mesh?
-1. **Observability**: Tracing, Metrics (Graphana/Prometheus automatic).
-2. **Traffic Control**: Canary types, Split traffic (90% v1, 10% v2).
-3. **Security**: mTLS (Mutual TLS) between all pods automatically.
-
-## Sidecar Proxy
-Istio injects an \`envoy\` proxy container into every Pod to intercept all network traffic.
-
-\`\`\`bash
-# Check for istio proxy sidecars
-kubectl get pods -l istio-injection=enabled
+  containers:
+  - name: main-app
+    image: nginx
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/nginx
+  - name: log-shipper
+    image: busybox
+    command: ["sh", "-c", "tail -f /var/log/nginx/access.log"]
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/nginx
+  volumes:
+  - name: shared-logs
+    emptyDir: {}
 \`\`\`
     `
   },
@@ -589,6 +202,36 @@ kubectl create cronjob heartbeat --image=busybox --schedule="*/1 * * * *" -- ech
 \`\`\`
     `
   },
+
+
+  // LEVEL 2: ADMIN
+  '5': {
+    id: '5',
+    title: 'Cluster Architecture',
+    category: 'Admin',
+    duration: '40 mins',
+    markdown: `
+# Cluster Architecture
+
+Understand the machine you are driving.
+
+## The Two Planes
+1.  **Control Plane** (The Brain):
+    -   Manages the state of the cluster.
+    -   Components: API Server, Etcd, Scheduler, Controller Manager.
+2.  **Data Plane** (The Muscle):
+    -   Runs the workloads.
+    -   Components: Kubelet, Kube-Proxy, Container Runtime.
+
+## Kubelet
+The agent that runs on every node. It registers the node with the apiserver and ensures Pods are running and healthy.
+
+\`\`\`bash
+# Check node status
+kubectl get nodes -o wide
+\`\`\`
+    `
+  },
   '14': {
     id: '14',
     title: 'Control Plane & API Server',
@@ -609,9 +252,76 @@ The brains of the cluster.
 # Check the status of control plane components
 kubectl get pods -n kube-system -l tier=control-plane
 \`\`\`
+    `
+  },
+  '6': {
+    id: '6',
+    title: 'Services & Networking',
+    category: 'Admin',
+    duration: '45 mins',
+    markdown: `
+# Services: Exposing Applications
 
-> [!IMPORTANT]
-> Always check the logs of the API server when the cluster is behaving unexpectedly.
+## Service Types
+1. **ClusterIP**: Internal only.
+2. **NodePort**: Exposure on static port (30000+).
+3. **LoadBalancer**: Cloud provider LB.
+
+\`\`\`bash
+# Expose a deployment
+kubectl expose deployment my-dep --port=80 --target-port=80 --type=NodePort --name=my-svc
+
+# Get the service details
+kubectl get svc my-svc
+\`\`\`
+    `
+  },
+  '7': {
+    id: '7',
+    title: 'Storage (PV/PVC)',
+    category: 'Admin',
+    duration: '35 mins',
+    markdown: `
+# Storage Orchestration
+
+Decoupling storage from Pod lifecycle.
+
+## PV vs PVC
+- **PV (PersistentVolume)**: The physical storage resource.
+- **PVC (Claim)**: The request for storage.
+
+\`\`\`bash
+# List Persistent Volumes
+kubectl get pv
+\`\`\`
+
+## Access Modes
+- **RWO**: ReadWriteOnce (Block storage usually).
+- **RWX**: ReadWriteMany (NFS/File storage).
+    `
+  },
+  '8': {
+    id: '8',
+    title: 'Scheduling',
+    category: 'Admin',
+    duration: '30 mins',
+    markdown: `
+# Scheduling
+
+Controlling where Pods go.
+
+## Taints & Tolerations
+"Repel" pods from nodes.
+- Master nodes are tainted \`NoSchedule\`.
+
+\`\`\`bash
+# View taints on nodes
+kubectl describe node controlplane | grep Taint
+\`\`\`
+
+## Affinity
+"Attract" pods to nodes.
+- \`nodeAffinity\`: Run on nodes with SSD.
     `
   },
   '15': {
@@ -635,13 +345,145 @@ kubectl describe pod <pod-name>
 # Check logs for a specific pod
 kubectl logs <pod-name>
 \`\`\`
+    `
+  },
+  '20': {
+    id: '20',
+    title: 'Workloads: Deployments',
+    category: 'Admin',
+    duration: '45 mins',
+    markdown: `
+# Workloads: Deployments & ReplicaSets
 
-## Events
-Kubernetes captures events for almost every state change.
+Pods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.
+
+## The Hierarchy
+\`Deployment\` manages \`ReplicaSet\` manages \`Pod\`.
 
 \`\`\`bash
-# List recent events in the namespace
-kubectl get events --sort-by='.lastTimestamp'
+# Create a deployment
+kubectl create deployment my-dep --image=nginx --replicas=3
+\`\`\`
+
+## Features
+- **Self-healing**: Restarts crashed pods.
+- **Scaling**: 
+\`\`\`bash
+kubectl scale deployment my-dep --replicas=5
+\`\`\`
+    `
+  },
+  '21': {
+    id: '21',
+    title: 'StatefulSets & DaemonSets',
+    category: 'Admin',
+    duration: '40 mins',
+    markdown: `
+# StatefulSets & DaemonSets
+
+Not everything is a stateless web server.
+
+## StatefulSet
+Used for databases or apps needing:
+- **Stable Network ID**: \`web-0\`, \`web-1\`.
+- **Stable Storage**: VolumeClaims templates.
+
+## DaemonSet
+Ensures a copy of a Pod runs on **all** (or some) Nodes.
+- Examples: \`kube-proxy\`, \`fluentd\` (logging).
+
+\`\`\`bash
+# Check the kube-proxy daemonset
+kubectl get ds -n kube-system
+\`\`\`
+    `
+  },
+  '22': {
+    id: '22',
+    title: 'Ingress & DNS',
+    category: 'Admin',
+    duration: '50 mins',
+    markdown: `
+# Ingress & Advanced Networking
+
+**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).
+
+## Ingress Controller
+An Ingress resource does nothing without a controller (e.g., Nginx, Traefik).
+
+\`\`\`bash
+# Check for ingress controllers
+kubectl get pods -n ingress-nginx
+\`\`\`
+    `
+  },
+
+  // LEVEL 3: SECURITY
+  '9': {
+    id: '9',
+    title: 'Cluster Hardening',
+    category: 'Security',
+    duration: '50 mins',
+    markdown: `
+# Cluster Hardening
+
+Locking down the fortress.
+
+## Center for Internet Security (CIS) Benchmarks
+The gold standard for K8s security.
+
+## Key Principles
+1.  **Least Privilege**: RBAC, SecurityContexts.
+2.  **Minimize Attack Surface**: Remove shells, use distroless images.
+3.  **encrypt-secret-data-at-rest**: Check etcd configuration.
+
+\`\`\`bash
+# Check if anonymous auth is enabled (Should be false)
+ps -ef | grep kube-apiserver | grep anonymous-auth
+\`\`\`
+    `
+  },
+  '30': {
+    id: '30',
+    title: 'RBAC: Authorization',
+    category: 'Security',
+    duration: '60 mins',
+    markdown: `
+# Role Based Access Control (RBAC)
+
+**Authentication** (Who are you?) vs **Authorization** (What can you do?).
+
+## Core Objects
+1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.
+2. **ClusterRole**: Rules scoped linearly (Cluster-wide).
+3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.
+4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.
+
+\`\`\`bash
+# Check my permissions
+kubectl auth can-i create pods
+\`\`\`
+    `
+  },
+  '10': {
+    id: '10',
+    title: 'Network Policies',
+    category: 'Security',
+    duration: '35 mins',
+    markdown: `
+# Network Policies
+
+The firewall for Kubernetes.
+
+> [!WARNING]
+> By default, K8s is a **Flat Network**. Any pod can talk to any pod.
+
+## Default Deny Logic
+Start by denying everything, then allow specific traffic.
+
+\`\`\`bash
+# See if any policies exist
+kubectl get networkpolicies
 \`\`\`
     `
   },
@@ -663,11 +505,6 @@ Intercepting requests to the API server before an object is persisted.
 # Check which admission plugins are enabled
 kubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins
 \`\`\`
-
-## Common Plugins
-- \`AlwaysPullImages\`
-- \`LimitRanger\`
-- \`NamespaceExists\`
     `
   },
   '17': {
@@ -683,14 +520,117 @@ Protecting the running process.
 ## Tools
 - **AppArmor**: Restrict programs' capabilities with per-program profiles.
 - **Seccomp**: Restrict system calls a process can make.
+    `
+  },
+  '11': {
+    id: '11',
+    title: 'System Hardening',
+    category: 'Security',
+    duration: '45 mins',
+    markdown: `
+# System Hardening
+
+Kubernetes is only as secure as the Linux nodes it runs on.
+
+## Kernel Hardening
+-   **Seccomp**: Restrict syscalls.
+-   **AppArmor**: Restrict file access / capabilities.
+
+## Reducing Attack Surface
+-   Disable unused services (SSH, FTP).
+-   Firewall rules (UFW/IPTables) to restrict node-to-node access outside of K8s ports.
 
 \`\`\`bash
-# Check if AppArmor is loaded on the node
-cat /sys/module/apparmor/parameters/enabled
+# Check open ports on the node
+netstat -tulpn
+\`\`\`
+    `
+  },
+  '31': {
+    id: '31',
+    title: 'Secrets Management',
+    category: 'Security',
+    duration: '40 mins',
+    markdown: `
+# Secrets & Security Contexts
+
+## Secrets
+Base64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.
+
+\`\`\`bash
+# Create a generic secret
+kubectl create secret generic my-pass --from-literal=password=secret123
 \`\`\`
 
-## Scanning
-Use tools like **Trivy** or **Falco** to detect vulnerabilities or suspicious behavior at runtime.
+## Security Contexts
+Define privileges and access control for a Pod/Container.
+- \`runAsUser\`: UID to run process.
+- \`fsGroup\`: GID for volumes.
+    `
+  },
+
+  // LEVEL 4: EXPERT
+  '40': {
+    id: '40',
+    title: 'Helm: Package Management',
+    category: 'Expert',
+    duration: '50 mins',
+    markdown: `
+# Helm: Kubernetes Package Manager
+
+Managing thousands of YAML files is painful. **Helm** solves this using **Charts**.
+
+## Concepts
+- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.
+- **Release**: A running instance of a chart.
+
+\`\`\`bash
+# List helm releases
+helm list -A
+\`\`\`
+    `
+  },
+  '41': {
+    id: '41',
+    title: 'Operators & CRDs',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# Operators & Custom Resource Definitions (CRDs)
+
+Extending the Kubernetes API.
+
+## CRD (Custom Resource Definition)
+Allows you to define your own API resources.
+
+\`\`\`bash
+# List custom resources
+kubectl get crd
+\`\`\`
+
+## The Operator Pattern
+An Operator is a Controller that watches a CRD and acts on it.
+    `
+  },
+  '42': {
+    id: '42',
+    title: 'Service Mesh (Istio)',
+    category: 'Expert',
+    duration: '60 mins',
+    markdown: `
+# Service Mesh
+
+Managing network traffic between services (East-West traffic).
+
+## Why use a Mesh?
+1. **Observability**: Tracing, Metrics.
+2. **Traffic Control**: Canary types.
+3. **Security**: mTLS.
+
+\`\`\`bash
+# Check for istio proxy sidecars
+kubectl get pods -l istio-injection=enabled
+\`\`\`
     `
   },
   '18': {
@@ -699,27 +639,12 @@ Use tools like **Trivy** or **Falco** to detect vulnerabilities or suspicious be
     category: 'Expert',
     duration: '60 mins',
     markdown: `
-# CRDs & API Extensions
+# CRDs & API Extensions (Deep Dive)
 
 Making Kubernetes your own.
 
-## Custom Resource Definitions (CRDs)
-Allows you to define your own API resources.
-
-\`\`\`yaml
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: crontabs.stable.example.com
-spec:
-  group: stable.example.com
-  versions:
-    - name: v1
-...
-\`\`\`
-
 ## Aggregation Layer
-Allows the Kubernetes API server to be extended with additional APIs that aren't part of the core Kubernetes API.
+Allows the Kubernetes API server to be extended with additional APIs.
     `
   },
   '99': {
@@ -734,23 +659,12 @@ Allows the Kubernetes API server to be extended with additional APIs that aren't
 > This is a **live fire** exercise. We have deliberately broken this cluster.
 
 ## Scenario
-You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` commands started failing with connection errors. The monitoring system indicates the API Server is down.
+You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` commands started failing.
 
 ## Your Mission
 1.  **Diagnose** why the API Server is failing.
 2.  **Fix** the underlying issue.
 3.  **Restore** cluster connectivity.
-
-## Hints
-- Use \`crictl ps\` to check running containers.
-- Logs are your best friend: \`cat /var/log/simulated_alert.log\`.
-- Check the PKI directory: \`/etc/kubernetes/pki/\`.
-
-\`\`\`bash
-# Access the node shell to begin troubleshooting (Simulated)
-# In the real lab, you would SSH into the node.
-echo "Connecting to control-plane-01..."
-\`\`\`
     `
   }
 };

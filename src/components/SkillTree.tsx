@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactFlow, {
     MiniMap,
@@ -12,22 +12,39 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { initialNodes, initialEdges } from '@/data/curriculum';
+import { getNodesForChapter, getEdgesForChapter, Chapter } from '@/data/curriculum';
 import SkillNode from './SkillNode';
 import { useProgress } from '@/lib/useProgress';
 import { useSRS } from '@/lib/useSRS';
+import { Layers, Shield, Zap, Box } from 'lucide-react';
 
 const nodeTypes = {
     skillNode: SkillNode,
 };
 
+const chapters: { id: Chapter; label: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'foundation', label: 'Foundation', icon: <Box size={16} />, color: 'bg-amber-100 text-amber-700' },
+    { id: 'admin', label: 'Administration', icon: <Layers size={16} />, color: 'bg-blue-100 text-blue-700' },
+    { id: 'security', label: 'Security', icon: <Shield size={16} />, color: 'bg-red-100 text-red-700' },
+    { id: 'expert', label: 'Expert', icon: <Zap size={16} />, color: 'bg-purple-100 text-purple-700' },
+];
+
 export default function SkillTree() {
     const { completedLessons } = useProgress();
     const { cards } = useSRS();
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [currentChapter, setCurrentChapter] = useState<Chapter>('foundation');
+
+    // Initialize with Foundation
+    const [nodes, setNodes, onNodesChange] = useNodesState(getNodesForChapter('foundation'));
+    const [edges, setEdges, onEdgesChange] = useEdgesState(getEdgesForChapter('foundation'));
 
     const router = useRouter();
+
+    // Effect to switch chapters
+    useEffect(() => {
+        setNodes(getNodesForChapter(currentChapter));
+        setEdges(getEdgesForChapter(currentChapter));
+    }, [currentChapter, setNodes, setEdges]);
 
     // Map initial nodes to include progress state and custom type
     const styledNodes = useMemo(() => {
@@ -48,45 +65,70 @@ export default function SkillTree() {
                     ...node.data,
                     isCompleted: completedLessons.includes(node.id),
                     mastery: mastery,
-                    // Infer category from position or id if not explicitly in data
-                    category: parseInt(node.id) < 5 || ['12', '13'].includes(node.id) ? 'Novice' :
-                        parseInt(node.id) < 9 || ['14', '15'].includes(node.id) ? 'Admin' :
-                            parseInt(node.id) < 12 || ['16', '17'].includes(node.id) ? 'Security' : 'Expert'
+                    // Use chapter as category hint if needed, but the explicit mapping logic was:
+                    // category: parseInt(node.id) < 5 ...
+                    // We can simplify or keep relying on node props if passed.
+                    // For now, let's keep it simple or just pass the chapter ID if we want to color code by chapter.
+                    category: currentChapter.charAt(0).toUpperCase() + currentChapter.slice(1)
                 }
             };
         });
-    }, [nodes, completedLessons, cards]);
+    }, [nodes, completedLessons, cards, currentChapter]);
 
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         router.push(`/learn/${node.id}`);
     }, [router]);
 
     return (
-        <div className="w-full h-[700px] border border-slate-200 rounded-2xl shadow-xl bg-slate-50/50 backdrop-blur-sm overflow-hidden">
-            <ReactFlow
-                nodes={styledNodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                nodeTypes={nodeTypes}
-                minZoom={0.5}
-                maxZoom={1.5}
-                fitView
-                onNodeClick={onNodeClick}
-                attributionPosition="bottom-right"
-            >
-                <Controls className="bg-white border-slate-200 shadow-sm" />
-                <MiniMap
-                    zoomable
-                    pannable
-                    nodeColor={(node) => {
-                        if (node.data?.isCompleted) return '#22c55e';
-                        return '#cbd5e1';
-                    }}
-                    className="bg-white border-slate-200 rounded-lg shadow-sm"
-                />
-                <Background gap={20} size={1} color="#e2e8f0" />
-            </ReactFlow>
+        <div className="flex flex-col gap-4">
+            {/* Chapter Tabs */}
+            <div className="flex gap-2 p-1 bg-slate-100 rounded-xl w-fit self-center shadow-inner">
+                {chapters.map((chapter) => (
+                    <button
+                        key={chapter.id}
+                        onClick={() => setCurrentChapter(chapter.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${currentChapter === chapter.id
+                                ? 'bg-white shadow-sm text-slate-800 scale-105'
+                                : 'text-slate-500 hover:bg-white/50 hover:text-slate-700'
+                            }`}
+                    >
+                        <span className={currentChapter === chapter.id ? chapter.color.replace('bg-', 'text-') : ''}>{chapter.icon}</span>
+                        {chapter.label}
+                    </button>
+                ))}
+            </div>
+
+            <div className="w-full h-[600px] border border-slate-200 rounded-2xl shadow-xl bg-slate-50/50 backdrop-blur-sm overflow-hidden relative">
+                <div className={`absolute top-0 left-0 w-full h-1 ${currentChapter === 'foundation' ? 'bg-amber-500' :
+                        currentChapter === 'admin' ? 'bg-blue-500' :
+                            currentChapter === 'security' ? 'bg-red-500' : 'bg-purple-500'
+                    } z-10`} />
+
+                <ReactFlow
+                    nodes={styledNodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    nodeTypes={nodeTypes}
+                    minZoom={0.5}
+                    maxZoom={1.5}
+                    fitView
+                    onNodeClick={onNodeClick}
+                    attributionPosition="bottom-right"
+                >
+                    <Controls className="bg-white border-slate-200 shadow-sm" />
+                    <MiniMap
+                        zoomable
+                        pannable
+                        nodeColor={(node) => {
+                            if (node.data?.isCompleted) return '#22c55e';
+                            return '#cbd5e1';
+                        }}
+                        className="bg-white border-slate-200 rounded-lg shadow-sm"
+                    />
+                    <Background gap={20} size={1} color="#e2e8f0" />
+                </ReactFlow>
+            </div>
         </div>
     );
 }
