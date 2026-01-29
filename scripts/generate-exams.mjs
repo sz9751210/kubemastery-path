@@ -11,17 +11,26 @@ async function generateExams() {
         return;
     }
 
-    const files = fs.readdirSync(EXAMS_DIR);
+    function getFiles(dir) {
+        const dirents = fs.readdirSync(dir, { withFileTypes: true });
+        const files = dirents.map((dirent) => {
+            const res = path.resolve(dir, dirent.name);
+            return dirent.isDirectory() ? getFiles(res) : res;
+        });
+        return Array.prototype.concat(...files);
+    }
+
+    const files = getFiles(EXAMS_DIR);
     const exams = {};
 
-    for (const file of files) {
-        if (!file.endsWith('.md')) continue;
+    for (const filePath of files) {
+        if (!filePath.endsWith('.md')) continue;
 
-        const content = fs.readFileSync(path.join(EXAMS_DIR, file), 'utf-8');
+        const content = fs.readFileSync(filePath, 'utf-8');
         const { data, content: markdown } = matter(content);
 
         if (!data.id) {
-            console.warn(`Skipping ${file}: Missing id in frontmatter`);
+            console.warn(`Skipping ${filePath}: Missing id in frontmatter`);
             continue;
         }
 

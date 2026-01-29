@@ -9,14 +9,12 @@ export interface Lesson {
   flashcards?: { question: string; answer: string }[];
 }
 
-const lessons: Record<string, Lesson> = {
-  // LEVEL 1: NOVICE
-  '1': {
-    id: '1',
-    title: 'Container Basics',
+const lessons: Record<string, Lesson> = {};
+id: '1',
+  title: 'Container Basics',
     category: 'CORE',
-    duration: '20 mins',
-    markdown: `
+      duration: '20 mins',
+        markdown: `
 # Container Basics: Beyond Docker
 
 To master Kubernetes, you must strictly understand concepts like **Namespaces**, **Cgroups**, and the **CRI**.
@@ -40,18 +38,18 @@ crictl version
 crictl ps
 \`\`\`
     `,
-    flashcards: [
-      { question: 'What isolates what a process SEES?', answer: 'Namespaces' },
-      { question: 'What isolates what a process USES?', answer: 'Cgroups' },
-      { question: 'Which runtime interface does K8s use instead of Docker?', answer: 'CRI' }
-    ]
+          flashcards: [
+            { question: 'What isolates what a process SEES?', answer: 'Namespaces' },
+            { question: 'What isolates what a process USES?', answer: 'Cgroups' },
+            { question: 'Which runtime interface does K8s use instead of Docker?', answer: 'CRI' }
+          ]
   },
-  '2': {
-    id: '2',
+'2': {
+  id: '2',
     title: 'Pod Lifecycle',
-    category: 'CORE',
-    duration: '25 mins',
-    markdown: `
+      category: 'CORE',
+        duration: '25 mins',
+          markdown: `
 # The Pod Lifecycle
 
 A **Pod** is the atomic unit of K8s. It wraps one or more containers.
@@ -70,17 +68,17 @@ kubectl run nginx-demo --image=nginx
 kubectl get pod nginx-demo -w
 \`\`\`
     `,
-    flashcards: [
-      { question: 'What is the state when a Pod is waiting for a node?', answer: 'Pending' },
-      { question: 'In a multi-container Pod, what do containers share?', answer: 'Network (localhost) and Volumes' }
-    ]
-  },
-  '3': {
-    id: '3',
+            flashcards: [
+              { question: 'What is the state when a Pod is waiting for a node?', answer: 'Pending' },
+              { question: 'In a multi-container Pod, what do containers share?', answer: 'Network (localhost) and Volumes' }
+            ]
+},
+'3': {
+  id: '3',
     title: 'YAML Configuration',
-    category: 'CORE',
-    duration: '30 mins',
-    markdown: `
+      category: 'CORE',
+        duration: '30 mins',
+          markdown: `
 # Mastering YAML
 
 Kubernetes is **Declarative**. syntax matters.
@@ -102,13 +100,13 @@ spec:
     image: nginx
 \`\`\`
     `
-  },
-  '4': {
-    id: '4',
+},
+'4': {
+  id: '4',
     title: 'Multi-Container Pods',
-    category: 'CORE',
-    duration: '35 mins',
-    markdown: `
+      category: 'CORE',
+        duration: '35 mins',
+          markdown: `
 # Multi-Container Pods
 
 Sharing is caring. Sometimes one container isn't enough.
@@ -146,13 +144,13 @@ spec:
     emptyDir: {}
 \`\`\`
     `
-  },
-  '12': {
-    id: '12',
+},
+'12': {
+  id: '12',
     title: 'ReplicaSets & Deployments',
-    category: 'CORE',
-    duration: '25 mins',
-    markdown: `
+      category: 'CORE',
+        duration: '25 mins',
+          markdown: `
 # ReplicaSets & Deployments
 
 Ensuring your application is always running and easily updated.
@@ -176,13 +174,13 @@ kubectl create deployment web-server --image=nginx --replicas=3
 kubectl set image deployment/web-server nginx=nginx:1.16.1
 \`\`\`
     `
-  },
-  '13': {
-    id: '13',
+},
+'13': {
+  id: '13',
     title: 'Jobs & CronJobs',
-    category: 'CORE',
-    duration: '20 mins',
-    markdown: `
+      category: 'CORE',
+        duration: '20 mins',
+          markdown: `
 # Jobs & CronJobs
 
 For tasks that are intended to run to completion.
@@ -203,16 +201,16 @@ A **CronJob** creates Jobs on a repeating schedule.
 kubectl create cronjob heartbeat --image=busybox --schedule="*/1 * * * *" -- echo "Beating..."
 \`\`\`
     `
-  },
+},
 
 
-  // LEVEL 2: ADMIN
-  '5': {
-    id: '5',
+// LEVEL 2: ADMIN
+'5': {
+  id: '5',
     title: 'Cluster Architecture',
-    category: 'CKA/CKAD',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '40 mins',
+          markdown: `
 # Cluster Architecture
 
 Understand the machine you are driving.
@@ -233,13 +231,13 @@ The agent that runs on every node. It registers the node with the apiserver and 
 kubectl get nodes -o wide
 \`\`\`
     `
-  },
-  '14': {
-    id: '14',
+},
+'14': {
+  id: '14',
     title: 'Control Plane & API Server',
-    category: 'CKA/CKAD',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '45 mins',
+          markdown: `
 # Control Plane & API Server
 
 The brains of the cluster.
@@ -255,13 +253,13 @@ The brains of the cluster.
 kubectl get pods -n kube-system -l tier=control-plane
 \`\`\`
     `
-  },
-  '6': {
-    id: '6',
+},
+'6': {
+  id: '6',
     title: 'Services & Networking',
-    category: 'CKA/CKAD',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '45 mins',
+          markdown: `
 # Services: Exposing Applications
 
 ## Service Types
@@ -277,13 +275,13 @@ kubectl expose deployment my-dep --port=80 --target-port=80 --type=NodePort --na
 kubectl get svc my-svc
 \`\`\`
     `
-  },
-  '7': {
-    id: '7',
+},
+'7': {
+  id: '7',
     title: 'Storage (PV/PVC)',
-    category: 'CKA/CKAD',
-    duration: '35 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '35 mins',
+          markdown: `
 # Storage Orchestration
 
 Decoupling storage from Pod lifecycle.
@@ -301,13 +299,13 @@ kubectl get pv
 - **RWO**: ReadWriteOnce (Block storage usually).
 - **RWX**: ReadWriteMany (NFS/File storage).
     `
-  },
-  '8': {
-    id: '8',
+},
+'8': {
+  id: '8',
     title: 'Scheduling',
-    category: 'CKA/CKAD',
-    duration: '30 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '30 mins',
+          markdown: `
 # Scheduling
 
 Controlling where Pods go.
@@ -325,13 +323,13 @@ kubectl describe node controlplane | grep Taint
 "Attract" pods to nodes.
 - \`nodeAffinity\`: Run on nodes with SSD.
     `
-  },
-  '15': {
-    id: '15',
+},
+'15': {
+  id: '15',
     title: 'Troubleshooting & Logs',
-    category: 'CKA/CKAD',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '40 mins',
+          markdown: `
 # Troubleshooting & Logs
 
 When things go wrong, here is how to find out why.
@@ -360,13 +358,13 @@ kubectl describe pod <pod-name>
 kubectl logs <pod-name> --previous
 \`\`\`
     `
-  },
-  '90': {
-    id: '90',
+},
+'90': {
+  id: '90',
     title: 'Command Line Fu: JSONPath',
-    category: 'CKA/CKAD',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '45 mins',
+          markdown: `
 # Command Line Fu: JSONPath & Custom Columns
 
 Mastering \`kubectl\` output is mandatory for CKA/CKAD.
@@ -390,13 +388,13 @@ Create your own table output.
 kubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName
 \`\`\`
     `
-  },
-  '91': {
-    id: '91',
+},
+'91': {
+  id: '91',
     title: 'Cluster Bootstrap Deep Dive',
-    category: 'CKA',
-    duration: '60 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '60 mins',
+          markdown: `
 # Cluster Bootstrap: Kubeadm
 
 Understanding how the cluster comes alive.
@@ -414,13 +412,13 @@ The cluster is **NotReady** until a CNI (Network Plugin) is installed.
 - The CNI binaires go to \`/opt/cni/bin\`.
 - The config goes to \`/etc/cni/net.d\`.
     `
-  },
-  '20': {
-    id: '20',
+},
+'20': {
+  id: '20',
     title: 'Workloads: Deployments',
-    category: 'CKA/CKAD',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '45 mins',
+          markdown: `
 # Workloads: Deployments & ReplicaSets
 
 Pods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.
@@ -440,13 +438,13 @@ kubectl create deployment my-dep --image=nginx --replicas=3
 kubectl scale deployment my-dep --replicas=5
 \`\`\`
     `
-  },
-  '21': {
-    id: '21',
+},
+'21': {
+  id: '21',
     title: 'StatefulSets & DaemonSets',
-    category: 'CKA/CKAD',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '40 mins',
+          markdown: `
 # StatefulSets & DaemonSets
 
 Not everything is a stateless web server.
@@ -465,13 +463,13 @@ Ensures a copy of a Pod runs on **all** (or some) Nodes.
 kubectl get ds -n kube-system
 \`\`\`
     `
-  },
-  '22': {
-    id: '22',
+},
+'22': {
+  id: '22',
     title: 'Ingress & DNS',
-    category: 'CKA/CKAD',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '50 mins',
+          markdown: `
 # Ingress & Advanced Networking
 
 **Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).
@@ -484,15 +482,15 @@ An Ingress resource does nothing without a controller (e.g., Nginx, Traefik).
 kubectl get pods -n ingress-nginx
 \`\`\`
     `
-  },
+},
 
-  // LEVEL 3: SECURITY
-  '9': {
-    id: '9',
+// LEVEL 3: SECURITY
+'9': {
+  id: '9',
     title: 'Cluster Hardening',
-    category: 'CKS',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '50 mins',
+          markdown: `
 # Cluster Hardening
 
 Locking down the fortress.
@@ -518,13 +516,13 @@ The Kubernetes Dashboard is a frequent attack vector.
 ps -ef | grep kube-apiserver | grep anonymous-auth
 \`\`\`
     `
-  },
-  '30': {
-    id: '30',
+},
+'30': {
+  id: '30',
     title: 'RBAC: Authorization',
-    category: 'CKS',
-    duration: '60 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '60 mins',
+          markdown: `
 # Role Based Access Control (RBAC)
 
 **Authentication** (Who are you?) vs **Authorization** (What can you do?).
@@ -540,13 +538,13 @@ ps -ef | grep kube-apiserver | grep anonymous-auth
 kubectl auth can-i create pods
 \`\`\`
     `
-  },
-  '10': {
-    id: '10',
+},
+'10': {
+  id: '10',
     title: 'Network Policies',
-    category: 'CKS',
-    duration: '35 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '35 mins',
+          markdown: `
 # Network Policies
 
 The firewall for Kubernetes.
@@ -562,13 +560,13 @@ Start by denying everything, then allow specific traffic.
 kubectl get networkpolicies
 \`\`\`
     `
-  },
-  '16': {
-    id: '16',
+},
+'16': {
+  id: '16',
     title: 'Admission Controllers',
-    category: 'CKS',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '50 mins',
+          markdown: `
 # Admission Controllers
 
 Intercepting requests to the API server before an object is persisted.
@@ -582,13 +580,13 @@ Intercepting requests to the API server before an object is persisted.
 kubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins
 \`\`\`
     `
-  },
-  '17': {
-    id: '17',
+},
+'17': {
+  id: '17',
     title: 'Runtime Security',
-    category: 'CKS',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '45 mins',
+          markdown: `
 # Runtime Security
 
 Protecting the running process.
@@ -603,13 +601,13 @@ Detecting threats based on *patterns* rather than known signatures.
 - Process spawning unexpected children.
 - Unexpected outbound network connections.
     `
-  },
-  '11': {
-    id: '11',
+},
+'11': {
+  id: '11',
     title: 'System Hardening',
-    category: 'CKS',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '45 mins',
+          markdown: `
 # System Hardening
 
 Kubernetes is only as secure as the Linux nodes it runs on.
@@ -632,13 +630,13 @@ For high-risk workloads, standard containers (shared kernel) might not be enough
 netstat -tulpn
 \`\`\`
     `
-  },
-  '31': {
-    id: '31',
+},
+'31': {
+  id: '31',
     title: 'Secrets Management',
-    category: 'CKS',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '40 mins',
+          markdown: `
 # Secrets & Security Contexts
 
 ## Secrets
@@ -654,14 +652,14 @@ Define privileges and access control for a Pod/Container.
 - \`runAsUser\`: UID to run process.
 - \`fsGroup\`: GID for volumes.
     `
-  },
+},
 
-  '60': {
-    id: '60',
+'60': {
+  id: '60',
     title: 'Supply Chain Security',
-    category: 'CKS',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '45 mins',
+          markdown: `
 # Supply Chain Security
 
 Securing the pipeline from code to cluster.
@@ -685,13 +683,13 @@ Scan your YAML manifests for misconfigurations.
 - **Kubesec**: Security risk analysis for Kubernetes resources.
 - **KubeLinter**: Static analysis tool.
     `
-  },
-  '61': {
-    id: '61',
+},
+'61': {
+  id: '61',
     title: 'Audit Logging & Monitoring',
-    category: 'CKS',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '50 mins',
+          markdown: `
 # Audit Logging & Monitoring
 
 If you didn't log it, it didn't happen.
@@ -716,13 +714,13 @@ rules:
 Using **Falco** to monitor system calls at the kernel level.
 - Detects: File access, Process execution, Network activity.
     `
-  },
-  '62': {
-    id: '62',
+},
+'62': {
+  id: '62',
     title: 'Advanced Pod Security',
-    category: 'CKS',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKS',
+        duration: '45 mins',
+          markdown: `
 # Advanced Pod Security
 
 ## Pod Security Standards (PSS)
@@ -743,15 +741,15 @@ kubectl label ns dev pod-security.kubernetes.io/enforce=restricted
 Encrypting traffic *between* pods.
 - Usually handled by a Service Mesh (Linkerd, Istio), but understanding the concept is key for CKS.
     `
-  },
+},
 
-  // LEVEL 4: EXPERT
-  '40': {
-    id: '40',
+// LEVEL 4: EXPERT
+'40': {
+  id: '40',
     title: 'Helm: Package Management',
-    category: 'EXPERT',
-    duration: '50 mins',
-    markdown: `
+      category: 'EXPERT',
+        duration: '50 mins',
+          markdown: `
 # Helm: Kubernetes Package Manager
 
 Managing thousands of YAML files is painful. **Helm** solves this using **Charts**.
@@ -765,13 +763,13 @@ Managing thousands of YAML files is painful. **Helm** solves this using **Charts
 helm list -A
 \`\`\`
     `
-  },
-  '41': {
-    id: '41',
+},
+'41': {
+  id: '41',
     title: 'Operators & CRDs',
-    category: 'EXPERT',
-    duration: '60 mins',
-    markdown: `
+      category: 'EXPERT',
+        duration: '60 mins',
+          markdown: `
 # Operators & Custom Resource Definitions (CRDs)
 
 Extending the Kubernetes API.
@@ -787,13 +785,13 @@ kubectl get crd
 ## The Operator Pattern
 An Operator is a Controller that watches a CRD and acts on it.
     `
-  },
-  '42': {
-    id: '42',
+},
+'42': {
+  id: '42',
     title: 'Service Mesh (Istio)',
-    category: 'EXPERT',
-    duration: '60 mins',
-    markdown: `
+      category: 'EXPERT',
+        duration: '60 mins',
+          markdown: `
 # Service Mesh
 
 Managing network traffic between services (East-West traffic).
@@ -808,13 +806,13 @@ Managing network traffic between services (East-West traffic).
 kubectl get pods -l istio-injection=enabled
 \`\`\`
     `
-  },
-  '18': {
-    id: '18',
+},
+'18': {
+  id: '18',
     title: 'CRDs & API Extensions',
-    category: 'EXPERT',
-    duration: '60 mins',
-    markdown: `
+      category: 'EXPERT',
+        duration: '60 mins',
+          markdown: `
 # CRDs & API Extensions (Deep Dive)
 
 Making Kubernetes your own.
@@ -822,13 +820,13 @@ Making Kubernetes your own.
 ## Aggregation Layer
 Allows the Kubernetes API server to be extended with additional APIs.
     `
-  },
-  '99': {
-    id: '99',
+},
+'99': {
+  id: '99',
     title: 'Chaos Challenge: The Broken Cluster',
-    category: 'EXPERT',
-    duration: '60 mins',
-    markdown: `
+      category: 'EXPERT',
+        duration: '60 mins',
+          markdown: `
 # Chaos Challenge: The Broken Cluster
 
 > [!WARNING]
@@ -842,13 +840,13 @@ You are the on-call Site Reliability Engineer. Minutes ago, all \`kubectl\` comm
 2.  **Fix** the underlying issue.
 3.  **Restore** cluster connectivity.
     `
-  },
-  '70': {
-    id: '70',
+},
+'70': {
+  id: '70',
     title: 'Application Build & Images',
-    category: 'CKAD',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKAD',
+        duration: '40 mins',
+          markdown: `
 # Application Build & Images
 
 ## Dockerfile Best Practices
@@ -869,13 +867,13 @@ COPY --from=builder /app/myapp .
 CMD ["./myapp"]
 \`\`\`
     `
-  },
-  '71': {
-    id: '71',
+},
+'71': {
+  id: '71',
     title: 'Advanced Deployment Strategies',
-    category: 'CKAD',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKAD',
+        duration: '50 mins',
+          markdown: `
 # Advanced Deployment Strategies
 
 ## Blue/Green Deployment
@@ -892,13 +890,13 @@ CMD ["./myapp"]
 - Default strategy.
 - **Parameters**: \`maxSurge\` (how many extra) and \`maxUnavailable\` (how many down).
     `
-  },
-  '72': {
-    id: '72',
+},
+'72': {
+  id: '72',
     title: 'Application Observability',
-    category: 'CKAD',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKAD',
+        duration: '45 mins',
+          markdown: `
 # Application Observability
 
 ## Probes
@@ -921,13 +919,13 @@ livenessProbe:
 - **Exec**: \`kubectl exec -it my-pod -- sh\`
 - **Ephemeral Containers**: \`kubectl debug -it my-pod --image=busybox --target=my-container\` (Great for distroless images).
     `
-  },
-  '73': {
-    id: '73',
+},
+'73': {
+  id: '73',
     title: 'Services & Networking Design',
-    category: 'CKAD',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKAD',
+        duration: '40 mins',
+          markdown: `
 # Services & Networking Design
 
 ## Network Policies
@@ -944,14 +942,14 @@ Isolate your applications.
 kubectl run test --rm -it --image=busybox -- wget -O- http://my-service
 \`\`\`
     `
-  },
-  // LEVEL 2+: CKA ADVANCED
-  '50': {
-    id: '50',
+},
+// LEVEL 2+: CKA ADVANCED
+'50': {
+  id: '50',
     title: 'Cluster Maintenance',
-    category: 'CKA',
-    duration: '45 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '45 mins',
+          markdown: `
 # Cluster Maintenance
 
 Keeping the lights on.
@@ -987,13 +985,13 @@ ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\
   snapshot save /tmp/etcd-backup.db
 \`\`\`
     `
-  },
-  '51': {
-    id: '51',
+},
+'51': {
+  id: '51',
     title: 'Security & Identity',
-    category: 'CKA',
-    duration: '40 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '40 mins',
+          markdown: `
 # Security & Identity
 
 ## Authentication (AuthN)
@@ -1011,13 +1009,13 @@ kubectl certificate approve my-user
 What can you do?
 See 'RBAC: Authorization' lesson for details. Kubeadm enables Node and RBAC authorizers by default.
     `
-  },
-  '52': {
-    id: '52',
+},
+'52': {
+  id: '52',
     title: 'Advanced Storage',
-    category: 'CKA/CKAD',
-    duration: '35 mins',
-    markdown: `
+      category: 'CKA/CKAD',
+        duration: '35 mins',
+          markdown: `
 # Advanced Storage
 
 ## Storage Class
@@ -1034,13 +1032,13 @@ provisioner: k8s.io/minikube-hostpath
 ## Dynamic Provisioning
 Instead of creating a PV manually, creating a PVC with a \`storageClassName\` triggers the provisioner to create the PV automatically.
     `
-  },
-  '53': {
-    id: '53',
+},
+'53': {
+  id: '53',
     title: 'Cluster Networking',
-    category: 'CKA',
-    duration: '50 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '50 mins',
+          markdown: `
 # Cluster Networking
 
 ## CNI (Container Network Interface)
@@ -1059,13 +1057,13 @@ kubectl run busybox --image=busybox:1.28 --restart=Never -- sleep 3600
 kubectl exec -it busybox -- nslookup kubernetes
 \`\`\`
     `
-  },
-  '54': {
-    id: '54',
+},
+'54': {
+  id: '54',
     title: 'Observability',
-    category: 'CKA',
-    duration: '30 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '30 mins',
+          markdown: `
 # Observability
 
 ## Metrics Server
@@ -1083,13 +1081,13 @@ kubectl top pods
 -   **Node level**: \`/var/log/containers\`
 -   **Cluster level**: Fluentd/Prometheus stack (usually).
     `
-  },
-  '201': {
-    id: '201',
+},
+'201': {
+  id: '201',
     title: 'CKA Mock Exam 1',
-    category: 'CKA',
-    duration: '120 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '120 mins',
+          markdown: `
 # CKA Mock Exam 1
 
 Time: 2 Hours. Pass: 66%.
@@ -1106,13 +1104,13 @@ Create a pod named \`legacy-app\` with image \`busybox\` that logs to \`/var/log
 ## Task 4: Troubleshoot Node
 Node \`worker-1\` is NotReady. Fix it.
     `
-  },
-  '202': {
-    id: '202',
+},
+'202': {
+  id: '202',
     title: 'CKA Mock Exam 2',
-    category: 'CKA',
-    duration: '120 mins',
-    markdown: `
+      category: 'CKA',
+        duration: '120 mins',
+          markdown: `
 # CKA Mock Exam 2
 
 Time: 2 Hours. Pass: 66%.
@@ -1129,14 +1127,14 @@ Expose service \`frontend\` on path \`/store\` using an Ingress resource.
 ## Task 4: Persistent Volume
 Create a PV named \`local-pv\` with capacity \`1Gi\`, access mode \`RWO\`, hostPath \`/mnt/data\`.
     `
-  },
-  // LEVEL 5: INTERNALS
-  '100': {
-    id: '100',
+},
+// LEVEL 5: INTERNALS
+'100': {
+  id: '100',
     title: 'Service Internals: Iptables vs IPVS',
-    category: 'INTERNALS',
-    duration: '60 mins',
-    markdown: `
+      category: 'INTERNALS',
+        duration: '60 mins',
+          markdown: `
 # Service Implementation: Deep Dive
 
 How does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.
@@ -1160,13 +1158,13 @@ Uses Linux Kernel's IP Virtual Server (Netfilter).
 - **Performance**: O(1) matching vs O(n) for iptables (sequential scan).
 - **Scalability**: Better for thousands of services.
     `
-  },
-  '101': {
-    id: '101',
+},
+'101': {
+  id: '101',
     title: 'CNI Deep Dive: Pod Networking',
-    category: 'INTERNALS',
-    duration: '75 mins',
-    markdown: `
+      category: 'INTERNALS',
+        duration: '75 mins',
+          markdown: `
 # CNI Deep Dive
 
 How do Pods talk to each other across nodes?
@@ -1186,13 +1184,13 @@ Encapsulating L2 frames inside L3 packets to cross node boundaries.
 - **Flannel**: UDP/VXLAN.
 - **Calico**: BGP (Direct Routing) or IPIP.
     `
-  },
-  '102': {
-    id: '102',
+},
+'102': {
+  id: '102',
     title: 'CRI & Container Runtime Internals',
-    category: 'INTERNALS',
-    duration: '60 mins',
-    markdown: `
+      category: 'INTERNALS',
+        duration: '60 mins',
+          markdown: `
 # CRI & Runtime Internals
 
 Docker is gone (from K8s). Long live CRI.
@@ -1215,7 +1213,7 @@ Standard gRPC protocol for Kubelet to talk to runtimes.
 ## Shims
 \`containerd-shim\` sits between containerd and runc to allow daemonless containers (runc exits after creating the container).
     `
-  }
+}
 };
 
 export const getLessonById = (id: string): Lesson | null => {
