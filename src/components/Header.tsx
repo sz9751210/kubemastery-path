@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Zap, Brain, ChevronLeft, Menu } from 'lucide-react';
+import { Trophy, Zap, Brain, ChevronLeft, Menu, Award } from 'lucide-react';
 import { useGame } from '@/lib/useGame';
 import { useSRS } from '@/lib/useSRS';
 import { useRouter } from 'next/navigation';
@@ -42,14 +42,17 @@ export default function Header({ showBack, title, subtitle }: HeaderProps) {
             <div className="flex items-center gap-6 md:gap-10">
                 {/* SRS Review Status */}
                 {dueCards.length > 0 && (
-                    <Link
-                        href="/review"
-                        className="group flex items-center gap-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl border border-indigo-100 animate-pulse-slow hover:bg-indigo-600 hover:text-white transition-all"
-                    >
-                        <Brain size={18} />
-                        <span className="text-xs font-black uppercase tracking-widest">{dueCards.length} Review Due</span>
+                    <Link href="/review" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition font-medium text-xs">
+                        <Brain size={16} />
+                        <span className="animate-pulse">{dueCards.length} Review</span>
                     </Link>
                 )}
+
+                {/* Career Link */}
+                <Link href="/career" className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition font-medium text-xs">
+                    <Award size={16} />
+                    <span>Career</span>
+                </Link>
 
                 {/* Level HUD */}
                 <div className="flex items-center gap-4">

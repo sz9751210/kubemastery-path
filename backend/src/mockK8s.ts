@@ -1,28 +1,25 @@
 import { Router } from 'express';
+import { scenarios, ScenarioState } from './scenarios';
 
 const router = Router();
 
-// Simulated State
-const state: any = {
-    pods: [
-        {
-            metadata: { name: 'nginx-demo', namespace: 'default', uid: '1' },
-            status: { phase: 'Running' },
-            spec: { containers: [{ image: 'nginx', name: 'nginx' }] }
-        },
-        {
-            metadata: { name: 'kube-apiserver-controlplane', namespace: 'kube-system', uid: '2' },
-            status: { phase: 'Running' },
-            spec: { containers: [{ image: 'kube-apiserver', name: 'kube-apiserver' }] }
-        }
-    ],
-    nodes: [
-        {
-            metadata: { name: 'controlplane', uid: 'node-1' },
-            status: { conditions: [{ type: 'Ready', status: 'True' }], nodeInfo: { kubeletVersion: 'v1.30.0' } }
-        }
-    ]
-};
+// Simulated State (Mutable)
+let state: ScenarioState = { ...scenarios['default'] };
+
+// SCENARIO MANAGEMENT
+router.post('/api/debug/scenario', (req: any, res: any) => {
+    const { lessonId } = req.body;
+    if (lessonId && scenarios[lessonId]) {
+        state = { ...scenarios[lessonId] };
+        console.log(`[MockK8s] Switched to scenario for Lesson ${lessonId}`);
+        res.json({ message: `Switched to scenario ${lessonId}`, stateSummary: Object.keys(state) });
+    } else {
+        // Reset to default if not found
+        state = { ...scenarios['default'] };
+        console.log(`[MockK8s] Reset to default scenario`);
+        res.json({ message: "Reset to default scenario" });
+    }
+});
 
 // Logger for debugging
 router.use((req: any, res: any, next: any) => {
