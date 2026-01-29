@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ReactFlow, {
     MiniMap,
     Controls,
@@ -17,11 +18,12 @@ export default function SkillTree() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+    const router = useRouter();
+
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         console.log('Clicked node:', node.data.label);
-        // Future: Navigate to module detail or expand info
-        alert(`Starting Module: ${node.data.label}`);
-    }, []);
+        router.push(`/learn/${node.id}`);
+    }, [router]);
 
     return (
         <div className="w-full h-[600px] border rounded-lg shadow-sm bg-slate-50">
