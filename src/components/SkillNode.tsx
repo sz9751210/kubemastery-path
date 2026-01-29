@@ -2,21 +2,21 @@
 
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { CheckCircle2, Circle, Lock, Zap, Shield, Settings, Terminal } from 'lucide-react';
+import { CheckCircle2, Circle, Lock, Zap, Shield, Settings, Terminal, Box } from 'lucide-react';
 
 const getCategoryIcon = (category: string) => {
-    switch (category) {
-        case 'Novice': return <Zap size={16} className="text-amber-500" />;
-        case 'Admin': return <Settings size={16} className="text-blue-500" />;
-        case 'Security': return <Shield size={16} className="text-red-500" />;
-        case 'Expert': return <Terminal size={16} className="text-purple-500" />;
-        default: return <Circle size={16} className="text-slate-400" />;
-    }
+    const cat = category.toUpperCase();
+    if (cat.includes('CORE') || cat.includes('FOUNDATION')) return <Zap size={16} className="text-amber-500" />;
+    if (cat.includes('CKA')) return <Settings size={16} className="text-blue-500" />;
+    if (cat.includes('CKAD')) return <Box size={16} className="text-amber-600" />;
+    if (cat.includes('CKS')) return <Shield size={16} className="text-red-500" />;
+    if (cat.includes('EXPERT')) return <Terminal size={16} className="text-purple-500" />;
+    return <Circle size={16} className="text-slate-400" />;
 };
 
 const SkillNode = ({ data, isConnectable }: NodeProps) => {
     const isCompleted = data.isCompleted;
-    const category = data.category || 'Novice';
+    const category = data.category || 'CORE';
     const mastery = data.mastery || 0; // 0 to 100
 
     return (

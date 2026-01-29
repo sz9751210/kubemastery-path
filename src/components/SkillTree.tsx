@@ -13,6 +13,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { getNodesForChapter, getEdgesForChapter, Chapter } from '@/data/curriculum';
+import { getLessons } from '@/data/lessons';
 import SkillNode from './SkillNode';
 import { useProgress } from '@/lib/useProgress';
 import { useSRS } from '@/lib/useSRS';
@@ -46,6 +47,8 @@ export default function SkillTree() {
         setEdges(getEdgesForChapter(currentChapter));
     }, [currentChapter, setNodes, setEdges]);
 
+    const allLessonData = useMemo(() => getLessons(), []);
+
     // Map initial nodes to include progress state and custom type
     const styledNodes = useMemo(() => {
         const cardArray = Object.values(cards);
@@ -58,6 +61,8 @@ export default function SkillTree() {
                 mastery = Math.round(totalMastery / lessonCards.length);
             }
 
+            const lessonDetail = allLessonData[node.id];
+
             return {
                 ...node,
                 type: 'skillNode',
@@ -69,11 +74,11 @@ export default function SkillTree() {
                     // category: parseInt(node.id) < 5 ...
                     // We can simplify or keep relying on node props if passed.
                     // For now, let's keep it simple or just pass the chapter ID if we want to color code by chapter.
-                    category: currentChapter.charAt(0).toUpperCase() + currentChapter.slice(1)
+                    category: lessonDetail ? lessonDetail.category : (currentChapter === 'all' ? 'FOUNDATION' : currentChapter.toUpperCase())
                 }
             };
         });
-    }, [nodes, completedLessons, cards, currentChapter]);
+    }, [nodes, completedLessons, cards, currentChapter, allLessonData]);
 
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         router.push(`/learn/${node.id}`);

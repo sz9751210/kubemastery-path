@@ -1,7 +1,7 @@
 export interface Lesson {
   id: string;
   title: string;
-  category: 'Novice' | 'Admin' | 'Security' | 'Expert';
+  category: 'CORE' | 'CKA' | 'CKAD' | 'CKA/CKAD' | 'CKS' | 'EXPERT';
   duration: string;
   markdown: string;
   flashcards?: { question: string; answer: string }[];
@@ -12,7 +12,7 @@ const lessons: Record<string, Lesson> = {
   '1': {
     id: '1',
     title: 'Container Basics',
-    category: 'Novice',
+    category: 'CORE',
     duration: '20 mins',
     markdown: `
 # Container Basics: Beyond Docker
@@ -47,7 +47,7 @@ crictl ps
   '2': {
     id: '2',
     title: 'Pod Lifecycle',
-    category: 'Novice',
+    category: 'CORE',
     duration: '25 mins',
     markdown: `
 # The Pod Lifecycle
@@ -76,7 +76,7 @@ kubectl get pod nginx-demo -w
   '3': {
     id: '3',
     title: 'YAML Configuration',
-    category: 'Novice',
+    category: 'CORE',
     duration: '30 mins',
     markdown: `
 # Mastering YAML
@@ -104,7 +104,7 @@ spec:
   '4': {
     id: '4',
     title: 'Multi-Container Pods',
-    category: 'Novice',
+    category: 'CORE',
     duration: '35 mins',
     markdown: `
 # Multi-Container Pods
@@ -148,7 +148,7 @@ spec:
   '12': {
     id: '12',
     title: 'ReplicaSets & Deployments',
-    category: 'Novice',
+    category: 'CORE',
     duration: '25 mins',
     markdown: `
 # ReplicaSets & Deployments
@@ -178,7 +178,7 @@ kubectl set image deployment/web-server nginx=nginx:1.16.1
   '13': {
     id: '13',
     title: 'Jobs & CronJobs',
-    category: 'Novice',
+    category: 'CORE',
     duration: '20 mins',
     markdown: `
 # Jobs & CronJobs
@@ -208,7 +208,7 @@ kubectl create cronjob heartbeat --image=busybox --schedule="*/1 * * * *" -- ech
   '5': {
     id: '5',
     title: 'Cluster Architecture',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '40 mins',
     markdown: `
 # Cluster Architecture
@@ -235,7 +235,7 @@ kubectl get nodes -o wide
   '14': {
     id: '14',
     title: 'Control Plane & API Server',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '45 mins',
     markdown: `
 # Control Plane & API Server
@@ -257,7 +257,7 @@ kubectl get pods -n kube-system -l tier=control-plane
   '6': {
     id: '6',
     title: 'Services & Networking',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '45 mins',
     markdown: `
 # Services: Exposing Applications
@@ -279,7 +279,7 @@ kubectl get svc my-svc
   '7': {
     id: '7',
     title: 'Storage (PV/PVC)',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '35 mins',
     markdown: `
 # Storage Orchestration
@@ -303,7 +303,7 @@ kubectl get pv
   '8': {
     id: '8',
     title: 'Scheduling',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '30 mins',
     markdown: `
 # Scheduling
@@ -327,7 +327,7 @@ kubectl describe node controlplane | grep Taint
   '15': {
     id: '15',
     title: 'Troubleshooting & Logs',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '40 mins',
     markdown: `
 # Troubleshooting & Logs
@@ -350,7 +350,7 @@ kubectl logs <pod-name>
   '20': {
     id: '20',
     title: 'Workloads: Deployments',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '45 mins',
     markdown: `
 # Workloads: Deployments & ReplicaSets
@@ -376,7 +376,7 @@ kubectl scale deployment my-dep --replicas=5
   '21': {
     id: '21',
     title: 'StatefulSets & DaemonSets',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '40 mins',
     markdown: `
 # StatefulSets & DaemonSets
@@ -401,7 +401,7 @@ kubectl get ds -n kube-system
   '22': {
     id: '22',
     title: 'Ingress & DNS',
-    category: 'Admin',
+    category: 'CKA/CKAD',
     duration: '50 mins',
     markdown: `
 # Ingress & Advanced Networking
@@ -422,7 +422,7 @@ kubectl get pods -n ingress-nginx
   '9': {
     id: '9',
     title: 'Cluster Hardening',
-    category: 'Security',
+    category: 'CKS',
     duration: '50 mins',
     markdown: `
 # Cluster Hardening
@@ -446,7 +446,7 @@ ps -ef | grep kube-apiserver | grep anonymous-auth
   '30': {
     id: '30',
     title: 'RBAC: Authorization',
-    category: 'Security',
+    category: 'CKS',
     duration: '60 mins',
     markdown: `
 # Role Based Access Control (RBAC)
@@ -468,7 +468,7 @@ kubectl auth can-i create pods
   '10': {
     id: '10',
     title: 'Network Policies',
-    category: 'Security',
+    category: 'CKS',
     duration: '35 mins',
     markdown: `
 # Network Policies
@@ -490,7 +490,7 @@ kubectl get networkpolicies
   '16': {
     id: '16',
     title: 'Admission Controllers',
-    category: 'Security',
+    category: 'CKS',
     duration: '50 mins',
     markdown: `
 # Admission Controllers
@@ -510,7 +510,7 @@ kubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h
   '17': {
     id: '17',
     title: 'Runtime Security',
-    category: 'Security',
+    category: 'CKS',
     duration: '45 mins',
     markdown: `
 # Runtime Security
@@ -525,7 +525,7 @@ Protecting the running process.
   '11': {
     id: '11',
     title: 'System Hardening',
-    category: 'Security',
+    category: 'CKS',
     duration: '45 mins',
     markdown: `
 # System Hardening
@@ -549,7 +549,7 @@ netstat -tulpn
   '31': {
     id: '31',
     title: 'Secrets Management',
-    category: 'Security',
+    category: 'CKS',
     duration: '40 mins',
     markdown: `
 # Secrets & Security Contexts
@@ -573,7 +573,7 @@ Define privileges and access control for a Pod/Container.
   '40': {
     id: '40',
     title: 'Helm: Package Management',
-    category: 'Expert',
+    category: 'EXPERT',
     duration: '50 mins',
     markdown: `
 # Helm: Kubernetes Package Manager
@@ -593,7 +593,7 @@ helm list -A
   '41': {
     id: '41',
     title: 'Operators & CRDs',
-    category: 'Expert',
+    category: 'EXPERT',
     duration: '60 mins',
     markdown: `
 # Operators & Custom Resource Definitions (CRDs)
@@ -615,7 +615,7 @@ An Operator is a Controller that watches a CRD and acts on it.
   '42': {
     id: '42',
     title: 'Service Mesh (Istio)',
-    category: 'Expert',
+    category: 'EXPERT',
     duration: '60 mins',
     markdown: `
 # Service Mesh
@@ -636,7 +636,7 @@ kubectl get pods -l istio-injection=enabled
   '18': {
     id: '18',
     title: 'CRDs & API Extensions',
-    category: 'Expert',
+    category: 'EXPERT',
     duration: '60 mins',
     markdown: `
 # CRDs & API Extensions (Deep Dive)
@@ -650,7 +650,7 @@ Allows the Kubernetes API server to be extended with additional APIs.
   '99': {
     id: '99',
     title: 'Chaos Challenge: The Broken Cluster',
-    category: 'Expert',
+    category: 'EXPERT',
     duration: '60 mins',
     markdown: `
 # Chaos Challenge: The Broken Cluster

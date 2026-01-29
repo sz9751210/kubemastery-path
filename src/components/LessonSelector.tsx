@@ -23,7 +23,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
         return acc;
     }, {} as Record<string, Lesson[]>);
 
-    const categories = ['Novice', 'Admin', 'Security', 'Expert'];
+    const categories: ('CORE' | 'CKA/CKAD' | 'CKS' | 'EXPERT')[] = ['CORE', 'CKA/CKAD', 'CKS', 'EXPERT'];
 
     return (
         <div className="relative inline-block text-left">
@@ -43,7 +43,7 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
 
             {isOpen && (
                 <div
-                    className="absolute right-0 z-20 mt-2 w-80 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none max-h-[80vh] overflow-y-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute left-0 z-20 mt-2 w-80 origin-top-left rounded-xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none max-h-[80vh] overflow-y-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-100"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="menu-button"
@@ -54,15 +54,15 @@ export default function LessonSelector({ currentLessonId, lessons }: LessonSelec
                             if (!categoryLessons) return null;
 
                             let accentColor = 'bg-slate-50 text-slate-500';
-                            if (category === 'Novice') accentColor = 'bg-emerald-50 text-emerald-600 border-l-2 border-emerald-400';
-                            if (category === 'Admin') accentColor = 'bg-blue-50 text-blue-600 border-l-2 border-blue-400';
-                            if (category === 'Security') accentColor = 'bg-purple-50 text-purple-600 border-l-2 border-purple-400';
-                            if (category === 'Expert') accentColor = 'bg-orange-50 text-orange-600 border-l-2 border-orange-400';
+                            if (category === 'CORE') accentColor = 'bg-emerald-50 text-emerald-600 border-l-2 border-emerald-400';
+                            if (category === 'CKA/CKAD') accentColor = 'bg-blue-50 text-blue-600 border-l-2 border-blue-400';
+                            if (category === 'CKS') accentColor = 'bg-red-50 text-red-600 border-l-2 border-red-400';
+                            if (category === 'EXPERT') accentColor = 'bg-purple-50 text-purple-600 border-l-2 border-purple-400';
 
                             return (
                                 <div key={category} className="mb-2 last:mb-0">
-                                    <div className={`px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider ${accentColor}`}>
-                                        {category} LEVEL
+                                    <div className={`px-4 py-1.5 text-[0.65rem] font-black uppercase tracking-widest ${accentColor}`}>
+                                        {category}
                                     </div>
                                     {categoryLessons.map((lesson) => (
                                         <button
