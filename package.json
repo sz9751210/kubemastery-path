@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "generate:exams": "node scripts/generate-exams.mjs",
+    "dev": "npm run generate:exams && next dev",
+    "build": "npm run generate:exams && next build",
     "start": "next start",
     "lint": "eslint"
   },

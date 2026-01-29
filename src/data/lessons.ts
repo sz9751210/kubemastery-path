@@ -1,3 +1,5 @@
+import { generatedExams } from './generated-exams';
+
 export interface Lesson {
   id: string;
   title: string;
@@ -1217,7 +1219,7 @@ Standard gRPC protocol for Kubelet to talk to runtimes.
 };
 
 export const getLessonById = (id: string): Lesson | null => {
-  return lessons[id] || null;
+  return lessons[id] || generatedExams[id] || null;
 };
 
-export const getLessons = () => lessons;
+export const getLessons = () => ({ ...lessons, ...generatedExams });
