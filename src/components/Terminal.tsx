@@ -11,9 +11,10 @@ export interface TerminalRef {
 
 interface TerminalProps {
     welcomeMessage?: string;
+    roomId?: string;
 }
 
-const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref) => {
+const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage, roomId = 'default' }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerminal | null>(null);
     const fitAddonRef = useRef<FitAddon | null>(null);
@@ -24,9 +25,6 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref
         write: (data: string) => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
                 wsRef.current.send(JSON.stringify({ type: 'data', data }));
-                // Also echo to local terminal for immediate feedback if needed, 
-                // but typically backend echoes. 
-                // If relying on backend echo (which we are), we just send.
             } else {
                 xtermRef.current?.writeln('\r\n\x1b[31m[Cannot execute: Terminal not connected]\x1b[0m');
             }
@@ -61,7 +59,9 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref
         }
 
         // WebSocket Connection
-        const wsUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:4000';
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:4000';
+        // Ensure we handle both ws://host and ws://host/
+        const wsUrl = `${baseUrl.replace(/\/$/, '')}?roomId=${roomId}`;
         const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
 
@@ -117,7 +117,7 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage }, ref
             term.dispose();
             ws.close();
         };
-    }, [welcomeMessage]);
+    }, [welcomeMessage, roomId]);
 
     return (
         <div className="relative w-full h-full">

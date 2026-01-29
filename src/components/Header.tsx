@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 interface HeaderProps {
     showBack?: boolean;
-    title?: string;
+    title?: React.ReactNode;
     subtitle?: string;
 }
 
