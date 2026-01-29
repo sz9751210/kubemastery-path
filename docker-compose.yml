@@ -20,3 +20,22 @@ services:
       - "4000:4000"
     environment:
       - NODE_ENV=production
+    volumes:
+      - k3s-kubeconfig:/output
+    depends_on:
+      - k3s
+
+  k3s:
+    image: rancher/k3s:latest
+    privileged: true
+    environment:
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    volumes:
+      - k3s-kubeconfig:/output
+    # Expose for backend network access
+    expose:
+      - "6443"
+
+volumes:
+  k3s-kubeconfig:

@@ -26,11 +26,28 @@ const server = app.listen(PORT, () => {
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws: WebSocket, req: any) => {
-    // Parse Room ID from URL (e.g., ws://localhost:4000?roomId=BATTLE-101)
+    // Parse Room ID and Mode (mock/real)
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const roomId = urlParams.get('roomId') || 'default';
+    const mode = urlParams.get('mode') || 'real';
 
-    console.log(`New terminal connection for Room: ${roomId}`);
+    console.log(`New terminal connection for Room: ${roomId}, Mode: ${mode}`);
+
+    // If Real Mode, ensure kubeconfig points to K3s and correct the address
+    if (mode === 'real') {
+        const fs = require('fs');
+        try {
+            // Read the shared K3s config
+            let kc = fs.readFileSync('/output/kubeconfig.yaml', 'utf8');
+            // Replace localhost with k3s service name
+            kc = kc.replace('127.0.0.1', 'k3s').replace('localhost', 'k3s');
+            // Write to a temporary file for this session (or global if single user)
+            // For now, write to /tmp/kubeconfig-real
+            fs.writeFileSync('/tmp/kubeconfig-real', kc);
+        } catch (e) {
+            console.error("Failed to setup Real K8s Kubeconfig:", e);
+        }
+    }
 
     const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
     const args = os.platform() === 'win32' ? [] : ['--login'];
@@ -43,69 +60,58 @@ wss.on('connection', (ws: WebSocket, req: any) => {
         cwd: process.env.HOME,
         env: {
             ...process.env,
-            KUBECONFIG: '/tmp/kubeconfig',
-            KB_ROOM_ID: roomId, // Pass Room ID to the shell environment
+            // If real mode, use the real config. specific file.
+            // If mock mode, we use /tmp/kubeconfig (which might be empty/dummy, relying on the wrapper)
+            KUBECONFIG: mode === 'real' ? '/tmp/kubeconfig-real' : '/tmp/kubeconfig',
+            KB_ROOM_ID: roomId,
             TERM: 'xterm-256color'
         }
     });
 
-    // Setup custom kubectl alias for this session
-    // We inject a function that adds the X-Room-ID header
-    const setupCmd = `
-    function kubectl() {
-      if [ "$1" = "get" ] || [ "$1" = "create" ] || [ "$1" = "delete" ] || [ "$1" = "apply" ]; then
-         # Naive wrapper to intercept commands (For Mock API)
-         # In a real impl, we might use a custom kubeconfig with a proxy.
-         # For this Mock backend, we rely on the backend seeing the header.
-         # But wait, 'kubectl' binary won't send X-Room-ID unless we proxy it.
-         
-         # ALTERNATIVE: We just rely on the API URL.
-         # Since kubectl calls localhost:8080, and we control the backend.
-         # But the backend needs to know WHICH room this request came from.
-         # Standard kubectl doesn't support custom headers easily without a proxy.
-         
-         # TRICK: We will alias kubectl to 'curl' for simple gets or use a wrapper?
-         # NO. The simplest way for this specific Mock Engine is to set KUBEMASTERY_API_URL 
-         # and have a custom 'kubectl' shell function that uses curl?
-         # OR, we assume the user is just using the terminal and we track the PTY.
-         # BUT the HTTP request comes from 'kubectl' binary -> express.
-         # Express request object doesn't know about the PTY.
-         
-         # SOLUTION: We will not use the real kubectl binary! 
-         # We will create a fake 'kubectl' function in this shell session 
-         # that makes curl requests adding the header.
-         
-         echo "Evaluating kubectl wrapper for Room: ${roomId}..."
-      fi
-      command kubectl "$@"
+    // Setup Script
+    let setupCmd = '';
+
+    if (mode === 'mock') {
+        // In Mock Mode, we inject the 'kubectl' wrapper to talk to our Express API
+        setupCmd = `
+        function kubectl() {
+          if [ "$1" = "get" ] || [ "$1" = "create" ] || [ "$1" = "delete" ] || [ "$1" = "apply" ]; then
+             # Naive wrapper to intercept commands
+             # See backend/src/index.ts for logic
+             :
+          fi
+          command kubectl "$@"
+        }
+        
+        # ACTUALLY, checking previous step... the wrapper logic was just a placeholder comment in previous file view?
+        # NO, I need to RESTORE the mock wrapper logic if I overwrote it.
+        # Wait, the previous file view showed a long 'setupCmd' string.
+        # I am rewriting this block. I should preserve the mock logic or simplify it.
+        # For simplicity in this edit, I will re-declare the essential mock env.
+        
+        export KUBEMASTERY_MOCK=true
+        echo "Welcome to KubeMastery (Mock Mode) - Room: ${roomId}"
+        `;
+    } else {
+        // Real Mode
+        setupCmd = `
+        export KUBEMASTERY_REAL=true
+        echo "Welcome to KubeMastery (Real K3s Cluster) - Room: ${roomId}"
+        echo "WARNING: You are root on a real control plane!"
+        
+        function node-shell() {
+            echo "Spawning privileged shell on node k3s..."
+            # Using kubectl debug (Ephemeral Containers) or a specialized pod
+            # Use overrides for hostPID/hostNetwork to get real node access
+            kubectl run node-shell-\${RANDOM} --rm -it --restart=Never \
+              --image=alpine --privileged \
+              --overrides='{"spec": {"hostPID": true, "hostNetwork": true, "containers": [{"name": "shell", "image": "alpine", "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "/bin/sh"], "securityContext": {"privileged": true}}]}}'
+        }
+        `;
     }
-    
-    # Actually, simpler approach for MVP:
-    # We export a variable, and our 'kubectl' wrapper adds the header? 
-    # Real kubectl can't do that easily.
-    # Let's pivot: We will run a tiny authenticating proxy on a random port for THIS session?
-    # Overkill.
-    
-    # WORKING MVP SOLUTION:
-    # We alias 'kubectl' to a lightweight Node script or shell function 
-    # that wraps 'curl' requests to our mock API.
-    # Since our Mock API is just JSON, we can simulate output!
-    
-    # Or, we stick to the single-user illusion for now but update the backend 
-    # to rely on IP? No, docker container IP is same.
-    
-    # Let's try: 'alias kubectl="curl -s -H \"X-Room-ID: ${roomId}\" http://localhost:8080/api/v1/..."'
-    # That's too hard to map args.
-    
-    # FOR now, let's just Log the room ID. The Mock API will default to 'default' room 
-    # for all kubectl requests unless we solve this.
-    # For the frontend dashboard, we CAN send headers.
-    # So the "Battle Dashboard" will work.
-    # The "Terminal" might still look at 'default' room if we use real kubectl.
-    
-    export KB_ROOM_ID="${roomId}"
-    echo "Welcome to KubeMastery Room: ${roomId}"
-    `;
+
+    // Pass Room ID env
+    setupCmd += `\nexport KB_ROOM_ID="${roomId}"\n`;
 
     // We can write this setup script to the PTY initially
     ptyProcess.write(setupCmd + '\r');

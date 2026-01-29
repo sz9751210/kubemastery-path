@@ -12,9 +12,10 @@ export interface TerminalRef {
 interface TerminalProps {
     welcomeMessage?: string;
     roomId?: string;
+    mode?: 'mock' | 'real';
 }
 
-const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage, roomId = 'default' }, ref) => {
+const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage, roomId = 'default', mode = 'real' }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerminal | null>(null);
     const fitAddonRef = useRef<FitAddon | null>(null);
@@ -61,7 +62,7 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage, roomI
         // WebSocket Connection
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:4000';
         // Ensure we handle both ws://host and ws://host/
-        const wsUrl = `${baseUrl.replace(/\/$/, '')}?roomId=${roomId}`;
+        const wsUrl = `${baseUrl.replace(/\/$/, '')}?roomId=${roomId}&mode=${mode}`;
         const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
 
@@ -117,7 +118,7 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({ welcomeMessage, roomI
             term.dispose();
             ws.close();
         };
-    }, [welcomeMessage, roomId]);
+    }, [welcomeMessage, roomId, mode]);
 
     return (
         <div className="relative w-full h-full">
