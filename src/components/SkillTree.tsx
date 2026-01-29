@@ -23,20 +23,20 @@ const nodeTypes = {
 };
 
 const chapters: { id: Chapter; label: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'foundation', label: 'Foundation', icon: <Box size={16} />, color: 'bg-amber-100 text-amber-700' },
-    { id: 'admin', label: 'Administration', icon: <Layers size={16} />, color: 'bg-blue-100 text-blue-700' },
-    { id: 'security', label: 'Security', icon: <Shield size={16} />, color: 'bg-red-100 text-red-700' },
-    { id: 'expert', label: 'Expert', icon: <Zap size={16} />, color: 'bg-purple-100 text-purple-700' },
+    { id: 'cka', label: 'CKA (Admin)', icon: <Layers size={16} />, color: 'bg-blue-100 text-blue-700' },
+    { id: 'ckad', label: 'CKAD (Dev)', icon: <Box size={16} />, color: 'bg-amber-100 text-amber-700' },
+    { id: 'cks', label: 'CKS (Security)', icon: <Shield size={16} />, color: 'bg-red-100 text-red-700' },
+    { id: 'all', label: 'All (Student)', icon: <Zap size={16} />, color: 'bg-purple-100 text-purple-700' },
 ];
 
 export default function SkillTree() {
     const { completedLessons } = useProgress();
     const { cards } = useSRS();
-    const [currentChapter, setCurrentChapter] = useState<Chapter>('foundation');
+    const [currentChapter, setCurrentChapter] = useState<Chapter>('all');
 
-    // Initialize with Foundation
-    const [nodes, setNodes, onNodesChange] = useNodesState(getNodesForChapter('foundation'));
-    const [edges, setEdges, onEdgesChange] = useEdgesState(getEdgesForChapter('foundation'));
+    // Initialize with All
+    const [nodes, setNodes, onNodesChange] = useNodesState(getNodesForChapter('all'));
+    const [edges, setEdges, onEdgesChange] = useEdgesState(getEdgesForChapter('all'));
 
     const router = useRouter();
 
@@ -88,8 +88,8 @@ export default function SkillTree() {
                         key={chapter.id}
                         onClick={() => setCurrentChapter(chapter.id)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${currentChapter === chapter.id
-                                ? 'bg-white shadow-sm text-slate-800 scale-105'
-                                : 'text-slate-500 hover:bg-white/50 hover:text-slate-700'
+                            ? 'bg-white shadow-sm text-slate-800 scale-105'
+                            : 'text-slate-500 hover:bg-white/50 hover:text-slate-700'
                             }`}
                     >
                         <span className={currentChapter === chapter.id ? chapter.color.replace('bg-', 'text-') : ''}>{chapter.icon}</span>
@@ -99,9 +99,9 @@ export default function SkillTree() {
             </div>
 
             <div className="w-full h-[600px] border border-slate-200 rounded-2xl shadow-xl bg-slate-50/50 backdrop-blur-sm overflow-hidden relative">
-                <div className={`absolute top-0 left-0 w-full h-1 ${currentChapter === 'foundation' ? 'bg-amber-500' :
-                        currentChapter === 'admin' ? 'bg-blue-500' :
-                            currentChapter === 'security' ? 'bg-red-500' : 'bg-purple-500'
+                <div className={`absolute top-0 left-0 w-full h-1 ${currentChapter === 'cka' ? 'bg-blue-500' :
+                    currentChapter === 'ckad' ? 'bg-amber-500' :
+                        currentChapter === 'cks' ? 'bg-red-500' : 'bg-purple-500'
                     } z-10`} />
 
                 <ReactFlow

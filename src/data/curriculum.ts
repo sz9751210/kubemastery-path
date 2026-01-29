@@ -1,6 +1,6 @@
 import { Node, Edge } from 'reactflow';
 
-export type Chapter = 'foundation' | 'admin' | 'security' | 'expert';
+export type Chapter = 'all' | 'cka' | 'ckad' | 'cks';
 
 const foundationNodes: Node[] = [
   { id: '1', type: 'input', data: { label: 'Container Basics' }, position: { x: 250, y: 0 }, style: { background: '#fef3c7', border: '1px solid #d97706', width: 180 } },
@@ -81,25 +81,90 @@ const expertEdges: Edge[] = [
   { id: 'e41-99', source: '41', target: '99', animated: true, style: { stroke: '#ef4444', strokeWidth: 3 } },
   { id: 'e42-99', source: '42', target: '99', animated: true, style: { stroke: '#ef4444', strokeWidth: 3 } },
 ];
+const shiftNodes = (nodes: Node[], yOffset: number): Node[] => {
+  return nodes.map(node => ({
+    ...node,
+    position: {
+      ...node.position,
+      y: node.position.y + yOffset
+    }
+  }));
+};
+
+// CKAD Subset from Admin (Workloads & Networking)
+// Excludes: Control Plane(14), Schduling(8), Troubleshooting(15) might be needed but less focus?
+// Let's include Networking(6), Storage(7), Deployments(20), StatefulSets(21), Ingress(22).
+// And maybe disconnect the edges that flow through the missing nodes.
+// Admin Edges: 5->14, 5->6, 5->7...
+// If we drop 5 (Cluster Arch), we lose the root.
+// Let's keep 5 for context, but maybe style it differently or just include it.
+// To keep it simple, we'll use a specific subset.
+const adminNodesCKAD = adminNodes.filter(n => ['5', '6', '7', '20', '21', '22', '8'].includes(n.id));
+// We need edges that connect these nodes.
+const adminNodesCKADIds = new Set(adminNodesCKAD.map(n => n.id));
+const adminEdgesCKAD = adminEdges.filter(e => adminNodesCKADIds.has(e.source) && adminNodesCKADIds.has(e.target));
 
 
 export const getNodesForChapter = (chapter: Chapter): Node[] => {
   switch (chapter) {
-    case 'foundation': return foundationNodes;
-    case 'admin': return adminNodes;
-    case 'security': return securityNodes;
-    case 'expert': return expertNodes;
-    default: return foundationNodes;
+    case 'ckad':
+      return [
+        ...foundationNodes,
+        ...shiftNodes(adminNodesCKAD, 400)
+      ];
+    case 'cka':
+      return [
+        ...foundationNodes,
+        ...shiftNodes(adminNodes, 400)
+      ];
+    case 'cks':
+      // CKS Focus
+      return securityNodes;
+    case 'all':
+      return [
+        ...foundationNodes,
+        ...shiftNodes(adminNodes, 400),
+        ...shiftNodes(securityNodes, 1000),
+        ...shiftNodes(expertNodes, 1400)
+      ];
+    default:
+      return foundationNodes;
   }
 };
 
 export const getEdgesForChapter = (chapter: Chapter): Edge[] => {
+  const connectingEdgeFoundAdmin: Edge = { id: 'e4-5', source: '4', target: '5', animated: true, style: { stroke: '#bdbdbd' } };
+  const connectingEdgeAdminSec: Edge = { id: 'e15-9', source: '15', target: '9', animated: true, style: { stroke: '#bdbdbd' } };
+  const connectingEdgeSecExpert: Edge = { id: 'e11-40', source: '11', target: '40', animated: true, style: { stroke: '#bdbdbd' } };
+
   switch (chapter) {
-    case 'foundation': return foundationEdges;
-    case 'admin': return adminEdges;
-    case 'security': return securityEdges;
-    case 'expert': return expertEdges;
-    default: return foundationEdges;
+    case 'ckad':
+      // Connect Combined
+      return [
+        ...foundationEdges,
+        ...adminEdgesCKAD,
+        connectingEdgeFoundAdmin
+      ];
+    case 'cka':
+      return [
+        ...foundationEdges,
+        ...adminEdges,
+        connectingEdgeFoundAdmin
+      ];
+    case 'cks':
+      return securityEdges;
+    case 'all':
+      return [
+        ...foundationEdges,
+        ...adminEdges,
+        ...securityEdges,
+        ...expertEdges,
+        connectingEdgeFoundAdmin,
+        connectingEdgeAdminSec,
+        connectingEdgeSecExpert
+      ];
+    default:
+      return foundationEdges;
   }
 };
 
