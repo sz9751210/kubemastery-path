@@ -8,7 +8,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getLessonById, getLessons } from '@/data/lessons';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap } from 'lucide-react';
+import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap, XCircle, Loader2 } from 'lucide-react';
 import LessonSelector from '@/components/LessonSelector';
 import Header from '@/components/Header';
 import CollapsibleTerminal, { CollapsibleTerminalRef } from '@/components/CollapsibleTerminal';
@@ -30,6 +30,30 @@ export default function LessonPage() {
     const { addCardsForLesson } = useSRS();
 
     const [copiedValues, setCopiedValues] = useState<Record<string, boolean>>({});
+    const [verifying, setVerifying] = useState(false);
+    const [verifyResult, setVerifyResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
+
+    const handleVerify = async () => {
+        if (!lesson?.verifyScript) return;
+        setVerifying(true);
+        setVerifyResult(null);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'}/api/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    script: lesson.verifyScript,
+                    mode: 'real' // Default to real
+                })
+            });
+            const data = await res.json();
+            setVerifyResult(data);
+        } catch (e) {
+            setVerifyResult({ success: false, message: 'Network Error', output: String(e) });
+        } finally {
+            setVerifying(false);
+        }
+    };
 
     const handleCopy = (code: string, blockId: string) => {
         navigator.clipboard.writeText(code);
@@ -215,6 +239,40 @@ export default function LessonPage() {
                     >
                         {lesson.markdown}
                     </ReactMarkdown>
+
+                    {/* Verification Section */}
+                    {lesson.verifyScript && (
+                        <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col items-center gap-6 w-full">
+                            <div className="w-full max-w-2xl text-center">
+                                <button
+                                    onClick={handleVerify}
+                                    disabled={verifying}
+                                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all
+                                        ${verifying ? 'bg-slate-100 text-slate-400' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30'}
+                                    `}
+                                >
+                                    {verifying ? <Loader2 className="animate-spin" /> : <Zap className="fill-current" />}
+                                    {verifying ? 'Verifying Solution...' : 'VERIFY SOLUTION'}
+                                </button>
+
+                                {verifyResult && (
+                                    <div className={`mt-4 p-4 rounded-xl border-2 text-left animate-in zoom-in slide-in-from-top-2 duration-300
+                                        ${verifyResult.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}
+                                    `}>
+                                        <div className="flex items-center gap-3 mb-2">
+                                            {verifyResult.success ? <CheckCircle className="text-green-600" /> : <XCircle className="text-red-600" />}
+                                            <h4 className={`font-bold ${verifyResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                                                {verifyResult.success ? 'Verification Passed!' : 'Verification Failed'}
+                                            </h4>
+                                        </div>
+                                        <pre className="text-xs font-mono bg-white/50 p-2 rounded border border-black/5 overflow-x-auto whitespace-pre-wrap">
+                                            {verifyResult.output}
+                                        </pre>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Completion Reward Section */}
                     <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col items-center gap-6">

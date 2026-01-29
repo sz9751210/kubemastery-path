@@ -31,13 +31,31 @@ async function generateExams() {
                         continue;
                     }
 
+                    // Helper to extract verify block
+                    const extractVerify = (md) => {
+                        const verifyRegex = /```verify\n([\s\S]*?)\n```/g;
+                        let verifyScript = '';
+                        const cleanMd = md.replace(verifyRegex, (match, script) => {
+                            verifyScript += script + '\n';
+                            return ''; // Remove from display
+                        });
+                        return { cleanMd, verifyScript };
+                    };
+
+                    const { cleanMd: mainMarkdown, verifyScript: mainVerify } = extractVerify(markdownBody);
+
                     // Split tasks for randomization
                     // We look for "# Task" at the start of a line
-                    const tasks = markdownBody.split(/^# Task /m)
+                    const rawTasks = markdownBody.split(/^# Task /m)
                         .filter(t => t.trim().length > 0)
                         .map(t => '# Task ' + t); // Re-add the header back
 
-                    const finalTasks = tasks.length > 1 ? tasks : [];
+                    const parsedTasks = rawTasks.map(t => {
+                        const { cleanMd, verifyScript } = extractVerify(t);
+                        return { markdown: cleanMd, verify: verifyScript };
+                    });
+
+                    const finalTasks = parsedTasks.length > 1 ? parsedTasks : [];
 
                     // Ensure ID is a string
                     const lessonId = String(data.id);
@@ -45,7 +63,8 @@ async function generateExams() {
                     exams[lessonId] = {
                         ...data,
                         id: lessonId,
-                        markdown: markdownBody,
+                        markdown: mainMarkdown,
+                        verifyScript: mainVerify,
                         tasks: finalTasks,
                     };
                 } catch (e) {

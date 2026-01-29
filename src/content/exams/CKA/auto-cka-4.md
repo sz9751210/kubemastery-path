@@ -9,108 +9,207 @@ duration: 120 mins
 
 This is an auto-generated exam to provide infinite practice questions.
 
-# Task 1: Node Maintenance
-Mark node `node-3` as unschedulable (cordon).
-Then drain the node, ignoring daemonsets.
-Finally, uncordon the node.
+# Task 1: Expose Service
+Expose the deployment `resource-jbfsyw-dep` as a Service named `resource-jbfsyw` in namespace `dev`.
+The service should listen on port `6178` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-jbfsyw -n dev -o jsonpath='{.spec.ports[0].port}' | grep 6178
+kubectl get svc resource-jbfsyw -n dev -o jsonpath='{.spec.type}' | grep ClusterIP
+```
 
 
-# Task 2: Create a Pod
-Create a pod named `resource-775wce` in namespace `default` using image `mysql`.
-Ensure it has a label `env=prod`.
+# Task 2: Expose Service
+Expose the deployment `resource-8sx9bl-dep` as a Service named `resource-8sx9bl` in namespace `frontend`.
+The service should listen on port `5130` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-8sx9bl -n frontend -o jsonpath='{.spec.ports[0].port}' | grep 5130
+kubectl get svc resource-8sx9bl -n frontend -o jsonpath='{.spec.type}' | grep ClusterIP
+```
 
 
-# Task 3: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-nv2w5x` in namespace `kube-system`.
-Request `100Mi` storage with access mode `ReadOnlyMany`.
+# Task 3: Create a Pod
+Create a pod named `resource-mpgqas` in namespace `prod` using image `redis`.
+Ensure it has a label `app=web`.
+
+```verify
+kubectl get pod resource-mpgqas -n prod --no-headers | grep Running
+kubectl get pod resource-mpgqas -n prod -o jsonpath='{.metadata.labels.app}' | grep web
+```
 
 
 # Task 4: Scale Deployment
-Create a deployment named `resource-abaqrd` in namespace `test` using image `httpd`.
-Scale it to `7` replicas.
-Then, perform a rolling update to image `httpd:latest`.
-
-
-# Task 5: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-ghobwu` in namespace `default`.
-Request `100Mi` storage with access mode `ReadWriteMany`.
-
-
-# Task 6: Expose Service
-Expose the deployment `resource-v76iwg-dep` as a Service named `resource-v76iwg` in namespace `prod`.
-The service should listen on port `6509` and be of type `NodePort`.
-
-
-# Task 7: Expose Service
-Expose the deployment `resource-wg78f0-dep` as a Service named `resource-wg78f0` in namespace `frontend`.
-The service should listen on port `3278` and be of type `ClusterIP`.
-
-
-# Task 8: Scale Deployment
-Create a deployment named `resource-edttsb` in namespace `default` using image `httpd`.
-Scale it to `3` replicas.
-Then, perform a rolling update to image `httpd:latest`.
-
-
-# Task 9: Scale Deployment
-Create a deployment named `resource-mglbog` in namespace `dev` using image `nginx`.
+Create a deployment named `resource-mqxvtc` in namespace `staging` using image `memcached`.
 Scale it to `4` replicas.
-Then, perform a rolling update to image `nginx:latest`.
+Then, perform a rolling update to image `memcached:latest`.
+
+```verify
+kubectl get deploy resource-mqxvtc -n staging -o jsonpath='{.spec.replicas}' | grep 4
+kubectl get deploy resource-mqxvtc -n staging -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "memcached:latest"
+```
 
 
-# Task 10: Expose Service
-Expose the deployment `resource-1g3bn8-dep` as a Service named `resource-1g3bn8` in namespace `backend`.
-The service should listen on port `3209` and be of type `NodePort`.
+# Task 5: Expose Service
+Expose the deployment `resource-dvg46n-dep` as a Service named `resource-dvg46n` in namespace `default`.
+The service should listen on port `3675` and be of type `NodePort`.
+
+```verify
+kubectl get svc resource-dvg46n -n default -o jsonpath='{.spec.ports[0].port}' | grep 3675
+kubectl get svc resource-dvg46n -n default -o jsonpath='{.spec.type}' | grep NodePort
+```
 
 
-# Task 11: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-9balch` in namespace `prod`.
-Request `100Mi` storage with access mode `ReadOnlyMany`.
+# Task 6: Create a Pod
+Create a pod named `resource-lvgqwr` in namespace `backend` using image `mysql`.
+Ensure it has a label `env=prod`.
+
+```verify
+kubectl get pod resource-lvgqwr -n backend --no-headers | grep Running
+kubectl get pod resource-lvgqwr -n backend -o jsonpath='{.metadata.labels.env}' | grep prod
+```
 
 
-# Task 12: Expose Service
-Expose the deployment `resource-haevo8-dep` as a Service named `resource-haevo8` in namespace `prod`.
-The service should listen on port `7648` and be of type `ClusterIP`.
-
-
-# Task 13: Expose Service
-Expose the deployment `resource-riv53b-dep` as a Service named `resource-riv53b` in namespace `kube-system`.
-The service should listen on port `4950` and be of type `NodePort`.
-
-
-# Task 14: Node Maintenance
+# Task 7: Node Maintenance
 Mark node `node-3` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
 
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
 
-# Task 15: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-5kyszb` in namespace `frontend`.
+
+# Task 8: Create a Pod
+Create a pod named `resource-fz8snt` in namespace `default` using image `alpine`.
+Ensure it has a label `team=blue`.
+
+```verify
+kubectl get pod resource-fz8snt -n default --no-headers | grep Running
+kubectl get pod resource-fz8snt -n default -o jsonpath='{.metadata.labels.team}' | grep blue
+```
+
+
+# Task 9: Node Maintenance
+Mark node `node-2` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-2 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 10: Create a Pod
+Create a pod named `resource-07i67u` in namespace `default` using image `nginx`.
+Ensure it has a label `app=web`.
+
+```verify
+kubectl get pod resource-07i67u -n default --no-headers | grep Running
+kubectl get pod resource-07i67u -n default -o jsonpath='{.metadata.labels.app}' | grep web
+```
+
+
+# Task 11: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-yl15rr` in namespace `staging`.
+Request `100Mi` storage with access mode `ReadWriteOnce`.
+
+```verify
+kubectl get pvc resource-yl15rr -n staging -o jsonpath='{.spec.resources.requests.storage}' | grep 100Mi
+kubectl get pvc resource-yl15rr -n staging -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteOnce
+```
+
+
+# Task 12: Expose Service
+Expose the deployment `resource-ebuypv-dep` as a Service named `resource-ebuypv` in namespace `staging`.
+The service should listen on port `5985` and be of type `NodePort`.
+
+```verify
+kubectl get svc resource-ebuypv -n staging -o jsonpath='{.spec.ports[0].port}' | grep 5985
+kubectl get svc resource-ebuypv -n staging -o jsonpath='{.spec.type}' | grep NodePort
+```
+
+
+# Task 13: Expose Service
+Expose the deployment `resource-0rn4xz-dep` as a Service named `resource-0rn4xz` in namespace `staging`.
+The service should listen on port `4816` and be of type `NodePort`.
+
+```verify
+kubectl get svc resource-0rn4xz -n staging -o jsonpath='{.spec.ports[0].port}' | grep 4816
+kubectl get svc resource-0rn4xz -n staging -o jsonpath='{.spec.type}' | grep NodePort
+```
+
+
+# Task 14: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-1jfm3h` in namespace `prod`.
 Request `5Gi` storage with access mode `ReadWriteOnce`.
 
-
-# Task 16: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-z4wdd8` in namespace `staging`.
-Request `1Gi` storage with access mode `ReadWriteMany`.
-
-
-# Task 17: Scale Deployment
-Create a deployment named `resource-lqkkjm` in namespace `prod` using image `node:14`.
-Scale it to `5` replicas.
-Then, perform a rolling update to image `node:14:latest`.
+```verify
+kubectl get pvc resource-1jfm3h -n prod -o jsonpath='{.spec.resources.requests.storage}' | grep 5Gi
+kubectl get pvc resource-1jfm3h -n prod -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteOnce
+```
 
 
-# Task 18: Expose Service
-Expose the deployment `resource-1vwv6q-dep` as a Service named `resource-1vwv6q` in namespace `kube-system`.
-The service should listen on port `8961` and be of type `ClusterIP`.
+# Task 15: Expose Service
+Expose the deployment `resource-co8r6l-dep` as a Service named `resource-co8r6l` in namespace `frontend`.
+The service should listen on port `5773` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-co8r6l -n frontend -o jsonpath='{.spec.ports[0].port}' | grep 5773
+kubectl get svc resource-co8r6l -n frontend -o jsonpath='{.spec.type}' | grep ClusterIP
+```
 
 
-# Task 19: Create a Pod
-Create a pod named `resource-6tf1k8` in namespace `staging` using image `httpd`.
-Ensure it has a label `app=web`.
+# Task 16: Create a Pod
+Create a pod named `resource-oesr5h` in namespace `kube-system` using image `nginx`.
+Ensure it has a label `env=prod`.
+
+```verify
+kubectl get pod resource-oesr5h -n kube-system --no-headers | grep Running
+kubectl get pod resource-oesr5h -n kube-system -o jsonpath='{.metadata.labels.env}' | grep prod
+```
+
+
+# Task 17: Node Maintenance
+Mark node `node-3` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 18: Node Maintenance
+Mark node `node-1` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-1 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 19: Expose Service
+Expose the deployment `resource-7zmws7-dep` as a Service named `resource-7zmws7` in namespace `test`.
+The service should listen on port `3213` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-7zmws7 -n test -o jsonpath='{.spec.ports[0].port}' | grep 3213
+kubectl get svc resource-7zmws7 -n test -o jsonpath='{.spec.type}' | grep ClusterIP
+```
 
 
 # Task 20: Expose Service
-Expose the deployment `resource-rpp9hf-dep` as a Service named `resource-rpp9hf` in namespace `prod`.
-The service should listen on port `3500` and be of type `ClusterIP`.
+Expose the deployment `resource-9xmoaf-dep` as a Service named `resource-9xmoaf` in namespace `prod`.
+The service should listen on port `7650` and be of type `NodePort`.
+
+```verify
+kubectl get svc resource-9xmoaf -n prod -o jsonpath='{.spec.ports[0].port}' | grep 7650
+kubectl get svc resource-9xmoaf -n prod -o jsonpath='{.spec.type}' | grep NodePort
+```
 

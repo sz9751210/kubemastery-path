@@ -9,107 +9,213 @@ duration: 120 mins
 
 This is an auto-generated exam to provide infinite practice questions.
 
-# Task 1: Create a Pod
-Create a pod named `resource-4u6bhs` in namespace `test` using image `mysql`.
-Ensure it has a label `team=blue`.
+# Task 1: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-wsfvd7` in namespace `frontend`.
+Request `10Gi` storage with access mode `ReadWriteMany`.
+
+```verify
+kubectl get pvc resource-wsfvd7 -n frontend -o jsonpath='{.spec.resources.requests.storage}' | grep 10Gi
+kubectl get pvc resource-wsfvd7 -n frontend -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
+```
 
 
 # Task 2: Create a Pod
-Create a pod named `resource-k6tn90` in namespace `default` using image `alpine`.
-Ensure it has a label `app=web`.
+Create a pod named `resource-e21rif` in namespace `staging` using image `httpd`.
+Ensure it has a label `tier=frontend`.
+
+```verify
+kubectl get pod resource-e21rif -n staging --no-headers | grep Running
+kubectl get pod resource-e21rif -n staging -o jsonpath='{.metadata.labels.tier}' | grep frontend
+```
 
 
-# Task 3: Expose Service
-Expose the deployment `resource-by4axc-dep` as a Service named `resource-by4axc` in namespace `dev`.
-The service should listen on port `4920` and be of type `NodePort`.
+# Task 3: Scale Deployment
+Create a deployment named `resource-912em7` in namespace `staging` using image `nginx`.
+Scale it to `3` replicas.
+Then, perform a rolling update to image `nginx:latest`.
+
+```verify
+kubectl get deploy resource-912em7 -n staging -o jsonpath='{.spec.replicas}' | grep 3
+kubectl get deploy resource-912em7 -n staging -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "nginx:latest"
+```
 
 
-# Task 4: Expose Service
-Expose the deployment `resource-0qiiec-dep` as a Service named `resource-0qiiec` in namespace `default`.
-The service should listen on port `6838` and be of type `ClusterIP`.
-
-
-# Task 5: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-tfm5gx` in namespace `kube-system`.
-Request `100Mi` storage with access mode `ReadWriteMany`.
-
-
-# Task 6: Create a Pod
-Create a pod named `resource-nyzt45` in namespace `backend` using image `node:14`.
-Ensure it has a label `app=web`.
-
-
-# Task 7: Scale Deployment
-Create a deployment named `resource-xee4bi` in namespace `prod` using image `python:3.9`.
-Scale it to `2` replicas.
-Then, perform a rolling update to image `python:3.9:latest`.
-
-
-# Task 8: Create a Pod
-Create a pod named `resource-nzsrws` in namespace `prod` using image `python:3.9`.
-Ensure it has a label `env=prod`.
-
-
-# Task 9: Expose Service
-Expose the deployment `resource-7yrycc-dep` as a Service named `resource-7yrycc` in namespace `test`.
-The service should listen on port `8783` and be of type `NodePort`.
-
-
-# Task 10: Expose Service
-Expose the deployment `resource-sqnpsf-dep` as a Service named `resource-sqnpsf` in namespace `prod`.
-The service should listen on port `7223` and be of type `ClusterIP`.
-
-
-# Task 11: Scale Deployment
-Create a deployment named `resource-osemke` in namespace `prod` using image `node:14`.
-Scale it to `7` replicas.
-Then, perform a rolling update to image `node:14:latest`.
-
-
-# Task 12: Expose Service
-Expose the deployment `resource-7fv82x-dep` as a Service named `resource-7fv82x` in namespace `staging`.
-The service should listen on port `3492` and be of type `ClusterIP`.
-
-
-# Task 13: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-pdpi9u` in namespace `staging`.
-Request `2Gi` storage with access mode `ReadWriteOnce`.
-
-
-# Task 14: Create a Pod
-Create a pod named `resource-iut0f0` in namespace `staging` using image `memcached`.
-Ensure it has a label `env=prod`.
-
-
-# Task 15: Scale Deployment
-Create a deployment named `resource-r5rtg9` in namespace `frontend` using image `mysql`.
-Scale it to `8` replicas.
+# Task 4: Scale Deployment
+Create a deployment named `resource-mscuqd` in namespace `default` using image `mysql`.
+Scale it to `5` replicas.
 Then, perform a rolling update to image `mysql:latest`.
 
+```verify
+kubectl get deploy resource-mscuqd -n default -o jsonpath='{.spec.replicas}' | grep 5
+kubectl get deploy resource-mscuqd -n default -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "mysql:latest"
+```
 
-# Task 16: Create a Pod
-Create a pod named `resource-9folnt` in namespace `dev` using image `redis`.
-Ensure it has a label `release=stable`.
+
+# Task 5: Create a Pod
+Create a pod named `resource-cba6hh` in namespace `dev` using image `nginx`.
+Ensure it has a label `tier=frontend`.
+
+```verify
+kubectl get pod resource-cba6hh -n dev --no-headers | grep Running
+kubectl get pod resource-cba6hh -n dev -o jsonpath='{.metadata.labels.tier}' | grep frontend
+```
 
 
-# Task 17: Node Maintenance
+# Task 6: Node Maintenance
 Mark node `node-3` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
 
-
-# Task 18: Scale Deployment
-Create a deployment named `resource-uco6lx` in namespace `frontend` using image `python:3.9`.
-Scale it to `6` replicas.
-Then, perform a rolling update to image `python:3.9:latest`.
-
-
-# Task 19: Create a Pod
-Create a pod named `resource-o7z5a9` in namespace `dev` using image `httpd`.
-Ensure it has a label `app=web`.
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
 
 
-# Task 20: Create a Pod
-Create a pod named `resource-3ff6f1` in namespace `staging` using image `httpd`.
-Ensure it has a label `release=stable`.
+# Task 7: Expose Service
+Expose the deployment `resource-w729t8-dep` as a Service named `resource-w729t8` in namespace `backend`.
+The service should listen on port `7872` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-w729t8 -n backend -o jsonpath='{.spec.ports[0].port}' | grep 7872
+kubectl get svc resource-w729t8 -n backend -o jsonpath='{.spec.type}' | grep ClusterIP
+```
+
+
+# Task 8: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-kg82fs` in namespace `staging`.
+Request `100Mi` storage with access mode `ReadWriteMany`.
+
+```verify
+kubectl get pvc resource-kg82fs -n staging -o jsonpath='{.spec.resources.requests.storage}' | grep 100Mi
+kubectl get pvc resource-kg82fs -n staging -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
+```
+
+
+# Task 9: Node Maintenance
+Mark node `node-1` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-1 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 10: Node Maintenance
+Mark node `node-3` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 11: Expose Service
+Expose the deployment `resource-uxzhzf-dep` as a Service named `resource-uxzhzf` in namespace `kube-system`.
+The service should listen on port `5102` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-uxzhzf -n kube-system -o jsonpath='{.spec.ports[0].port}' | grep 5102
+kubectl get svc resource-uxzhzf -n kube-system -o jsonpath='{.spec.type}' | grep ClusterIP
+```
+
+
+# Task 12: Node Maintenance
+Mark node `node-4` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-4 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 13: Scale Deployment
+Create a deployment named `resource-ypojsj` in namespace `kube-system` using image `busybox`.
+Scale it to `3` replicas.
+Then, perform a rolling update to image `busybox:latest`.
+
+```verify
+kubectl get deploy resource-ypojsj -n kube-system -o jsonpath='{.spec.replicas}' | grep 3
+kubectl get deploy resource-ypojsj -n kube-system -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "busybox:latest"
+```
+
+
+# Task 14: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-msmryk` in namespace `kube-system`.
+Request `5Gi` storage with access mode `ReadWriteOnce`.
+
+```verify
+kubectl get pvc resource-msmryk -n kube-system -o jsonpath='{.spec.resources.requests.storage}' | grep 5Gi
+kubectl get pvc resource-msmryk -n kube-system -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteOnce
+```
+
+
+# Task 15: Scale Deployment
+Create a deployment named `resource-8zlxw2` in namespace `dev` using image `memcached`.
+Scale it to `3` replicas.
+Then, perform a rolling update to image `memcached:latest`.
+
+```verify
+kubectl get deploy resource-8zlxw2 -n dev -o jsonpath='{.spec.replicas}' | grep 3
+kubectl get deploy resource-8zlxw2 -n dev -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "memcached:latest"
+```
+
+
+# Task 16: Node Maintenance
+Mark node `node-1` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-1 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 17: Node Maintenance
+Mark node `node-5` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-5 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 18: Expose Service
+Expose the deployment `resource-bmzb2h-dep` as a Service named `resource-bmzb2h` in namespace `backend`.
+The service should listen on port `7346` and be of type `ClusterIP`.
+
+```verify
+kubectl get svc resource-bmzb2h -n backend -o jsonpath='{.spec.ports[0].port}' | grep 7346
+kubectl get svc resource-bmzb2h -n backend -o jsonpath='{.spec.type}' | grep ClusterIP
+```
+
+
+# Task 19: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-3uijuf` in namespace `staging`.
+Request `5Gi` storage with access mode `ReadWriteMany`.
+
+```verify
+kubectl get pvc resource-3uijuf -n staging -o jsonpath='{.spec.resources.requests.storage}' | grep 5Gi
+kubectl get pvc resource-3uijuf -n staging -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
+```
+
+
+# Task 20: Scale Deployment
+Create a deployment named `resource-wf7v96` in namespace `prod` using image `postgres`.
+Scale it to `5` replicas.
+Then, perform a rolling update to image `postgres:latest`.
+
+```verify
+kubectl get deploy resource-wf7v96 -n prod -o jsonpath='{.spec.replicas}' | grep 5
+kubectl get deploy resource-wf7v96 -n prod -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "postgres:latest"
+```
 

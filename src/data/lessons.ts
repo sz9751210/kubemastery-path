@@ -29,7 +29,8 @@ export const getLessonById = (id: string): Lesson | undefined => {
 // Helper to generate a random exam from the pool of tasks
 function generateRandomExam(id: string, category: string, title: string): Lesson {
   const pool = Object.values(lessons).filter(l => l.category === category || l.category.includes(category));
-  const allTasks: string[] = [];
+  // Assuming Lesson.tasks is an array of objects with markdown and verify properties
+  const allTasks: { markdown: string; verify?: string }[] = [];
 
   pool.forEach(lesson => {
     if (lesson.tasks && lesson.tasks.length > 0) {
@@ -45,8 +46,13 @@ function generateRandomExam(id: string, category: string, title: string): Lesson
   const selected = shuffled.slice(0, 5);
 
   const markdown = selected.length > 0
-    ? `# ${title}\n\nTime: 60 mins. Pass: 66%.\n\n` + selected.join('\n\n')
+    ? `# ${title}\n\nTime: 60 mins. Pass: 66%.\n\n` + selected.map(t => t.markdown).join('\n\n')
     : `# ${title}\n\nNot enough questions found in the pool.`;
+
+  // Combine verification scripts
+  // We wrap them in subshells or just append them.
+  // We'll add echo statements to help debugging.
+  const verifyScript = selected.map((t, i) => `echo "Verifying Task ${i + 1}..."\n${t.verify || 'echo "No check defined for Task ' + (i + 1) + '"'}`).join('\n\n');
 
   return {
     id,
@@ -54,5 +60,6 @@ function generateRandomExam(id: string, category: string, title: string): Lesson
     category: category as any,
     duration: '60 mins',
     markdown,
+    verifyScript
   };
 }

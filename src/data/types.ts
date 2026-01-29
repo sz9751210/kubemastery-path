@@ -5,5 +5,6 @@ export interface Lesson {
     duration: string;
     markdown: string;
     flashcards?: { question: string; answer: string }[];
-    tasks?: string[]; // Optional: for random question generation
+    verifyScript?: string; // Script to verify the whole lesson
+    tasks?: { markdown: string; verify?: string }[]; // Pool of tasks with verification logic
 }

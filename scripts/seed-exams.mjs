@@ -26,24 +26,40 @@ function generateCKATasks(count) {
         if (type === 'pod') {
             const img = pick(IMAGES);
             const lbl = pick(LABELS);
+            const [labelKey, labelVal] = lbl.split('=');
             tasks.push(`# Task ${i + 1}: Create a Pod
 Create a pod named \`${name}\` in namespace \`${ns}\` using image \`${img}\`.
 Ensure it has a label \`${lbl}\`.
+
+\`\`\`verify
+kubectl get pod ${name} -n ${ns} --no-headers | grep Running
+kubectl get pod ${name} -n ${ns} -o jsonpath='{.metadata.labels.${labelKey}}' | grep ${labelVal}
+\`\`\`
 `);
         } else if (type === 'deployment') {
-            const replicas = randInt(2, 10);
+            const replicas = randInt(2, 5);
             const img = pick(IMAGES);
             tasks.push(`# Task ${i + 1}: Scale Deployment
 Create a deployment named \`${name}\` in namespace \`${ns}\` using image \`${img}\`.
 Scale it to \`${replicas}\` replicas.
 Then, perform a rolling update to image \`${img}:latest\`.
+
+\`\`\`verify
+kubectl get deploy ${name} -n ${ns} -o jsonpath='{.spec.replicas}' | grep ${replicas}
+kubectl get deploy ${name} -n ${ns} -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "${img}:latest"
+\`\`\`
 `);
         } else if (type === 'service') {
             const port = randInt(3000, 9000);
-            const type = pick(['ClusterIP', 'NodePort']);
+            const svcType = pick(['ClusterIP', 'NodePort']);
             tasks.push(`# Task ${i + 1}: Expose Service
 Expose the deployment \`${name}-dep\` as a Service named \`${name}\` in namespace \`${ns}\`.
-The service should listen on port \`${port}\` and be of type \`${type}\`.
+The service should listen on port \`${port}\` and be of type \`${svcType}\`.
+
+\`\`\`verify
+kubectl get svc ${name} -n ${ns} -o jsonpath='{.spec.ports[0].port}' | grep ${port}
+kubectl get svc ${name} -n ${ns} -o jsonpath='{.spec.type}' | grep ${svcType}
+\`\`\`
 `);
         } else if (type === 'pvc') {
             const cap = pick(CAPACITIES);
@@ -51,6 +67,11 @@ The service should listen on port \`${port}\` and be of type \`${type}\`.
             tasks.push(`# Task ${i + 1}: Persistent Volume Claim
 Create a PersistentVolumeClaim named \`${name}\` in namespace \`${ns}\`.
 Request \`${cap}\` storage with access mode \`${mode}\`.
+
+\`\`\`verify
+kubectl get pvc ${name} -n ${ns} -o jsonpath='{.spec.resources.requests.storage}' | grep ${cap}
+kubectl get pvc ${name} -n ${ns} -o jsonpath='{.spec.accessModes[0]}' | grep ${mode}
+\`\`\`
 `);
         } else if (type === 'node') {
             const nodeName = `node-${randInt(1, 5)}`;
@@ -58,6 +79,11 @@ Request \`${cap}\` storage with access mode \`${mode}\`.
 Mark node \`${nodeName}\` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
+
+\`\`\`verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node ${nodeName} --no-headers | grep Ready | grep -v SchedulingDisabled
+\`\`\`
 `);
         }
     }
@@ -72,6 +98,11 @@ function generateCKADTasks(count) {
 Create a pod named \`${name}\` with two containers.
 Container 1: image \`nginx\`, name \`c1\`.
 Container 2: image \`busybox\`, name \`c2\`, command "sleep 3600".
+
+\`\`\`verify
+kubectl get pod ${name} -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ${name} -o jsonpath='{.spec.containers[*].name}' | grep c2
+\`\`\`
 `);
     }
     return tasks;
@@ -86,6 +117,12 @@ function generateCKSTasks(count) {
 Create a NetworkPolicy named \`${name}\` in namespace \`default\`.
 Deny all ingress traffic to pods with label \`role=db\`.
 Allow egress only to port 53 (DNS).
+
+\`\`\`verify
+kubectl get netpol ${name} -n default -o jsonpath='{.spec.podSelector.matchLabels.role}' | grep db
+kubectl get netpol ${name} -n default -o jsonpath='{.spec.policyTypes}' | grep Ingress
+kubectl get netpol ${name} -n default -o jsonpath='{.spec.egress[0].ports[0].port}' | grep 53
+\`\`\`
 `);
     }
     return tasks;
