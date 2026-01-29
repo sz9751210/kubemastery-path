@@ -41,19 +41,31 @@ const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
             term.writeln(welcomeMessage);
         }
 
-        term.write('\r\n$ ');
+        // WebSocket Connection
+        const wsUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:4000';
+        const ws = new WebSocket(wsUrl);
 
-        // Basic local echo and input handling (Placeholders for WebSocket)
+        ws.onopen = () => {
+            term.write('\r\n\x1b[32m[Connected to KubeMastery Shell]\x1b[0m\r\n');
+        };
+
+        ws.onmessage = (event) => {
+            term.write(event.data);
+        };
+
+        ws.onclose = () => {
+            term.write('\r\n\x1b[31m[Connection closed]\x1b[0m\r\n');
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n');
+        };
+
+        // Send input to backend
         term.onData((data) => {
-            const char = data;
-            if (char === '\r') {
-                // Enter
-                term.write('\r\n$ ');
-            } else if (char === '\u007F') {
-                // Backspace
-                term.write('\b \b');
-            } else {
-                term.write(char);
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(data);
             }
         });
 
@@ -66,6 +78,7 @@ const Terminal: React.FC<TerminalProps> = ({ welcomeMessage }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
             term.dispose();
+            ws.close();
         };
     }, [welcomeMessage]);
 
