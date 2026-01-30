@@ -61,12 +61,11 @@ async function generateExams() {
                         const hasKubectl = mainMarkdown.includes('kubectl');
 
                         if (hasCrictl) {
-                            // If crictl is mentioned but no setup script, warn or add default helper if we know how?
-                            // For now, we rely on the specific file edits for crictl as it's complex.
-                            // But we can add a generic "Ready" message.
                             mainSetup = 'echo "Environment Ready (Auto-generated)"\n';
                         } else if (hasKubectl) {
                             mainSetup = 'echo "Environment Ready (Auto-generated)"\n';
+                        } else {
+                            mainSetup = 'echo "Environment Ready"\n';
                         }
                     }
 

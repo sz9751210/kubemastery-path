@@ -35,14 +35,20 @@ function LabContent() {
 
     // Initial Setup
     useEffect(() => {
-        if (!setupRunRef.current) {
+        // Reset everything when lessonId changes
+        setSetupResult(null);
+        setVerifyResult(null);
+        setCurrentTaskIndex(0);
+        setupRunRef.current = false;
+
+        if (lesson) {
             handleSetup();
         }
-    }, [lesson]);
+    }, [lessonId]); // Trigger on lessonId change
 
-    const handleSetup = async () => {
-        // Use provided script or a default 'ping' script to ensure environment is reachable
-        const scriptToRun = lesson?.setupScript || 'echo "Preparing environment..." && sleep 1 && echo "Environment Ready"';
+    const handleSetup = async (customScript?: string) => {
+        // Use provided custom script, task script, lesson script, or default
+        const scriptToRun = customScript || activeSetupScript || lesson?.setupScript || 'echo "Preparing environment..." && sleep 1 && echo "Environment Ready"';
 
         setupRunRef.current = true;
         setSettingUp(true);
@@ -113,6 +119,7 @@ function LabContent() {
 
     const activeMarkdown = hasTasks ? lesson.tasks![currentTaskIndex].markdown : lesson?.markdown || '';
     const activeVerifyScript = hasTasks ? lesson.tasks![currentTaskIndex].verify : lesson?.verifyScript;
+    const activeSetupScript = hasTasks ? lesson.tasks![currentTaskIndex].setup : lesson?.setupScript;
     const isLastTask = hasTasks ? currentTaskIndex === lesson.tasks!.length - 1 : true;
 
     // Determine badge state
@@ -134,7 +141,13 @@ function LabContent() {
 
     const handleNextTask = () => {
         setVerifyResult(null);
-        setCurrentTaskIndex(prev => prev + 1);
+        const nextIndex = currentTaskIndex + 1;
+        setCurrentTaskIndex(nextIndex);
+
+        // Run setup for the next task if it exists
+        if (lesson.tasks && lesson.tasks[nextIndex]?.setup) {
+            handleSetup(lesson.tasks[nextIndex].setup);
+        }
     };
 
     return (
@@ -211,7 +224,7 @@ function LabContent() {
                             <p>{setupResult.message}</p>
                             <pre className="mt-2 p-2 bg-white/50 rounded text-xs overflow-x-auto">{setupResult.output}</pre>
                             <button
-                                onClick={handleSetup}
+                                onClick={() => handleSetup()}
                                 className="mt-3 text-xs font-bold underline hover:no-underline"
                             >
                                 Retry Setup
@@ -276,7 +289,7 @@ function LabContent() {
                             </button>
                         )}
                         <button
-                            onClick={handleSetup}
+                            onClick={() => handleSetup()}
                             disabled={settingUp}
                             className="bg-white border border-slate-200 text-slate-600 p-3 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
                             title="Reset Environment"

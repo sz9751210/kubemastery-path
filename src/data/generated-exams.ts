@@ -7,34 +7,34 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Container Basics",
     "category": "CORE",
     "duration": "20 mins",
-    "markdown": "\n# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n",
+    "markdown": "\n# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n\n\n# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n\n\n# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n\n\n# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n\n\n# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n\n\n",
     "verifyScript": "crictl version | grep Runtime\ncrictl images | grep busybox\ncrictl images | grep busybox\nkubectl get pod nginx-cri | grep Running\ncrictl ps | grep nginx-cri\n",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
+    "setupScript": "# Ensure CRI is ready\ncrictl version > /dev/null 2>&1 || (echo \"CRI not running\" && exit 1)\n# Clean up if exists\ncrictl rmi busybox 2>/dev/null || true\n# Ensure busybox is pulled\ncrictl pull busybox > /dev/null 2>&1\n# Clean up if exists\nkubectl delete pod nginx-cri --force --grace-period=0 2>/dev/null || true\n# Ensure pod is running\nkubectl run nginx-cri --image=nginx --dry-run=client -o yaml | kubectl apply -f -\nkubectl wait --for=condition=Ready pod/nginx-cri --timeout=30s 2>/dev/null || true\n",
     "tasks": [
       {
-        "markdown": "# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n",
+        "markdown": "# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n\n\n",
         "verify": "crictl version | grep Runtime\n",
-        "setup": ""
+        "setup": "# Ensure CRI is ready\ncrictl version > /dev/null 2>&1 || (echo \"CRI not running\" && exit 1)\n"
       },
       {
-        "markdown": "# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n",
+        "markdown": "# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n\n\n",
         "verify": "crictl images | grep busybox\n",
-        "setup": ""
+        "setup": "# Clean up if exists\ncrictl rmi busybox 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n",
+        "markdown": "# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n\n\n",
         "verify": "crictl images | grep busybox\n",
-        "setup": ""
+        "setup": "# Ensure busybox is pulled\ncrictl pull busybox > /dev/null 2>&1\n"
       },
       {
-        "markdown": "# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n",
+        "markdown": "# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n\n\n",
         "verify": "kubectl get pod nginx-cri | grep Running\n",
-        "setup": ""
+        "setup": "# Clean up if exists\nkubectl delete pod nginx-cri --force --grace-period=0 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n",
+        "markdown": "# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n\n\n",
         "verify": "crictl ps | grep nginx-cri\n",
-        "setup": ""
+        "setup": "# Ensure pod is running\nkubectl run nginx-cri --image=nginx --dry-run=client -o yaml | kubectl apply -f -\nkubectl wait --for=condition=Ready pod/nginx-cri --timeout=30s 2>/dev/null || true\n"
       }
     ]
   },
@@ -43,40 +43,84 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Pod Lifecycle",
     "category": "CORE",
     "duration": "25 mins",
-    "markdown": "\n# The Pod Lifecycle\n\nA **Pod** is the atomic unit of K8s. It wraps one or more containers.\n\n## States\n1. **Pending**: Scheduler is finding a node.\n2. **ContainerCreating**: Pulling images.\n3. **Running**: At least one container is up.\n4. **Succeeded/Failed**: Process exited.\n\n\\`\\`\\`bash\n# Create a simple Nginx pod\nkubectl run nginx-demo --image=nginx\n\n# Watch the pod status change\nkubectl get pod nginx-demo -w\n\\`\\`\\`\n\n\n\\`\\`\\`\n",
+    "markdown": "\n# The Pod Lifecycle\n\nA **Pod** is the atomic unit of K8s. It wraps one or more containers.\n\n## States\n1. **Pending**: Scheduler is finding a node.\n2. **ContainerCreating**: Pulling images.\n3. **Running**: At least one container is up.\n4. **Succeeded/Failed**: Process exited.\n\n# Task 1: Create a Pod\nCreate a simple Nginx pod named `nginx-demo`.\n\n```bash\nkubectl run nginx-demo --image=nginx\n```\n\n\n\n\n",
     "verifyScript": "kubectl get pod nginx-demo --no-headers | grep Running\n",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "setupScript": "# Clean up if exists\nkubectl delete pod nginx-demo --force --grace-period=0 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# The Pod Lifecycle\n\nA **Pod** is the atomic unit of K8s. It wraps one or more containers.\n\n## States\n1. **Pending**: Scheduler is finding a node.\n2. **ContainerCreating**: Pulling images.\n3. **Running**: At least one container is up.\n4. **Succeeded/Failed**: Process exited.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Create a Pod\nCreate a simple Nginx pod named `nginx-demo`.\n\n```bash\nkubectl run nginx-demo --image=nginx\n```\n\n\n\n\n",
+        "verify": "kubectl get pod nginx-demo --no-headers | grep Running\n",
+        "setup": "# Clean up if exists\nkubectl delete pod nginx-demo --force --grace-period=0 2>/dev/null || true\n"
+      }
+    ]
   },
   "3": {
     "id": "3",
     "title": "YAML Configuration",
     "category": "CORE",
     "duration": "30 mins",
-    "markdown": "\n# Mastering YAML\n\nKubernetes is **Declarative**. syntax matters.\n\n## The 4 Pillars\n1. **apiVersion**: \\`v1\\`, \\`apps/v1\\`.\n2. **kind**: \\`Pod\\`, \\`Service\\`.\n3. **metadata**: \\`name\\`, \\`labels\\`.\n4. **spec**: The desired state.\n\n\\`\\`\\`yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: demo\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Mastering YAML\n\nKubernetes is **Declarative**. syntax matters.\n\n## The 4 Pillars\n1. **apiVersion**: \\`v1\\`, \\`apps/v1\\`.\n2. **kind**: \\`Pod\\`, \\`Service\\`.\n3. **metadata**: \\`name\\`, \\`labels\\`.\n4. **spec**: The desired state.\n\n# Task 1: Create from YAML\nCreate a pod using the following YAML. Save it to `pod.yaml` and apply it.\n\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: demo\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pod demo --no-headers | grep Running\n",
+    "setupScript": "# Clean up if exists\nkubectl delete pod demo --force --grace-period=0 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Mastering YAML\n\nKubernetes is **Declarative**. syntax matters.\n\n## The 4 Pillars\n1. **apiVersion**: \\`v1\\`, \\`apps/v1\\`.\n2. **kind**: \\`Pod\\`, \\`Service\\`.\n3. **metadata**: \\`name\\`, \\`labels\\`.\n4. **spec**: The desired state.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Create from YAML\nCreate a pod using the following YAML. Save it to `pod.yaml` and apply it.\n\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: demo\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n```\n\n\n\n\n",
+        "verify": "kubectl get pod demo --no-headers | grep Running\n",
+        "setup": "# Clean up if exists\nkubectl delete pod demo --force --grace-period=0 2>/dev/null || true\n"
+      }
+    ]
   },
   "4": {
     "id": "4",
     "title": "Multi-Container Pods",
     "category": "CORE",
     "duration": "35 mins",
-    "markdown": "\n# Multi-Container Pods\n\nSharing is caring. Sometimes one container isn't enough.\n\n## Patterns\n1.  **Sidecar**: Helper container (e.g., Log shipper, Proxy).\n2.  **Adapter**: Standardizes output (e.g., Metrics converter).\n3.  **Ambassador**: Proxies connection to outside world.\n\n## Shared Resources\nContainers in a Pod share:\n-   **Network Namespace**: Same IP, same localhost.\n-   **Volumes**: Shared filesystems.\n\n\\`\\`\\`yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: sidecar-demo\nspec:\n  containers:\n  - name: main-app\n    image: nginx\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  - name: log-shipper\n    image: busybox\n    command: [\"sh\", \"-c\", \"tail -f /var/log/nginx/access.log\"]\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  volumes:\n  - name: shared-logs\n    emptyDir: {}\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Multi-Container Pods\n\nSharing is caring. Sometimes one container isn't enough.\n\n## Patterns\n1.  **Sidecar**: Helper container (e.g., Log shipper, Proxy).\n2.  **Adapter**: Standardizes output (e.g., Metrics converter).\n3.  **Ambassador**: Proxies connection to outside world.\n\n## Shared Resources\nContainers in a Pod share:\n-   **Network Namespace**: Same IP, same localhost.\n-   **Volumes**: Shared filesystems.\n\n# Task 1: Multi-Container Pod\nCreate the sidecar pod using the following YAML.\n\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: sidecar-demo\nspec:\n  containers:\n  - name: main-app\n    image: nginx\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  - name: log-shipper\n    image: busybox\n    command: [\"sh\", \"-c\", \"tail -f /var/log/nginx/access.log\"]\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  volumes:\n  - name: shared-logs\n    emptyDir: {}\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pod sidecar-demo -o jsonpath='{.spec.containers[*].name}' | grep log-shipper\nkubectl get pod sidecar-demo --no-headers | grep Running\n",
+    "setupScript": "# Clean up if exists\nkubectl delete pod sidecar-demo --force --grace-period=0 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Multi-Container Pods\n\nSharing is caring. Sometimes one container isn't enough.\n\n## Patterns\n1.  **Sidecar**: Helper container (e.g., Log shipper, Proxy).\n2.  **Adapter**: Standardizes output (e.g., Metrics converter).\n3.  **Ambassador**: Proxies connection to outside world.\n\n## Shared Resources\nContainers in a Pod share:\n-   **Network Namespace**: Same IP, same localhost.\n-   **Volumes**: Shared filesystems.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Multi-Container Pod\nCreate the sidecar pod using the following YAML.\n\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: sidecar-demo\nspec:\n  containers:\n  - name: main-app\n    image: nginx\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  - name: log-shipper\n    image: busybox\n    command: [\"sh\", \"-c\", \"tail -f /var/log/nginx/access.log\"]\n    volumeMounts:\n    - name: shared-logs\n      mountPath: /var/log/nginx\n  volumes:\n  - name: shared-logs\n    emptyDir: {}\n```\n\n\n\n\n",
+        "verify": "kubectl get pod sidecar-demo -o jsonpath='{.spec.containers[*].name}' | grep log-shipper\nkubectl get pod sidecar-demo --no-headers | grep Running\n",
+        "setup": "# Clean up if exists\nkubectl delete pod sidecar-demo --force --grace-period=0 2>/dev/null || true\n"
+      }
+    ]
   },
   "5": {
     "id": "5",
     "title": "Cluster Architecture",
     "category": "CKA/CKAD",
     "duration": "40 mins",
-    "markdown": "\n# Cluster Architecture\n\nUnderstand the machine you are driving.\n\n## The Two Planes\n1.  **Control Plane** (The Brain):\n    -   Manages the state of the cluster.\n    -   Components: API Server, Etcd, Scheduler, Controller Manager.\n2.  **Data Plane** (The Muscle):\n    -   Runs the workloads.\n    -   Components: Kubelet, Kube-Proxy, Container Runtime.\n\n## Kubelet\nThe agent that runs on every node. It registers the node with the apiserver and ensures Pods are running and healthy.\n\n\\`\\`\\`bash\n# Check node status\nkubectl get nodes -o wide\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Cluster Architecture\n\nUnderstand the machine you are driving.\n\n## The Two Planes\n1.  **Control Plane** (The Brain):\n    -   Manages the state of the cluster.\n    -   Components: API Server, Etcd, Scheduler, Controller Manager.\n2.  **Data Plane** (The Muscle):\n    -   Runs the workloads.\n    -   Components: Kubelet, Kube-Proxy, Container Runtime.\n\n## Kubelet\nThe agent that runs on every node. It registers the node with the apiserver and ensures Pods are running and healthy.\n\n# Task 1: Inspect Nodes\nList all nodes with detailed information.\n\n```bash\nkubectl get nodes -o wide\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get nodes > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Cluster Architecture\n\nUnderstand the machine you are driving.\n\n## The Two Planes\n1.  **Control Plane** (The Brain):\n    -   Manages the state of the cluster.\n    -   Components: API Server, Etcd, Scheduler, Controller Manager.\n2.  **Data Plane** (The Muscle):\n    -   Runs the workloads.\n    -   Components: Kubelet, Kube-Proxy, Container Runtime.\n\n## Kubelet\nThe agent that runs on every node. It registers the node with the apiserver and ensures Pods are running and healthy.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Inspect Nodes\nList all nodes with detailed information.\n\n```bash\nkubectl get nodes -o wide\n```\n\n\n\n\n",
+        "verify": "kubectl get nodes > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "6": {
     "id": "6",
@@ -123,10 +167,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Network Policies",
     "category": "CKS",
     "duration": "35 mins",
-    "markdown": "\n# Network Policies\n\nThe firewall for Kubernetes.\n\n> [!WARNING]\n> By default, K8s is a **Flat Network**. Any pod can talk to any pod.\n\n## Default Deny Logic\nStart by denying everything, then allow specific traffic.\n\n\\`\\`\\`bash\n# See if any policies exist\nkubectl get networkpolicies\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Network Policies\n\nThe firewall for Kubernetes.\n\n> [!WARNING]\n> By default, K8s is a **Flat Network**. Any pod can talk to any pod.\n\n## Default Deny Logic\nStart by denying everything, then allow specific traffic.\n\n# Task 1: List Policies\nVerify if any NetworkPolicies exist in the cluster.\n\n```bash\nkubectl get networkpolicies -A\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get networkpolicies -A > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Network Policies\n\nThe firewall for Kubernetes.\n\n> [!WARNING]\n> By default, K8s is a **Flat Network**. Any pod can talk to any pod.\n\n## Default Deny Logic\nStart by denying everything, then allow specific traffic.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: List Policies\nVerify if any NetworkPolicies exist in the cluster.\n\n```bash\nkubectl get networkpolicies -A\n```\n\n\n\n\n",
+        "verify": "kubectl get networkpolicies -A > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "11": {
     "id": "11",
@@ -135,7 +190,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "45 mins",
     "markdown": "\n# System Hardening\n\nKubernetes is only as secure as the Linux nodes it runs on.\n\n## Kernel Hardening\n-   **Seccomp**: Restrict syscalls.\n-   **AppArmor**: Restrict file access / capabilities.\n\n## Container Sandboxing\nFor high-risk workloads, standard containers (shared kernel) might not be enough.\n-   **gVisor (runsc)**: Userspace kernel, intercepts syscalls.\n-   **Kata Containers**: Lightweight VMs for strong isolation.\n\n## Reducing Attack Surface\n-   Disable unused services (SSH, FTP).\n-   Firewall rules (UFW/IPTables) to restrict node-to-node access outside of K8s ports.\n\n\\`\\`\\`bash\n# Check open ports on the node\nnetstat -tulpn\n\\`\\`\\`\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "12": {
@@ -143,20 +198,52 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "ReplicaSets & Deployments",
     "category": "CORE",
     "duration": "25 mins",
-    "markdown": "\n# ReplicaSets & Deployments\n\nEnsuring your application is always running and easily updated.\n\n## ReplicaSet\nThe primary goal of a **ReplicaSet** is to maintain a stable set of replica Pods running at any given time.\n\n\\`\\`\\`bash\n# Look at the replicasets in your cluster\nkubectl get rs\n\\`\\`\\`\n\n## Deployment\n**Deployments** allow you to manage the rollout of new versions of your application.\n\n\\`\\`\\`bash\n# Create a deployment with 3 replicas\nkubectl create deployment web-server --image=nginx --replicas=3\n\n# Update the image\nkubectl set image deployment/web-server nginx=nginx:1.16.1\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# ReplicaSets & Deployments\n\nEnsuring your application is always running and easily updated.\n\n## ReplicaSet\nThe primary goal of a **ReplicaSet** is to maintain a stable set of replica Pods running at any given time.\n\n# Task 1: Inspect ReplicaSets\nList the replicasets in the current namespace.\n\n```bash\nkubectl get rs\n```\n\n\n\n\n\n## Deployment\n**Deployments** allow you to manage the rollout of new versions of your application.\n\n# Task 2: Create a Deployment\nCreate a deployment with 3 replicas and update its image.\n\n```bash\nkubectl create deployment web-server --image=nginx --replicas=3\nkubectl set image deployment/web-server nginx=nginx:1.16.1\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get rs --no-headers > /dev/null 2>&1 || exit 0\nkubectl get deploy web-server -o jsonpath='{.spec.template.spec.containers[0].image}' | grep \"nginx:1.16.1\"\nkubectl get deploy web-server -o jsonpath='{.spec.replicas}' | grep 3\n",
+    "setupScript": "echo \"Ready\"\n# Clean up if exists\nkubectl delete deploy web-server 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# ReplicaSets & Deployments\n\nEnsuring your application is always running and easily updated.\n\n## ReplicaSet\nThe primary goal of a **ReplicaSet** is to maintain a stable set of replica Pods running at any given time.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Inspect ReplicaSets\nList the replicasets in the current namespace.\n\n```bash\nkubectl get rs\n```\n\n\n\n\n\n## Deployment\n**Deployments** allow you to manage the rollout of new versions of your application.\n\n",
+        "verify": "kubectl get rs --no-headers > /dev/null 2>&1 || exit 0\n",
+        "setup": "echo \"Ready\"\n"
+      },
+      {
+        "markdown": "# Task 2: Create a Deployment\nCreate a deployment with 3 replicas and update its image.\n\n```bash\nkubectl create deployment web-server --image=nginx --replicas=3\nkubectl set image deployment/web-server nginx=nginx:1.16.1\n```\n\n\n\n\n",
+        "verify": "kubectl get deploy web-server -o jsonpath='{.spec.template.spec.containers[0].image}' | grep \"nginx:1.16.1\"\nkubectl get deploy web-server -o jsonpath='{.spec.replicas}' | grep 3\n",
+        "setup": "# Clean up if exists\nkubectl delete deploy web-server 2>/dev/null || true\n"
+      }
+    ]
   },
   "13": {
     "id": "13",
     "title": "Jobs & CronJobs",
     "category": "CORE",
     "duration": "20 mins",
-    "markdown": "\n# Jobs & CronJobs\n\nFor tasks that are intended to run to completion.\n\n## Jobs\nA **Job** creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate.\n\n\\`\\`\\`bash\n# Run a one-off job\nkubectl create job hello --image=busybox -- echo \"Hello Kubernetes\"\n\\`\\`\\`\n\n## CronJobs\nA **CronJob** creates Jobs on a repeating schedule.\n\n\\`\\`\\`bash\n# Create a cronjob\nkubectl create cronjob heartbeat --image=busybox --schedule=\"*/1 * * * *\" -- echo \"Beating...\"\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Jobs & CronJobs\n\nFor tasks that are intended to run to completion.\n\n## Jobs\nA **Job** creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate.\n\n# Task 1: Create a Job\nRun a one-off job that echoes \"Hello Kubernetes\".\n\n```bash\nkubectl create job hello --image=busybox -- echo \"Hello Kubernetes\"\n```\n\n\n\n\n\n## CronJobs\nA **CronJob** creates Jobs on a repeating schedule.\n\n# Task 2: Create a CronJob\nCreate a cronjob that runs every minute.\n\n```bash\nkubectl create cronjob heartbeat --image=busybox --schedule=\"*/1 * * * *\" -- echo \"Beating...\"\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get job hello -o jsonpath='{.status.succeeded}' | grep 1\nkubectl get cronjob heartbeat -o jsonpath='{.spec.schedule}' | grep \"*/1 * * * *\"\n",
+    "setupScript": "# Clean up if exists\nkubectl delete job hello 2>/dev/null || true\n# Clean up if exists\nkubectl delete cronjob heartbeat 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Jobs & CronJobs\n\nFor tasks that are intended to run to completion.\n\n## Jobs\nA **Job** creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Create a Job\nRun a one-off job that echoes \"Hello Kubernetes\".\n\n```bash\nkubectl create job hello --image=busybox -- echo \"Hello Kubernetes\"\n```\n\n\n\n\n\n## CronJobs\nA **CronJob** creates Jobs on a repeating schedule.\n\n",
+        "verify": "kubectl get job hello -o jsonpath='{.status.succeeded}' | grep 1\n",
+        "setup": "# Clean up if exists\nkubectl delete job hello 2>/dev/null || true\n"
+      },
+      {
+        "markdown": "# Task 2: Create a CronJob\nCreate a cronjob that runs every minute.\n\n```bash\nkubectl create cronjob heartbeat --image=busybox --schedule=\"*/1 * * * *\" -- echo \"Beating...\"\n```\n\n\n\n\n",
+        "verify": "kubectl get cronjob heartbeat -o jsonpath='{.spec.schedule}' | grep \"*/1 * * * *\"\n",
+        "setup": "# Clean up if exists\nkubectl delete cronjob heartbeat 2>/dev/null || true\n"
+      }
+    ]
   },
   "14": {
     "id": "14",
@@ -195,7 +282,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "45 mins",
     "markdown": "\n# Runtime Security\n\nProtecting the running process.\n\n## Tools\n- **Falco**: The runtime security engine. Uses rules to detect abnormal behavior (e.g., shell in container, modifying /etc).\n- **AppArmor**: Restrict programs' capabilities with per-program profiles.\n- **Seccomp**: Restrict system calls a process can make.\n\n## Behavioral Analytics\nDetecting threats based on *patterns* rather than known signatures.\n- Process spawning unexpected children.\n- Unexpected outbound network connections.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "18": {
@@ -203,10 +290,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "CRDs & API Extensions",
     "category": "EXPERT",
     "duration": "60 mins",
-    "markdown": "\n# CRDs & API Extensions (Deep Dive)\n\nMaking Kubernetes your own.\n\n## Aggregation Layer\nAllows the Kubernetes API server to be extended with additional APIs.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# CRDs & API Extensions (Deep Dive)\n\nMaking Kubernetes your own.\n\n# Task 1: Check API Registration\nVerify that the aggregation layer is active by listing APIServices.\n\n```bash\nkubectl get apiservices\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get apiservices > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# CRDs & API Extensions (Deep Dive)\n\nMaking Kubernetes your own.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check API Registration\nVerify that the aggregation layer is active by listing APIServices.\n\n```bash\nkubectl get apiservices\n```\n\n\n\n\n",
+        "verify": "kubectl get apiservices > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "20": {
     "id": "20",
@@ -263,50 +361,115 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Helm: Package Management",
     "category": "EXPERT",
     "duration": "50 mins",
-    "markdown": "\n# Helm: Kubernetes Package Manager\n\nManaging thousands of YAML files is painful. **Helm** solves this using **Charts**.\n\n## Concepts\n- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.\n- **Release**: A running instance of a chart.\n\n\\`\\`\\`bash\n# List helm releases\nhelm list -A\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Helm: Kubernetes Package Manager\n\nManaging thousands of YAML files is painful. **Helm** solves this using **Charts**.\n\n## Concepts\n- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.\n- **Release**: A running instance of a chart.\n\n# Task 1: Check Helm Releases\nList all Helm releases across all namespaces.\n\n```bash\nhelm list -A\n```\n\n\n\n\n",
+    "verifyScript": "helm version > /dev/null\n",
+    "setupScript": "# Ensure helm is installed\nhelm version > /dev/null 2>&1 || (echo \"Helm not found\" && exit 1)\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Helm: Kubernetes Package Manager\n\nManaging thousands of YAML files is painful. **Helm** solves this using **Charts**.\n\n## Concepts\n- **Chart**: A bundle of information necessary to create an instance of a Kubernetes application.\n- **Release**: A running instance of a chart.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Helm Releases\nList all Helm releases across all namespaces.\n\n```bash\nhelm list -A\n```\n\n\n\n\n",
+        "verify": "helm version > /dev/null\n",
+        "setup": "# Ensure helm is installed\nhelm version > /dev/null 2>&1 || (echo \"Helm not found\" && exit 1)\n"
+      }
+    ]
   },
   "41": {
     "id": "41",
     "title": "Operators & CRDs",
     "category": "EXPERT",
     "duration": "60 mins",
-    "markdown": "\n# Operators & Custom Resource Definitions (CRDs)\n\nExtending the Kubernetes API.\n\n## CRD (Custom Resource Definition)\nAllows you to define your own API resources.\n\n\\`\\`\\`bash\n# List custom resources\nkubectl get crd\n\\`\\`\\`\n\n## The Operator Pattern\nAn Operator is a Controller that watches a CRD and acts on it.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Operators & Custom Resource Definitions (CRDs)\n\nExtending the Kubernetes API.\n\n## CRD (Custom Resource Definition)\nAllows you to define your own API resources.\n\n# Task 1: List CRDs\nVerify that the cluster supports Custom Resource Definitions.\n\n```bash\nkubectl get crd\n```\n\n\n\n\n\n## The Operator Pattern\nAn Operator is a Controller that watches a CRD and acts on it.\n",
+    "verifyScript": "kubectl get crd > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Operators & Custom Resource Definitions (CRDs)\n\nExtending the Kubernetes API.\n\n## CRD (Custom Resource Definition)\nAllows you to define your own API resources.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: List CRDs\nVerify that the cluster supports Custom Resource Definitions.\n\n```bash\nkubectl get crd\n```\n\n\n\n\n\n## The Operator Pattern\nAn Operator is a Controller that watches a CRD and acts on it.\n",
+        "verify": "kubectl get crd > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "42": {
     "id": "42",
     "title": "Service Mesh (Istio)",
     "category": "EXPERT",
     "duration": "60 mins",
-    "markdown": "\n# Service Mesh\n\nManaging network traffic between services (East-West traffic).\n\n## Why use a Mesh?\n1. **Observability**: Tracing, Metrics.\n2. **Traffic Control**: Canary types.\n3. **Security**: mTLS.\n\n\\`\\`\\`bash\n# Check for istio proxy sidecars\nkubectl get pods -l istio-injection=enabled\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Service Mesh\n\nManaging network traffic between services (East-West traffic).\n\n## Why use a Mesh?\n1. **Observability**: Tracing, Metrics.\n2. **Traffic Control**: Canary types.\n3. **Security**: mTLS.\n\n# Task 1: Check for Sidecars\nLook for workloads that have Istio sidecar injection enabled.\n\n```bash\nkubectl get pods -A -l istio-injection=enabled\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pods -A > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Service Mesh\n\nManaging network traffic between services (East-West traffic).\n\n## Why use a Mesh?\n1. **Observability**: Tracing, Metrics.\n2. **Traffic Control**: Canary types.\n3. **Security**: mTLS.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check for Sidecars\nLook for workloads that have Istio sidecar injection enabled.\n\n```bash\nkubectl get pods -A -l istio-injection=enabled\n```\n\n\n\n\n",
+        "verify": "kubectl get pods -A > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "50": {
     "id": "50",
     "title": "Cluster Maintenance",
     "category": "CKA",
     "duration": "45 mins",
-    "markdown": "\n# Cluster Maintenance\n\nKeeping the lights on.\n\n## Cluster Upgrade\nUsing \\`kubeadm\\` to upgrade the cluster.\n1.  Upgrade Control Plane node.\n2.  Upgrade Worker nodes.\n\n\\`\\`\\`bash\n# Drain the node first\nkubectl drain node-1 --ignore-daemonsets\n\n# Upgrade kubeadm\napt-get update && apt-get install -y kubeadm=1.27.0-00\n\n# Plan the upgrade\nkubeadm upgrade plan\n\n# Apply\nkubeadm upgrade apply v1.27.0\n\\`\\`\\`\n\n## Backup & Restore\n**Etcd** is the source of truth. You MUST know how to snapshot it.\n\n\\`\\`\\`bash\n# Take a snapshot\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\\\n  snapshot save /tmp/etcd-backup.db\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Cluster Maintenance\n\nKeeping the lights on.\n\n# Task 1: Drain Node\nDrain `node-1` for maintenance.\n\n```bash\nkubectl drain node-1 --ignore-daemonsets --force\n```\n\n\n\n\n\n# Task 2: Upgrade kubeadm\nUpgrade `kubeadm` to version `1.27.0`.\n\n```bash\napt-get update && apt-get install -y kubeadm=1.27.0-00\n```\n\n\n\n\n\n# Task 3: Etcd Snapshot\nTake a snapshot of etcd.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /tmp/etcd-backup.db\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get node node-1 --no-headers | grep SchedulingDisabled\nkubeadm version | grep 1.27.0\nls /tmp/etcd-backup.db > /dev/null\n",
+    "setupScript": "kubectl uncordon node-1 2>/dev/null || true\necho \"Ready\"\necho \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Cluster Maintenance\n\nKeeping the lights on.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Drain Node\nDrain `node-1` for maintenance.\n\n```bash\nkubectl drain node-1 --ignore-daemonsets --force\n```\n\n\n\n\n\n",
+        "verify": "kubectl get node node-1 --no-headers | grep SchedulingDisabled\n",
+        "setup": "kubectl uncordon node-1 2>/dev/null || true\n"
+      },
+      {
+        "markdown": "# Task 2: Upgrade kubeadm\nUpgrade `kubeadm` to version `1.27.0`.\n\n```bash\napt-get update && apt-get install -y kubeadm=1.27.0-00\n```\n\n\n\n\n\n",
+        "verify": "kubeadm version | grep 1.27.0\n",
+        "setup": "echo \"Ready\"\n"
+      },
+      {
+        "markdown": "# Task 3: Etcd Snapshot\nTake a snapshot of etcd.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /tmp/etcd-backup.db\n```\n\n\n\n\n",
+        "verify": "ls /tmp/etcd-backup.db > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "51": {
     "id": "51",
     "title": "Security & Identity",
     "category": "CKA",
     "duration": "40 mins",
-    "markdown": "\n# Security & Identity\n\n## Authentication (AuthN)\nWho are you?\n-   **Certificates**: Most common for users/admins (CN=User, O=Group).\n-   **ServiceAccounts**: For Pods.\n\n\\`\\`\\`bash\n# Create a CSR (CertificateSigningRequest)\nkubectl create -f my-user-csr.yaml\nkubectl certificate approve my-user\n\\`\\`\\`\n\n## Authorization (AuthZ) & RBAC\nWhat can you do?\nSee 'RBAC: Authorization' lesson for details. Kubeadm enables Node and RBAC authorizers by default.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Security & Identity\n\n# Task 1: Approve CSR\nApprove the CertificateSigningRequest for `my-user`.\n\n```bash\nkubectl certificate approve my-user\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get csr my-user -o jsonpath='{.status.conditions[0].type}' | grep Approved\n",
+    "setupScript": "# Create a dummy CSR to approve\ncat <<EOF | kubectl apply -f -\napiVersion: certificates.k8s.io/v1\nkind: CertificateSigningRequest\nmetadata:\n  name: my-user\nspec:\n  request: $(echo \"dummy\" | base64)\n  signerName: kubernetes.io/kube-apiserver-client\n  usages:\n  - client auth\nEOF\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Security & Identity\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Approve CSR\nApprove the CertificateSigningRequest for `my-user`.\n\n```bash\nkubectl certificate approve my-user\n```\n\n\n\n\n",
+        "verify": "kubectl get csr my-user -o jsonpath='{.status.conditions[0].type}' | grep Approved\n",
+        "setup": "# Create a dummy CSR to approve\ncat <<EOF | kubectl apply -f -\napiVersion: certificates.k8s.io/v1\nkind: CertificateSigningRequest\nmetadata:\n  name: my-user\nspec:\n  request: $(echo \"dummy\" | base64)\n  signerName: kubernetes.io/kube-apiserver-client\n  usages:\n  - client auth\nEOF\n"
+      }
+    ]
   },
   "52": {
     "id": "52",
@@ -315,7 +478,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "35 mins",
     "markdown": "\n# Advanced Storage\n\n## Storage Class\nDefines \"classes\" of storage (e.g., \"fast\", \"slow\"). Enables **Dynamic Provisioning**.\n\n\\`\\`\\`yaml\napiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: fast\nprovisioner: k8s.io/minikube-hostpath\n\\`\\`\\`\n\n## Dynamic Provisioning\nInstead of creating a PV manually, creating a PVC with a \\`storageClassName\\` triggers the provisioner to create the PV automatically.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "53": {
@@ -345,7 +508,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "45 mins",
     "markdown": "\n# Supply Chain Security\n\nSecuring the pipeline from code to cluster.\n\n## Image Scanning\nFind vulnerabilities (CVEs) in your images *before* they run.\n- **Tools**: Trivy, Clair.\n- **Action**: Fix Critical/High CVEs.\n\n\\`\\`\\`bash\n# Scan an image with Trivy\ntrivy image nginx:latest\n\\`\\`\\`\n\n## Image Signing\nProve the image comes from you and hasn't been tampered with.\n- **Cosign (Sigstore)**: Sign and verify container images.\n\n## Static Analysis\nScan your YAML manifests for misconfigurations.\n- **Kubesec**: Security risk analysis for Kubernetes resources.\n- **KubeLinter**: Static analysis tool.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "61": {
@@ -355,7 +518,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "50 mins",
     "markdown": "\n# Audit Logging & Monitoring\n\nIf you didn't log it, it didn't happen.\n\n## Audit Logs\nRecords the sequence of actions taken by the cluster (API Server).\n- **Stages**: RequestReceived, ResponseStarted, ResponseComplete, Panic.\n- **Policy**: Defines rules for what to log and how much detail.\n\n\\`\\`\\`yaml\n# audit-policy.yaml example\napiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n  - level: Metadata\n    resources:\n    - group: \"\"\n      resources: [\"secrets\"]\n\\`\\`\\`\n\n## Monitoring (Syscall)\nUsing **Falco** to monitor system calls at the kernel level.\n- Detects: File access, Process execution, Network activity.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "62": {
@@ -373,10 +536,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Application Build & Images",
     "category": "CKAD",
     "duration": "40 mins",
-    "markdown": "\n# Application Build & Images\n\n## Dockerfile Best Practices\n- **Multi-stage builds**: Keep the final image small by separating build and runtime environments.\n- **User Permissions**: Never run as root. Use \\`USER\\`.\n- **Layers**: Combine commands to reduce layers.\n\n\\`\\`\\`dockerfile\n# Multi-stage example\nFROM golang:1.21 as builder\nWORKDIR /app\nCOPY . .\nRUN go build -o myapp\n\nFROM alpine:latest\nWORKDIR /root/\nCOPY --from=builder /app/myapp .\nCMD [\"./myapp\"]\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Application Build & Images\n\n## Dockerfile Best Practices\n- **Multi-stage builds**: Keep the final image small by separating build and runtime environments.\n- **User Permissions**: Never run as root. Use \\`USER\\`.\n- **Layers**: Combine commands to reduce layers.\n\n# Task 1: Check Images\nVerify that `crictl` is using the correct endpoint for images.\n\n```bash\ncrictl images\n```\n\n\n\n\n",
+    "verifyScript": "crictl images > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Application Build & Images\n\n## Dockerfile Best Practices\n- **Multi-stage builds**: Keep the final image small by separating build and runtime environments.\n- **User Permissions**: Never run as root. Use \\`USER\\`.\n- **Layers**: Combine commands to reduce layers.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Images\nVerify that `crictl` is using the correct endpoint for images.\n\n```bash\ncrictl images\n```\n\n\n\n\n",
+        "verify": "crictl images > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "71": {
     "id": "71",
@@ -385,7 +559,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "50 mins",
     "markdown": "\n# Advanced Deployment Strategies\n\n## Blue/Green Deployment\n- Two identical environments.\n- **Switch**: Update the Service selector to point to the new version.\n- **Pros**: Instant rollback. **Cons**: Double resources.\n\n## Canary Deployment\n- Roll out to a small subset of users.\n- **Implementation**: Two Deployments (Stable & Canary) with common labels targeted by one Service.\n- **Traffic Splitting**: Use Ingress or Service Mesh for % based splitting.\n\n## Rolling Update\n- Default strategy.\n- **Parameters**: \\`maxSurge\\` (how many extra) and \\`maxUnavailable\\` (how many down).\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "72": {
@@ -425,7 +599,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "60 mins",
     "markdown": "\n# Cluster Bootstrap: Kubeadm\n\nUnderstanding how the cluster comes alive.\n\n## The Init Process (\\`kubeadm init\\`)\n1.  **Pre-flight checks**: Kernel version, Swap disabled?\n2.  **Certs**: Generates CA, API server, Etcd certs in \\`/etc/kubernetes/pki\\`.\n3.  **Kubeconfigs**: Generates admin.conf, kubelet.conf.\n4.  **Manifests**: Static pods for Control Plane (API, Controller, Sched, Etcd) in \\`/etc/kubernetes/manifests\\`.\n5.  **Taints**: Marks node as ControlPlane (NoSchedule).\n6.  **Bootstrap Token**: For workers to join.\n\n## CNI Installation\nThe cluster is **NotReady** until a CNI (Network Plugin) is installed.\n- The CNI binaires go to \\`/opt/cni/bin\\`.\n- The config goes to \\`/etc/cni/net.d\\`.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": []
   },
   "99": {
@@ -433,80 +607,188 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Chaos Challenge: The Broken Cluster",
     "category": "EXPERT",
     "duration": "60 mins",
-    "markdown": "\n# Chaos Challenge: The Broken Cluster\n\n> [!WARNING]\n> This is a **live fire** exercise. We have deliberately broken this cluster.\n\n## Scenario\nYou are the on-call Site Reliability Engineer. Minutes ago, all \\`kubectl\\` commands started failing.\n\n## Your Mission\n1.  **Diagnose** why the API Server is failing.\n2.  **Fix** the underlying issue.\n3.  **Restore** cluster connectivity.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Chaos Challenge: The Broken Cluster\n\n> [!WARNING]\n> This is a **live fire** exercise. We have deliberately broken this cluster.\n\n## Scenario\nYou are the on-call Site Reliability Engineer. Minutes ago, all \\`kubectl\\` commands started failing.\n\n# Task 1: Fix the Broken Cluster\nThe API server is down. Find out why and fix it!\n\n```bash\n# Hint: Check /etc/kubernetes/manifests\n```\n\n\n\n\n",
+    "verifyScript": "# The fix is to move it back\nkubectl get nodes --no-headers | grep Ready\n",
+    "setupScript": "# BREAK THE CLUSTER: Move the kube-apiserver manifest\nsudo mv /etc/kubernetes/manifests/kube-apiserver.yaml /etc/kubernetes/kube-apiserver.yaml.broken\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Chaos Challenge: The Broken Cluster\n\n> [!WARNING]\n> This is a **live fire** exercise. We have deliberately broken this cluster.\n\n## Scenario\nYou are the on-call Site Reliability Engineer. Minutes ago, all \\`kubectl\\` commands started failing.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Fix the Broken Cluster\nThe API server is down. Find out why and fix it!\n\n```bash\n# Hint: Check /etc/kubernetes/manifests\n```\n\n\n\n\n",
+        "verify": "# The fix is to move it back\nkubectl get nodes --no-headers | grep Ready\n",
+        "setup": "# BREAK THE CLUSTER: Move the kube-apiserver manifest\nsudo mv /etc/kubernetes/manifests/kube-apiserver.yaml /etc/kubernetes/kube-apiserver.yaml.broken\n"
+      }
+    ]
   },
   "100": {
     "id": "100",
     "title": "Service Internals: Iptables vs IPVS",
     "category": "INTERNALS",
     "duration": "60 mins",
-    "markdown": "\n# Service Implementation: Deep Dive\n\nHow does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.\n\n## kube-proxy\nThe component responsible for watching the API Server for Services/Endpoints and configuring rules.\n\n## Iptables Mode (Default)\nTraffic is captured by PREROUTING/OUTPUT chains and redirected.\n- **Chain KUBE-SERVICES**: The entry point.\n- **Chain KUBE-SVC-***: Round-robin load balancing (using statistic mode random probability).\n- **Chain KUBE-SEP-***: Service EndPoint (DNAT to actual Pod IP).\n\n\\`\\`\\`bash\n# View service rules\nsudo iptables -t nat -L KUBE-SERVICES\n\\`\\`\\`\n\n## IPVS Mode\nUses Linux Kernel's IP Virtual Server (Netfilter).\n- **Performance**: O(1) matching vs O(n) for iptables (sequential scan).\n- **Scalability**: Better for thousands of services.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Service Implementation: Deep Dive\n\nHow does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.\n\n## kube-proxy\nThe component responsible for watching the API Server for Services/Endpoints and configuring rules.\n\n## Iptables Mode (Default)\nTraffic is captured by PREROUTING/OUTPUT chains and redirected.\n- **Chain KUBE-SERVICES**: The entry point.\n- **Chain KUBE-SVC-***: Round-robin load balancing (using statistic mode random probability).\n- **Chain KUBE-SEP-***: Service EndPoint (DNAT to actual Pod IP).\n\n# Task 1: Inspect Service Rules\nView the KUBE-SERVICES chain in iptables to see how ClusterIPs are handled.\n\n```bash\nsudo iptables -t nat -L KUBE-SERVICES | head -n 20\n```\n\n\n\n\n\n## IPVS Mode\nUses Linux Kernel's IP Virtual Server (Netfilter).\n- **Performance**: O(1) matching vs O(n) for iptables (sequential scan).\n- **Scalability**: Better for thousands of services.\n",
+    "verifyScript": "sudo iptables -t nat -L KUBE-SERVICES > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Service Implementation: Deep Dive\n\nHow does a Service IP (ClusterIP) actually work? It's virtual! It doesn't exist on any interface.\n\n## kube-proxy\nThe component responsible for watching the API Server for Services/Endpoints and configuring rules.\n\n## Iptables Mode (Default)\nTraffic is captured by PREROUTING/OUTPUT chains and redirected.\n- **Chain KUBE-SERVICES**: The entry point.\n- **Chain KUBE-SVC-***: Round-robin load balancing (using statistic mode random probability).\n- **Chain KUBE-SEP-***: Service EndPoint (DNAT to actual Pod IP).\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Inspect Service Rules\nView the KUBE-SERVICES chain in iptables to see how ClusterIPs are handled.\n\n```bash\nsudo iptables -t nat -L KUBE-SERVICES | head -n 20\n```\n\n\n\n\n\n## IPVS Mode\nUses Linux Kernel's IP Virtual Server (Netfilter).\n- **Performance**: O(1) matching vs O(n) for iptables (sequential scan).\n- **Scalability**: Better for thousands of services.\n",
+        "verify": "sudo iptables -t nat -L KUBE-SERVICES > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "101": {
     "id": "101",
     "title": "CNI Deep Dive: Pod Networking",
     "category": "INTERNALS",
     "duration": "75 mins",
-    "markdown": "\n# CNI Deep Dive\n\nHow do Pods talk to each other across nodes?\n\n## The \"Pause\" Container\nExists solely to hold the Network Namespace. Application containers join this namespace (share localhost).\n\n## VETH Pairs (Virtual Ethernet)\nConnects the Pod namespace to the Host namespace.\n- **eth0 (Pod)** <--> **veth*** (Host).\n\n## Bridge Mode (e.g., cbr0)\nVETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.\n\n## Overlay Networks (VXLAN / IPIP)\nEncapsulating L2 frames inside L3 packets to cross node boundaries.\n- **Flannel**: UDP/VXLAN.\n- **Calico**: BGP (Direct Routing) or IPIP.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# CNI Deep Dive\n\nHow do Pods talk to each other across nodes?\n\n## The \"Pause\" Container\nExists solely to hold the Network Namespace. Application containers join this namespace (share localhost).\n\n## VETH Pairs (Virtual Ethernet)\nConnects the Pod namespace to the Host namespace.\n- **eth0 (Pod)** <--> **veth*** (Host).\n\n## Bridge Mode (e.g., cbr0)\nVETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.\n\n## Overlay Networks (VXLAN / IPIP)\nEncapsulating L2 frames inside L3 packets to cross node boundaries.\n- **Flannel**: UDP/VXLAN.\n- **Calico**: BGP (Direct Routing) or IPIP.\n# Task 1: Inspect Pause Containers\nFind the pause containers running on this node using `crictl`.\n\n```bash\ncrictl ps --name pause\n```\n\n\n\n\n",
+    "verifyScript": "crictl ps --name pause | grep Running\n",
+    "setupScript": "# Ensure at least one pod is running to have a pause container\nkubectl run pause-finder --image=nginx --dry-run=client -o yaml | kubectl apply -f -\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# CNI Deep Dive\n\nHow do Pods talk to each other across nodes?\n\n## The \"Pause\" Container\nExists solely to hold the Network Namespace. Application containers join this namespace (share localhost).\n\n## VETH Pairs (Virtual Ethernet)\nConnects the Pod namespace to the Host namespace.\n- **eth0 (Pod)** <--> **veth*** (Host).\n\n## Bridge Mode (e.g., cbr0)\nVETH ends on the host are connected to a Bridge. The Bridge acts as a virtual switch.\n\n## Overlay Networks (VXLAN / IPIP)\nEncapsulating L2 frames inside L3 packets to cross node boundaries.\n- **Flannel**: UDP/VXLAN.\n- **Calico**: BGP (Direct Routing) or IPIP.\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Inspect Pause Containers\nFind the pause containers running on this node using `crictl`.\n\n```bash\ncrictl ps --name pause\n```\n\n\n\n\n",
+        "verify": "crictl ps --name pause | grep Running\n",
+        "setup": "# Ensure at least one pod is running to have a pause container\nkubectl run pause-finder --image=nginx --dry-run=client -o yaml | kubectl apply -f -\n"
+      }
+    ]
   },
   "102": {
     "id": "102",
     "title": "Etcd & Raft Consensus",
     "category": "INTERNALS",
     "duration": "60 mins",
-    "markdown": "\n# Etcd & The Raft Consensus Algorithm\n\nHow does Kubernetes maintain a consistent state across multiple control plane nodes? It relies entirely on **Etcd**.\n\n## What is Etcd?\nEtcd is a distributed, reliable key-value store. It is the \"source of truth\" for Kubernetes.\n\n## The Raft Algorithm\nEtcd uses **Raft** to achieve consensus.\n1.  **Leader Election**: One node is elected leader. All writes go to the leader.\n2.  **Log Replication**: The leader replicates the entry to followers.\n3.  **Commit**: Once a majority (Quorum) acknowledges the entry, it is committed.\n\n### Quorum\n$N/2 + 1$. For a 3-node cluster, you need 2 nodes to agree.\n-   **3 Nodes**: Tolerate 1 failure.\n-   **5 Nodes**: Tolerate 2 failures.\n\n```bash\n# Check endpoint health\nETCDCTL_API=3 etcdctl endpoint health\n```\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# Etcd & The Raft Consensus Algorithm\n\nHow does Kubernetes maintain a consistent state across multiple control plane nodes? It relies entirely on **Etcd**.\n\n## What is Etcd?\nEtcd is a distributed, reliable key-value store. It is the \"source of truth\" for Kubernetes.\n\n## The Raft Algorithm\nEtcd uses **Raft** to achieve consensus.\n1.  **Leader Election**: One node is elected leader. All writes go to the leader.\n2.  **Log Replication**: The leader replicates the entry to followers.\n3.  **Commit**: Once a majority (Quorum) acknowledges the entry, it is committed.\n\n### Quorum\n$N/2 + 1$. For a 3-node cluster, you need 2 nodes to agree.\n-   **3 Nodes**: Tolerate 1 failure.\n-   **5 Nodes**: Tolerate 2 failures.\n\n# Task 1: Check Etcd Health\nVerify that the etcd endpoint is healthy.\n\n```bash\nETCDCTL_API=3 etcdctl \\\n  --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  endpoint health\n```\n\n\n\n\n",
+    "verifyScript": "ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key endpoint health | grep healthy\n",
+    "setupScript": "# Check if certs exist (only on controlplane)\nls /etc/kubernetes/pki/etcd/server.crt > /dev/null 2>&1 || echo \"Warning: Run this on controlplane node\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Etcd & The Raft Consensus Algorithm\n\nHow does Kubernetes maintain a consistent state across multiple control plane nodes? It relies entirely on **Etcd**.\n\n## What is Etcd?\nEtcd is a distributed, reliable key-value store. It is the \"source of truth\" for Kubernetes.\n\n## The Raft Algorithm\nEtcd uses **Raft** to achieve consensus.\n1.  **Leader Election**: One node is elected leader. All writes go to the leader.\n2.  **Log Replication**: The leader replicates the entry to followers.\n3.  **Commit**: Once a majority (Quorum) acknowledges the entry, it is committed.\n\n### Quorum\n$N/2 + 1$. For a 3-node cluster, you need 2 nodes to agree.\n-   **3 Nodes**: Tolerate 1 failure.\n-   **5 Nodes**: Tolerate 2 failures.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Etcd Health\nVerify that the etcd endpoint is healthy.\n\n```bash\nETCDCTL_API=3 etcdctl \\\n  --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  endpoint health\n```\n\n\n\n\n",
+        "verify": "ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key endpoint health | grep healthy\n",
+        "setup": "# Check if certs exist (only on controlplane)\nls /etc/kubernetes/pki/etcd/server.crt > /dev/null 2>&1 || echo \"Warning: Run this on controlplane node\"\n"
+      }
+    ]
   },
   "103": {
     "id": "103",
     "title": "The Controller Pattern",
     "category": "INTERNALS",
     "duration": "70 mins",
-    "markdown": "\n# The Controller Pattern & Reconciliation Loop\n\nKubernetes is a system of **eventually consistent** control loops.\n\n## The Loop\n1.  **Observe**: Watch the current state (via API Server).\n2.  **Diff**: Compare against desired state (Spec).\n3.  **Act**: Make changes to move closer to desired state.\n\n## Under the Hood (client-go)\nHow does a controller actually work?\n1.  **Reflector**: Watches the API and puts objects in a localized Queue (`DeltaFIFO`).\n2.  **Informer**: Reads from Queue and updates the **Local Store (Cache)**. This avoids hammering the API server.\n3.  **Workqueue**: When an object changes, its key (e.g., `default/my-pod`) is added here.\n4.  **Reconciler**: The worker logic that pops the key and does the business logic.\n\n> [!NOTE]\n> This is why \"Level Triggered\" logic is preferred over \"Edge Triggered\". If you miss an event, you just reconcile the current state next time.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# The Controller Pattern & Reconciliation Loop\n\nKubernetes is a system of **eventually consistent** control loops.\n\n## The Loop\n1.  **Observe**: Watch the current state (via API Server).\n2.  **Diff**: Compare against desired state (Spec).\n3.  **Act**: Make changes to move closer to desired state.\n\n## Under the Hood (client-go)\nHow does a controller actually work?\n1.  **Reflector**: Watches the API and puts objects in a localized Queue (`DeltaFIFO`).\n2.  **Informer**: Reads from Queue and updates the **Local Store (Cache)**. This avoids hammering the API server.\n3.  **Workqueue**: When an object changes, its key (e.g., `default/my-pod`) is added here.\n4.  **Reconciler**: The worker logic that pops the key and does the business logic.\n\n> [!NOTE]\n> This is why \"Level Triggered\" logic is preferred over \"Edge Triggered\". If you miss an event, you just reconcile the current state next time.\n# Task 1: Inspect Controller Logs\nView the logs of the kube-controller-manager to see the reconciliation loop in action.\n\n```bash\nkubectl logs -n kube-system -l component=kube-controller-manager | tail -n 20\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pods -n kube-system -l component=kube-controller-manager > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# The Controller Pattern & Reconciliation Loop\n\nKubernetes is a system of **eventually consistent** control loops.\n\n## The Loop\n1.  **Observe**: Watch the current state (via API Server).\n2.  **Diff**: Compare against desired state (Spec).\n3.  **Act**: Make changes to move closer to desired state.\n\n## Under the Hood (client-go)\nHow does a controller actually work?\n1.  **Reflector**: Watches the API and puts objects in a localized Queue (`DeltaFIFO`).\n2.  **Informer**: Reads from Queue and updates the **Local Store (Cache)**. This avoids hammering the API server.\n3.  **Workqueue**: When an object changes, its key (e.g., `default/my-pod`) is added here.\n4.  **Reconciler**: The worker logic that pops the key and does the business logic.\n\n> [!NOTE]\n> This is why \"Level Triggered\" logic is preferred over \"Edge Triggered\". If you miss an event, you just reconcile the current state next time.\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Inspect Controller Logs\nView the logs of the kube-controller-manager to see the reconciliation loop in action.\n\n```bash\nkubectl logs -n kube-system -l component=kube-controller-manager | tail -n 20\n```\n\n\n\n\n",
+        "verify": "kubectl get pods -n kube-system -l component=kube-controller-manager > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "104": {
     "id": "104",
     "title": "OCI & Low-Level Runtimes",
     "category": "INTERNALS",
     "duration": "60 mins",
-    "markdown": "\n# OCI & RunC: How a Container Starts\n\nWhen you ask K8s to run a Pod, `kubelet` calls the CRI (e.g., `containerd`). But what does `containerd` do?\n\n## The OCI (Open Container Initiative)\nIt defines two specs:\n1.  **Image Spec**: How the filesystem and metadata are bundled.\n2.  **Runtime Spec**: `config.json` that defines *how* to run it (namespaces, cgroups, commands).\n\n## The Flow\n`Kubelet` -> `CRI (containerd)` -> `Shim (containerd-shim)` -> `OCI Runtime (runc)` -> `Kernel`.\n\n### What is runc?\nIt is a CLI tool for spawning and running containers according to the OCI spec. It interacts directly with Linux kernel features like:\n-   **unshare**: To create namespaces.\n-   **cgroups**: To set limits.\n-   **pivot_root**: To change the root filesystem.\n\n```bash\n# You can run a container manually with runc!\nmkdir -p mycontainer/rootfs\n# Export a docker image to rootfs...\nrunc spec # Generates config.json\nrunc run mycontainer\n```\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# OCI & RunC: How a Container Starts\n\nWhen you ask K8s to run a Pod, `kubelet` calls the CRI (e.g., `containerd`). But what does `containerd` do?\n\n## The OCI (Open Container Initiative)\nIt defines two specs:\n1.  **Image Spec**: How the filesystem and metadata are bundled.\n2.  **Runtime Spec**: `config.json` that defines *how* to run it (namespaces, cgroups, commands).\n\n## The Flow\n`Kubelet` -> `CRI (containerd)` -> `Shim (containerd-shim)` -> `OCI Runtime (runc)` -> `Kernel`.\n\n### What is runc?\nIt is a CLI tool for spawning and running containers according to the OCI spec. It interacts directly with Linux kernel features like:\n-   **unshare**: To create namespaces.\n-   **cgroups**: To set limits.\n-   **pivot_root**: To change the root filesystem.\n\n# Task 1: Check runc Version\nVerify the low-level OCI runtime version.\n\n```bash\nrunc --version\n```\n\n\n\n\n",
+    "verifyScript": "runc --version | grep runc\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# OCI & RunC: How a Container Starts\n\nWhen you ask K8s to run a Pod, `kubelet` calls the CRI (e.g., `containerd`). But what does `containerd` do?\n\n## The OCI (Open Container Initiative)\nIt defines two specs:\n1.  **Image Spec**: How the filesystem and metadata are bundled.\n2.  **Runtime Spec**: `config.json` that defines *how* to run it (namespaces, cgroups, commands).\n\n## The Flow\n`Kubelet` -> `CRI (containerd)` -> `Shim (containerd-shim)` -> `OCI Runtime (runc)` -> `Kernel`.\n\n### What is runc?\nIt is a CLI tool for spawning and running containers according to the OCI spec. It interacts directly with Linux kernel features like:\n-   **unshare**: To create namespaces.\n-   **cgroups**: To set limits.\n-   **pivot_root**: To change the root filesystem.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check runc Version\nVerify the low-level OCI runtime version.\n\n```bash\nrunc --version\n```\n\n\n\n\n",
+        "verify": "runc --version | grep runc\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "201": {
     "id": "201",
     "title": "CKA Mock Exam 1",
     "category": "CKA",
     "duration": "120 mins",
-    "markdown": "\n# CKA Mock Exam 1\n\nTime: 2 Hours. Pass: 66%.\n\n## Task 1: Backup Etcd\nSave a snapshot of etcd to \\`/opt/etcd-backup.db\\`.\n\n## Task 2: Upgrade Master Node\nUpgrade the controlplane node to version \\`1.27.0\\`.\n\n## Task 3: Create a Pod with Sidecar\nCreate a pod named \\`legacy-app\\` with image \\`busybox\\` that logs to \\`/var/log/legacy.log\\`. Add a sidecar container that prints this log file to stdout.\n\n## Task 4: Troubleshoot Node\nNode \\`worker-1\\` is NotReady. Fix it.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# CKA Mock Exam 1\n\nTime: 2 Hours. Pass: 66%.\n\n# Task 1: Backup Etcd\nSave a snapshot of etcd to `/opt/etcd-backup.db`.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n\n\n\n\n# Task 2: Upgrade Master Node\nUpgrade the controlplane node to version `1.27.0`.\n\n```bash\napt-get update && apt-get install -y kubeadm=1.27.0-00\nkubeadm upgrade apply v1.27.0\n```\n\n\n\n\n\n# Task 3: Create a Pod with Sidecar\nCreate a pod named `legacy-app` with image `busybox` that logs to `/var/log/legacy.log`. Add a sidecar container that prints this log file to stdout.\n\n\n\n\n",
+    "verifyScript": "ls /opt/etcd-backup.db > /dev/null\nkubeadm version | grep 1.27.0\nkubectl get pod legacy-app -o jsonpath='{.spec.containers[*].name}' | grep sidecar\n",
+    "setupScript": "# Ensure directory exists\nsudo mkdir -p /opt\necho \"Ready\"\nkubectl delete pod legacy-app --force --grace-period=0 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# CKA Mock Exam 1\n\nTime: 2 Hours. Pass: 66%.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Backup Etcd\nSave a snapshot of etcd to `/opt/etcd-backup.db`.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n\n\n\n\n",
+        "verify": "ls /opt/etcd-backup.db > /dev/null\n",
+        "setup": "# Ensure directory exists\nsudo mkdir -p /opt\n"
+      },
+      {
+        "markdown": "# Task 2: Upgrade Master Node\nUpgrade the controlplane node to version `1.27.0`.\n\n```bash\napt-get update && apt-get install -y kubeadm=1.27.0-00\nkubeadm upgrade apply v1.27.0\n```\n\n\n\n\n\n",
+        "verify": "kubeadm version | grep 1.27.0\n",
+        "setup": "echo \"Ready\"\n"
+      },
+      {
+        "markdown": "# Task 3: Create a Pod with Sidecar\nCreate a pod named `legacy-app` with image `busybox` that logs to `/var/log/legacy.log`. Add a sidecar container that prints this log file to stdout.\n\n\n\n\n",
+        "verify": "kubectl get pod legacy-app -o jsonpath='{.spec.containers[*].name}' | grep sidecar\n",
+        "setup": "kubectl delete pod legacy-app --force --grace-period=0 2>/dev/null || true\n"
+      }
+    ]
   },
   "202": {
     "id": "202",
     "title": "CKA Mock Exam 2",
     "category": "CKA",
     "duration": "120 mins",
-    "markdown": "\n# CKA Mock Exam 2\n\nTime: 2 Hours. Pass: 66%.\n\n## Task 1: Network Policy\nCreate a NetworkPolicy named \\`deny-all\\` in namespace \\`probation\\` that denies all ingress traffic.\n\n## Task 2: RBAC\nCreate a Role \\`developer\\` that can \\`create\\`, \\`get\\`, \\`list\\` pods in namespace \\`dev\\`. Bind it to user \\`jane\\`.\n\n## Task 3: Ingress\nExpose service \\`frontend\\` on path \\`/store\\` using an Ingress resource.\n\n## Task 4: Persistent Volume\nCreate a PV named \\`local-pv\\` with capacity \\`1Gi\\`, access mode \\`RWO\\`, hostPath \\`/mnt/data\\`.\n",
-    "verifyScript": "",
-    "setupScript": "",
-    "tasks": []
+    "markdown": "\n# CKA Mock Exam 2\n\nTime: 2 Hours. Pass: 66%.\n\n# Task 1: Network Policy\nCreate a NetworkPolicy named `deny-all` in namespace `probation` that denies all ingress traffic.\n\n\n\n\n\n# Task 2: RBAC\nCreate a Role `developer` that can `create`, `get`, `list` pods in namespace `dev`. Bind it to user `jane`.\n\n\n\n\n\n# Task 3: Ingress\nExpose service `frontend` on path `/store` using an Ingress resource.\n\n\n\n\n",
+    "verifyScript": "kubectl get netpol deny-all -n probation -o jsonpath='{.spec.ingress}' | grep -v \"\\[\\]\"\nkubectl get role developer -n dev -o jsonpath='{.rules[0].verbs}' | grep create\nkubectl get ingress -o jsonpath='{.items[*].spec.rules[*].http.paths[*].path}' | grep \"/store\"\n",
+    "setupScript": "kubectl create ns probation 2>/dev/null || true\nkubectl delete netpol deny-all -n probation 2>/dev/null || true\nkubectl create ns dev 2>/dev/null || true\nkubectl delete role developer -n dev 2>/dev/null || true\nkubectl create service clusterip frontend --tcp=80:80 2>/dev/null || true\nkubectl delete ingress frontend-ingress 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# CKA Mock Exam 2\n\nTime: 2 Hours. Pass: 66%.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Network Policy\nCreate a NetworkPolicy named `deny-all` in namespace `probation` that denies all ingress traffic.\n\n\n\n\n\n",
+        "verify": "kubectl get netpol deny-all -n probation -o jsonpath='{.spec.ingress}' | grep -v \"\\[\\]\"\n",
+        "setup": "kubectl create ns probation 2>/dev/null || true\nkubectl delete netpol deny-all -n probation 2>/dev/null || true\n"
+      },
+      {
+        "markdown": "# Task 2: RBAC\nCreate a Role `developer` that can `create`, `get`, `list` pods in namespace `dev`. Bind it to user `jane`.\n\n\n\n\n\n",
+        "verify": "kubectl get role developer -n dev -o jsonpath='{.rules[0].verbs}' | grep create\n",
+        "setup": "kubectl create ns dev 2>/dev/null || true\nkubectl delete role developer -n dev 2>/dev/null || true\n"
+      },
+      {
+        "markdown": "# Task 3: Ingress\nExpose service `frontend` on path `/store` using an Ingress resource.\n\n\n\n\n",
+        "verify": "kubectl get ingress -o jsonpath='{.items[*].spec.rules[*].http.paths[*].path}' | grep \"/store\"\n",
+        "setup": "kubectl create service clusterip frontend --tcp=80:80 2>/dev/null || true\nkubectl delete ingress frontend-ingress 2>/dev/null || true\n"
+      }
+    ]
   },
   "auto-cka-1": {
     "id": "auto-cka-1",
@@ -6336,7 +6618,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "120 mins",
     "markdown": "\n# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n# Task 2: Fix a broken node\nThe node `worker-1` is in `NotReady` state. Investigate why and fix it.\nCheck `systemctl status kubelet`.\n\n# Task 3: Ingress Resource\nCreate an ingress named `my-ingress` that routes path `/hello` to service `hello-service` on port 80.\n\n# Task 4: Private Registry Secret\nCreate a secret named `my-registry-key` of type `docker-registry` with username `user` and password `pass`.\nThen patch the default service account to use it.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": [
       {
         "markdown": "# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n",
@@ -6367,7 +6649,7 @@ export const generatedExams: Record<string, Lesson> = {
     "duration": "120 mins",
     "markdown": "\n# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n# Task 2: Sidecar Container\nEdit the pod `logging-pod`. Add a sidecar container image `busybox` that runs `tail -f /var/log/app.log`.\nThe volume `log-volume` is already mounted at `/var/log`.\n\n# Task 3: ClusterUpgrade\nUpgrade the control plane to version 1.29.0.\nRemember to drain the node first!\n\n# Task 4: Network Policy Access\nAllow traffic from pods with label `role=frontend` to pods with label `role=backend` on port 80.\nDeny all other ingress traffic to backend.\n",
     "verifyScript": "",
-    "setupScript": "",
+    "setupScript": "echo \"Environment Ready\"\n",
     "tasks": [
       {
         "markdown": "# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n",
