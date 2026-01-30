@@ -183,7 +183,7 @@ export default function LessonPage() {
                         <span>Terminal</span>
                     </button>
                     <button
-                        onClick={() => router.push('/lab')}
+                        onClick={() => router.push(`/lab?lessonId=${lesson.id}`)}
                         className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:shadow-lg transition-all active:scale-95 text-sm"
                     >
                         <PlayCircle className="w-5 h-5" />
