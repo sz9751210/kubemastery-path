@@ -294,12 +294,12 @@ export const generatedExams: Record<string, Lesson> = {
   },
   "53": {
     "id": "53",
-    "title": "Cluster Networking",
+    "title": "Lab: Expose Nginx Pod",
     "category": "CKA",
-    "duration": "50 mins",
-    "markdown": "\n# Cluster Networking\n\n## CNI (Container Network Interface)\nThe plugin that configures network interfaces.\n-   **Flannel, Calico, Weave**.\n-   Every Pod gets a unique IP.\n\n## DNS (CoreDNS)\nService discovery.\n-   Service: \\`my-svc.my-ns.svc.cluster.local\\`\n-   Pod: \\`1-2-3-4.my-ns.pod.cluster.local\\`\n\n\\`\\`\\`bash\n# Debug DNS\nkubectl run busybox --image=busybox:1.28 --restart=Never -- sleep 3600\nkubectl exec -it busybox -- nslookup kubernetes\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "",
+    "duration": "15 mins",
+    "markdown": "\n# Scenario\n\nYou have a running pod named `nginx-pod` in the default namespace. However, it is currently isolated.\n\n# Task\n\n1. Verify the pod is running.\n2. Expose this pod as a Service named `nginx-svc` on port 80.\n3. Use `NodePort` type.\n\n> [!TIP]\n> Use `kubectl expose pod ... --type=NodePort`\n\n\n\n\n",
+    "verifyScript": "# Verify Pod\nkubectl get pod nginx-pod --no-headers | grep Running\n\n# Verify Service\nkubectl get svc nginx-svc -o jsonpath='{.spec.ports[0].port}' | grep 80\nkubectl get svc nginx-svc -o jsonpath='{.spec.type}' | grep NodePort\n",
+    "setupScript": "# Ensure clean state\nkubectl delete pod nginx-pod --force --grace-period=0 2>/dev/null || true\nkubectl delete svc nginx-svc 2>/dev/null || true\n\n# Create the pod for the scenario\nkubectl run nginx-pod --image=nginx --restart=Never\n\n# Verify scenario readiness\nkubectl wait --for=condition=Ready pod/nginx-pod --timeout=60s\n",
     "tasks": []
   },
   "54": {

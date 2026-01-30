@@ -35,8 +35,16 @@ export default function LessonPage() {
     const [setupResult, setSetupResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
     const [verifyResult, setVerifyResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
 
+    // Track if setup has been run for this session
+    const setupRunRef = useRef(false);
+
     const handleSetup = async () => {
-        if (!lesson?.setupScript) return;
+        if (!lesson?.setupScript || setupRunRef.current) return;
+
+        // Open terminal immediately
+        terminalRef.current?.toggle(true);
+        setupRunRef.current = true;
+
         setSettingUp(true);
         setSetupResult(null);
         try {
@@ -45,7 +53,7 @@ export default function LessonPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     script: lesson.setupScript,
-                    mode: 'real' // Default to real
+                    mode: 'real'
                 })
             });
             const data = await res.json();
@@ -54,6 +62,14 @@ export default function LessonPage() {
             setSetupResult({ success: false, message: 'Network Error', output: String(e) });
         } finally {
             setSettingUp(false);
+        }
+    };
+
+    const handleTerminalClick = () => {
+        terminalRef.current?.toggle();
+        // Trigger setup if it hasn't run yet
+        if (lesson?.setupScript && !setupRunRef.current) {
+            handleSetup();
         }
     };
 
@@ -158,20 +174,9 @@ export default function LessonPage() {
                     {isLessonCompleted(lesson.id) && <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>}
                 </div>
                 <div className="flex items-center gap-3">
-                    {lesson.setupScript && (
-                        <button
-                            onClick={handleSetup}
-                            disabled={settingUp}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-sm border
-                                ${settingUp ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-amber-600 border-amber-200 hover:bg-amber-50'}
-                            `}
-                        >
-                            {settingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Box className="w-4 h-4" />}
-                            <span>{settingUp ? 'Initializing...' : 'Initialize Lab'}</span>
-                        </button>
-                    )}
+
                     <button
-                        onClick={() => terminalRef.current?.toggle()}
+                        onClick={handleTerminalClick}
                         className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
                     >
                         <Terminal className="w-4 h-4" />
@@ -360,7 +365,7 @@ export default function LessonPage() {
             </main>
 
             {/* Collapsible Terminal */}
-            <CollapsibleTerminal ref={terminalRef} />
+            <CollapsibleTerminal ref={terminalRef} isLoading={settingUp} />
         </div>
     );
 
