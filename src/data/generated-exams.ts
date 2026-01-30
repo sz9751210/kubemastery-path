@@ -7,10 +7,36 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Container Basics",
     "category": "CORE",
     "duration": "20 mins",
-    "markdown": "\n# Container Basics: Beyond Docker\n\nTo master Kubernetes, you must strictly understand concepts like **Namespaces**, **Cgroups**, and the **CRI**.\n\n## What is a Container?\nIt's just a process! But it's isolated.\n- **Namespaces**: Isolate what the process *sees* (PID, Network, Mounts).\n- **Cgroups**: Isolate what the process *uses* (CPU, RAM).\n- **Union Filesystem**: Efficient, layered storage (OverlayFS).\n\n## Docker vs CRI\nKubernetes uses the **Container Runtime Interface (CRI)**.\n> [!IMPORTANT]\n> `dockershim` is dead. You are likely using **containerd** or **CRI-O**. Learn `crictl`.\n\n```bash\n# Check the container runtime version\ncrictl version\n\n# List running containers\ncrictl ps\n```\n\n\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Verifying Container Runtime Interface...\"\n# We can't actually run crictl here easily because this script runs on the server, not in the pty.\n# But since we added crictl to the global shell, it will be there for the user.\necho \"Environment Ready.\"\n",
-    "tasks": []
+    "markdown": "\n# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n",
+    "verifyScript": "crictl version | grep Runtime\ncrictl images | grep busybox\ncrictl images | grep busybox\nkubectl get pod nginx-cri | grep Running\ncrictl ps | grep nginx-cri\n",
+    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task 1: Check Runtime Version\nFirst, let's verify we are interacting with a CRI-compatible runtime.\nRun the following command to check the version:\n\n```bash\ncrictl version\n```\n\n\n\n",
+        "verify": "crictl version | grep Runtime\n",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 2: Pull an Image\nUnlike Docker, Kubernetes manages images for you. But you can manually pull images using `crictl` for debugging.\nPull the `busybox` image:\n\n```bash\ncrictl pull busybox\n```\n\n\n\n",
+        "verify": "crictl images | grep busybox\n",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 3: Inspect Images\nVerify that the image is available locally.\n\n```bash\ncrictl images\n```\n\n\n\n",
+        "verify": "crictl images | grep busybox\n",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 4: Run a Pod via Kubectl\nWhile `crictl` can run containers, it's complex. Let's use `kubectl` to start a workload, then we will inspect it with `crictl`.\n\n```bash\nkubectl run nginx-cri --image=nginx\n```\n\n\n\n",
+        "verify": "kubectl get pod nginx-cri | grep Running\n",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 5: Inspect Container with CRI\nNow that the pod is running, let's find the underlying container using `crictl`.\n\n```bash\ncrictl ps --name nginx-cri\n```\n\n\n",
+        "verify": "crictl ps | grep nginx-cri\n",
+        "setup": ""
+      }
+    ]
   },
   "2": {
     "id": "2",

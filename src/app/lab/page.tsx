@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState, useRef, Suspense } from 'react';
 import Terminal from '@/components/Terminal';
-import { getLessonById } from '@/data/lessons';
+import { getLessonById, getLessons } from '@/data/lessons';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Loader2, CheckCircle, XCircle, ArrowLeft, RotateCw } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, ArrowLeft, ArrowRight, RotateCw } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -15,6 +15,16 @@ function LabContent() {
     const router = useRouter();
     const lessonId = searchParams?.get('lessonId');
     const lesson = lessonId ? getLessonById(lessonId) : undefined;
+
+    // Next Lesson Logic
+    const allLessons = getLessons().sort((a, b) => {
+        // Simple numeric sort if possible, else string sort
+        const aNum = parseInt(a.id);
+        const bNum = parseInt(b.id);
+        return !isNaN(aNum) && !isNaN(bNum) ? aNum - bNum : a.id.localeCompare(b.id);
+    });
+    const currentIndex = allLessons.findIndex(l => l.id === lessonId);
+    const nextLesson = currentIndex !== -1 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
     const [settingUp, setSettingUp] = useState(false);
     const [setupResult, setSetupResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
@@ -97,6 +107,14 @@ function LabContent() {
         );
     }
 
+    // Multi-step Task Logic
+    const hasTasks = lesson?.tasks && lesson.tasks.length > 0;
+    const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+
+    const activeMarkdown = hasTasks ? lesson.tasks![currentTaskIndex].markdown : lesson?.markdown || '';
+    const activeVerifyScript = hasTasks ? lesson.tasks![currentTaskIndex].verify : lesson?.verifyScript;
+    const isLastTask = hasTasks ? currentTaskIndex === lesson.tasks!.length - 1 : true;
+
     // Determine badge state
     let badgeText = 'Ready';
     let badgeColor = 'bg-slate-100 text-slate-700 ring-slate-600/20';
@@ -113,6 +131,11 @@ function LabContent() {
             badgeColor = 'bg-red-50 text-red-700 ring-red-600/20';
         }
     }
+
+    const handleNextTask = () => {
+        setVerifyResult(null);
+        setCurrentTaskIndex(prev => prev + 1);
+    };
 
     return (
         <div className="flex h-screen w-full bg-slate-100 font-sans relative">
@@ -136,18 +159,46 @@ function LabContent() {
                         <ArrowLeft size={16} />
                         Back to Lesson
                     </button>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeColor}`}>
                             {badgeText}
                         </span>
+
+                        {/* Next Task / Next Lab Button */}
+                        {verifyResult?.success && (
+                            !isLastTask ? (
+                                <button
+                                    onClick={handleNextTask}
+                                    className="flex items-center gap-1 bg-slate-800 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-slate-700 transition-all animate-in zoom-in"
+                                >
+                                    Next Task <ArrowRight size={12} />
+                                </button>
+                            ) : (
+                                nextLesson && (
+                                    <button
+                                        onClick={() => router.push(`/lab?lessonId=${nextLesson.id}`)}
+                                        className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-500 transition-all animate-in zoom-in"
+                                    >
+                                        Next Lab <ArrowRight size={12} />
+                                    </button>
+                                )
+                            )
+                        )}
                     </div>
                 </div>
 
                 <div className="p-6 border-b border-slate-100">
                     <h1 className="text-2xl font-bold text-slate-900 leading-tight">{lesson.title}</h1>
-                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mt-3">
-                        {lesson.category}
-                    </span>
+                    <div className="flex items-center gap-2 mt-3">
+                        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                            {lesson.category}
+                        </span>
+                        {hasTasks && (
+                            <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+                                Task {currentTaskIndex + 1} of {lesson.tasks!.length}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="p-6 overflow-y-auto flex-grow prose prose-slate max-w-none">
@@ -195,7 +246,7 @@ function LabContent() {
                             blockquote: ({ children }) => <div className="border-l-4 border-blue-500 bg-blue-50 p-4 my-4 not-italic text-slate-700">{children}</div>
                         }}
                     >
-                        {lesson.markdown}
+                        {activeMarkdown}
                     </ReactMarkdown>
                 </div>
 
@@ -214,71 +265,6 @@ function LabContent() {
                         </div>
                     )}
 
-                    {/* Quiz UI */}
-                    {lesson.quizzes && lesson.quizzes.length > 0 ? (
-                        <div className="flex flex-col gap-4">
-                            {lesson.quizzes.map((quiz, idx) => (
-                                <div key={idx} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                                    <h3 className="font-bold text-slate-800 mb-3">{idx + 1}. {quiz.question}</h3>
-                                    <div className="flex flex-col gap-2">
-                                        {quiz.options.map((option, optIdx) => {
-                                            const isSelected = verifyResult?.output === option;
-                                            const isCorrect = quiz.answer === option;
-                                            let btnColor = "bg-slate-50 border-slate-200 hover:bg-slate-100";
-                                            if (verifyResult && isSelected) {
-                                                btnColor = isCorrect ? "bg-green-100 border-green-300 text-green-800" : "bg-red-50 border-red-200 text-red-800";
-                                            }
-
-                                            return (
-                                                <button
-                                                    key={optIdx}
-                                                    onClick={() => {
-                                                        const isCorrect = quiz.answer === option;
-                                                        setVerifyResult({
-                                                            success: isCorrect,
-                                                            message: isCorrect ? "Correct!" : "Incorrect",
-                                                            output: option
-                                                        });
-                                                    }}
-                                                    className={`w-full text-left px-4 py-3 rounded-md border text-sm transition-all flex justify-between items-center ${btnColor}`}
-                                                >
-                                                    {option}
-                                                    {verifyResult && isSelected && isCorrect && <CheckCircle size={16} className="text-green-600" />}
-                                                    {verifyResult && isSelected && !isCorrect && <XCircle size={16} className="text-red-600" />}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    {verifyResult?.output && quiz.options.includes(verifyResult.output) && (
-                                        <div className="mt-3 text-xs text-slate-500 italic">
-                                            {verifyResult.success ? "Great job!" : "Try again."}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        /* Standard Verify Button for Lab Tasks */
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleSetup}
-                                disabled={settingUp}
-                                className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                <RotateCw size={16} className={settingUp ? "animate-spin" : ""} />
-                                Reset Lab
-                            </button>
-                            <button
-                                onClick={handleVerify}
-                                disabled={verifying || !lesson.verifyScript}
-                                className={`flex-[2] rounded-lg px-4 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2 transition-all
-                                    ${!lesson.verifyScript ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 focus:ring-green-600'}
-                                `}
-                            >
-                                {verifying && <Loader2 size={16} className="animate-spin" />}
-                                {verifying ? 'Verifying...' : 'Verify Solution'}
-                            </button>
-                        </div>
                     )}
                 </div>
             </div>
