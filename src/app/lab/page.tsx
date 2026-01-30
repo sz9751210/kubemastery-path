@@ -178,7 +178,7 @@ function LabContent() {
                                         style={vscDarkPlus}
                                         language={match[1]}
                                         PreTag="div"
-                                        customStyle={{ margin: '1em 0', borderRadius: '0.5rem', fontSize: '0.85em' }}
+                                        customStyle={{ margin: '0', borderRadius: '0.5rem', fontSize: '0.85em', padding: '1rem' }}
                                         {...props}
                                     >
                                         {String(children).replace(/\n$/, '')}

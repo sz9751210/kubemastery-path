@@ -17,8 +17,8 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Pod Lifecycle",
     "category": "CORE",
     "duration": "25 mins",
-    "markdown": "\n# The Pod Lifecycle\n\nA **Pod** is the atomic unit of K8s. It wraps one or more containers.\n\n## States\n1. **Pending**: Scheduler is finding a node.\n2. **ContainerCreating**: Pulling images.\n3. **Running**: At least one container is up.\n4. **Succeeded/Failed**: Process exited.\n\n\\`\\`\\`bash\n# Create a simple Nginx pod\nkubectl run nginx-demo --image=nginx\n\n# Watch the pod status change\nkubectl get pod nginx-demo -w\n\\`\\`\\`\n",
-    "verifyScript": "",
+    "markdown": "\n# The Pod Lifecycle\n\nA **Pod** is the atomic unit of K8s. It wraps one or more containers.\n\n## States\n1. **Pending**: Scheduler is finding a node.\n2. **ContainerCreating**: Pulling images.\n3. **Running**: At least one container is up.\n4. **Succeeded/Failed**: Process exited.\n\n\\`\\`\\`bash\n# Create a simple Nginx pod\nkubectl run nginx-demo --image=nginx\n\n# Watch the pod status change\nkubectl get pod nginx-demo -w\n\\`\\`\\`\n\n\n\\`\\`\\`\n",
+    "verifyScript": "kubectl get pod nginx-demo --no-headers | grep Running\n",
     "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
     "tasks": []
   },
