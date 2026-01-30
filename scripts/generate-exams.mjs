@@ -52,13 +52,34 @@ async function generateExams() {
                         return { cleanMd, verifyScript, setupScript };
                     };
 
-                    const { cleanMd: mainMarkdown, verifyScript: mainVerify, setupScript: initialSetup } = extractScripts(markdownBody);
+                    // Split tasks for randomization
+                    // We look for "# Task" at the start of a line
+                    const parts = markdownBody.split(/^# Task /m);
+                    const introMarkdown = parts[0];
+                    // Re-add the header back to the tasks
+                    const rawTasks = parts.slice(1).map(t => '# Task ' + t);
 
-                    // Auto-generate setup script if missing
-                    let mainSetup = initialSetup;
+                    const parsedTasks = rawTasks.map(t => {
+                        const { cleanMd, verifyScript, setupScript } = extractScripts(t);
+                        return { markdown: cleanMd, verify: verifyScript, setup: setupScript };
+                    });
+
+                    const finalTasks = parsedTasks.length > 0 ? parsedTasks : [];
+
+                    // Ensure ID is a string
+                    const lessonId = String(data.id);
+
+                    // Parse the intro markdown to extract any setup/verify blocks that might be there
+                    const { cleanMd: cleanIntro, verifyScript: introVerify, setupScript: introSetup } = extractScripts(introMarkdown);
+
+                    // Determine the main setup script
+                    // If we found one in the intro, use it.
+                    let mainSetup = introSetup;
+
+                    // If no explicit setup script, try to auto-detect based on content
                     if (!mainSetup) {
-                        const hasCrictl = mainMarkdown.includes('crictl');
-                        const hasKubectl = mainMarkdown.includes('kubectl');
+                        const hasCrictl = markdownBody.includes('crictl');
+                        const hasKubectl = markdownBody.includes('kubectl');
 
                         if (hasCrictl) {
                             mainSetup = 'echo "Environment Ready (Auto-generated)"\n';
@@ -69,26 +90,13 @@ async function generateExams() {
                         }
                     }
 
-                    // Split tasks for randomization
-                    // We look for "# Task" at the start of a line
-                    const rawTasks = markdownBody.split(/^# Task /m)
-                        .filter(t => t.trim().length > 0)
-                        .map(t => '# Task ' + t); // Re-add the header back
-
-                    const parsedTasks = rawTasks.map(t => {
-                        const { cleanMd, verifyScript, setupScript } = extractScripts(t);
-                        return { markdown: cleanMd, verify: verifyScript, setup: setupScript };
-                    });
-
-                    const finalTasks = parsedTasks.length > 1 ? parsedTasks : [];
-
-                    // Ensure ID is a string
-                    const lessonId = String(data.id);
+                    // Use introVerify if available, otherwise fallback to empty or handle strictly
+                    const mainVerify = introVerify;
 
                     exams[lessonId] = {
                         ...data,
                         id: lessonId,
-                        markdown: mainMarkdown,
+                        markdown: cleanIntro, // Changed from mainMarkdown (full) to cleanIntro (split)
                         verifyScript: mainVerify,
                         setupScript: mainSetup,
                         tasks: finalTasks,
