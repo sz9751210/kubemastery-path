@@ -10,221 +10,301 @@ duration: 120 mins
 This is an auto-generated exam to provide infinite practice questions.
 
 # Task 1: Multi-Container Pod
-Create a pod named `ckad-kwlj54` with two containers.
+Create a pod named `ckad-q7dt5k` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-q7dt5k --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-kwlj54 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-kwlj54 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-q7dt5k -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-q7dt5k -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 2: Multi-Container Pod
-Create a pod named `ckad-jr4mp4` with two containers.
+Create a pod named `ckad-gyqcdn` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-gyqcdn --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-jr4mp4 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-jr4mp4 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-gyqcdn -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-gyqcdn -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 3: Multi-Container Pod
-Create a pod named `ckad-iuwmat` with two containers.
+Create a pod named `ckad-8gdpir` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-8gdpir --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-iuwmat -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-iuwmat -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-8gdpir -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-8gdpir -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 4: Multi-Container Pod
-Create a pod named `ckad-72h77y` with two containers.
+Create a pod named `ckad-3b9ym5` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-3b9ym5 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-72h77y -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-72h77y -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-3b9ym5 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-3b9ym5 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 5: Multi-Container Pod
-Create a pod named `ckad-x4jugl` with two containers.
+Create a pod named `ckad-n4cue4` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-n4cue4 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-x4jugl -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-x4jugl -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-n4cue4 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-n4cue4 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 6: Multi-Container Pod
-Create a pod named `ckad-x3turq` with two containers.
+Create a pod named `ckad-bgiydm` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-bgiydm --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-x3turq -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-x3turq -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-bgiydm -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-bgiydm -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 7: Multi-Container Pod
-Create a pod named `ckad-p8ghux` with two containers.
+Create a pod named `ckad-wt9wbp` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-wt9wbp --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-p8ghux -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-p8ghux -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-wt9wbp -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-wt9wbp -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 8: Multi-Container Pod
-Create a pod named `ckad-0afi47` with two containers.
+Create a pod named `ckad-ehek4i` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-ehek4i --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-0afi47 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-0afi47 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-ehek4i -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-ehek4i -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 9: Multi-Container Pod
-Create a pod named `ckad-tmf7wc` with two containers.
+Create a pod named `ckad-ig8rr4` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-ig8rr4 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-tmf7wc -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-tmf7wc -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-ig8rr4 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-ig8rr4 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 10: Multi-Container Pod
-Create a pod named `ckad-kd2glh` with two containers.
+Create a pod named `ckad-yek4nf` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-yek4nf --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-kd2glh -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-kd2glh -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-yek4nf -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-yek4nf -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 11: Multi-Container Pod
-Create a pod named `ckad-095j8e` with two containers.
+Create a pod named `ckad-iawqc6` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-iawqc6 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-095j8e -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-095j8e -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-iawqc6 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-iawqc6 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 12: Multi-Container Pod
-Create a pod named `ckad-ktsw7m` with two containers.
+Create a pod named `ckad-rng37n` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-rng37n --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-ktsw7m -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-ktsw7m -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-rng37n -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-rng37n -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 13: Multi-Container Pod
-Create a pod named `ckad-dlurtq` with two containers.
+Create a pod named `ckad-gxsot1` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-gxsot1 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-dlurtq -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-dlurtq -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-gxsot1 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-gxsot1 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 14: Multi-Container Pod
-Create a pod named `ckad-vrwvb1` with two containers.
+Create a pod named `ckad-vo6rbg` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-vo6rbg --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-vrwvb1 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-vrwvb1 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-vo6rbg -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-vo6rbg -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 15: Multi-Container Pod
-Create a pod named `ckad-rwgnb1` with two containers.
+Create a pod named `ckad-y6ps20` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-y6ps20 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-rwgnb1 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-rwgnb1 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-y6ps20 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-y6ps20 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 16: Multi-Container Pod
-Create a pod named `ckad-5v591r` with two containers.
+Create a pod named `ckad-vk60cu` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-vk60cu --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-5v591r -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-5v591r -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-vk60cu -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-vk60cu -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 17: Multi-Container Pod
-Create a pod named `ckad-m2mat2` with two containers.
+Create a pod named `ckad-36zn36` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-36zn36 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-m2mat2 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-m2mat2 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-36zn36 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-36zn36 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 18: Multi-Container Pod
-Create a pod named `ckad-qjo14t` with two containers.
+Create a pod named `ckad-qtjct6` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-qtjct6 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-qjo14t -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-qjo14t -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-qtjct6 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-qtjct6 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 19: Multi-Container Pod
-Create a pod named `ckad-bemj41` with two containers.
+Create a pod named `ckad-npcek3` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-npcek3 --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-bemj41 -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-bemj41 -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-npcek3 -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-npcek3 -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 
 
 # Task 20: Multi-Container Pod
-Create a pod named `ckad-0hvu4m` with two containers.
+Create a pod named `ckad-0vkz6e` with two containers.
 Container 1: image `nginx`, name `c1`.
 Container 2: image `busybox`, name `c2`, command "sleep 3600".
 
+```setup
+kubectl delete pod ckad-0vkz6e --force --grace-period=0 2>/dev/null || true
+```
+
 ```verify
-kubectl get pod ckad-0hvu4m -o jsonpath='{.spec.containers[*].name}' | grep c1
-kubectl get pod ckad-0hvu4m -o jsonpath='{.spec.containers[*].name}' | grep c2
+kubectl get pod ckad-0vkz6e -o jsonpath='{.spec.containers[*].name}' | grep c1
+kubectl get pod ckad-0vkz6e -o jsonpath='{.spec.containers[*].name}' | grep c2
 ```
 

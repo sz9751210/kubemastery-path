@@ -32,6 +32,25 @@ router.post('/api/verify', (req, res) => {
     });
 });
 
+// Add Generic Setup Endpoint
+router.post('/api/setup', (req, res) => {
+    const { script, mode } = req.body;
+
+    // Determine Kubeconfig path based on mode
+    const kubeconfig = mode === 'real' ? '/tmp/kubeconfig-real' : '/tmp/kubeconfig';
+
+    exec(script, {
+        env: { ...process.env, KUBECONFIG: kubeconfig },
+        timeout: 30000 // 30s timeout for setup as it might create resources
+    }, (error, stdout, stderr) => {
+        res.json({
+            success: !error,
+            output: stdout + (stderr ? '\nError: ' + stderr : ''),
+            message: error ? 'Setup Failed' : 'Setup Complete'
+        });
+    });
+});
+
 // List Labs
 router.get('/api/labs', (req, res) => {
     // Return summary list

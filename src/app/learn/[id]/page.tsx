@@ -8,7 +8,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getLessonById, getLessons } from '@/data/lessons';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap, XCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, PlayCircle, Copy, Check, Play, Terminal, CheckCircle, Trophy, Flame, Sparkles, Zap, XCircle, Loader2, Box } from 'lucide-react';
 import LessonSelector from '@/components/LessonSelector';
 import Header from '@/components/Header';
 import CollapsibleTerminal, { CollapsibleTerminalRef } from '@/components/CollapsibleTerminal';
@@ -31,7 +31,31 @@ export default function LessonPage() {
 
     const [copiedValues, setCopiedValues] = useState<Record<string, boolean>>({});
     const [verifying, setVerifying] = useState(false);
+    const [settingUp, setSettingUp] = useState(false);
+    const [setupResult, setSetupResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
     const [verifyResult, setVerifyResult] = useState<{ success: boolean; message: string; output: string } | null>(null);
+
+    const handleSetup = async () => {
+        if (!lesson?.setupScript) return;
+        setSettingUp(true);
+        setSetupResult(null);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'}/api/setup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    script: lesson.setupScript,
+                    mode: 'real' // Default to real
+                })
+            });
+            const data = await res.json();
+            setSetupResult(data);
+        } catch (e) {
+            setSetupResult({ success: false, message: 'Network Error', output: String(e) });
+        } finally {
+            setSettingUp(false);
+        }
+    };
 
     const handleVerify = async () => {
         if (!lesson?.verifyScript) return;
@@ -134,6 +158,18 @@ export default function LessonPage() {
                     {isLessonCompleted(lesson.id) && <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>}
                 </div>
                 <div className="flex items-center gap-3">
+                    {lesson.setupScript && (
+                        <button
+                            onClick={handleSetup}
+                            disabled={settingUp}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-sm border
+                                ${settingUp ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-amber-600 border-amber-200 hover:bg-amber-50'}
+                            `}
+                        >
+                            {settingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Box className="w-4 h-4" />}
+                            <span>{settingUp ? 'Initializing...' : 'Initialize Lab'}</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => terminalRef.current?.toggle()}
                         className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-all text-sm"
@@ -153,6 +189,24 @@ export default function LessonPage() {
 
             {/* Content */}
             <main className="max-w-4xl mx-auto mt-10 px-6 mb-32">
+                {/* Setup Result Toast */}
+                {setupResult && (
+                    <div className={`mb-8 p-4 rounded-xl border flex items-center justify-between animate-in slide-in-from-top-4 duration-300
+                        ${setupResult.success ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-red-50 border-red-200 text-red-800'}
+                    `}>
+                        <div className="flex items-center gap-3">
+                            <Box className="w-5 h-5" />
+                            <div>
+                                <h4 className="font-bold">{setupResult.success ? 'Lab Environment Initialized' : 'Setup Failed'}</h4>
+                                <p className="text-xs opacity-80 mt-1 font-mono">{setupResult.message}</p>
+                            </div>
+                        </div>
+                        <button onClick={() => setSetupResult(null)} className="p-1 hover:bg-black/5 rounded">
+                            <XCircle className="w-5 h-5 opacity-50" />
+                        </button>
+                    </div>
+                )}
+
                 <article className="prose prose-slate lg:prose-lg xl:prose-xl bg-white p-12 lg:p-16 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}

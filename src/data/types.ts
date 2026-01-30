@@ -5,6 +5,7 @@ export interface Lesson {
     duration: string;
     markdown: string;
     flashcards?: { question: string; answer: string }[];
+    setupScript?: string; // Script to setup the whole lesson
     verifyScript?: string; // Script to verify the whole lesson
-    tasks?: { markdown: string; verify?: string }[]; // Pool of tasks with verification logic
+    tasks?: { markdown: string; verify?: string; setup?: string }[]; // Pool of tasks with verification/setup logic
 }

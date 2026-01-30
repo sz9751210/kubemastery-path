@@ -31,6 +31,12 @@ function generateCKATasks(count) {
 Create a pod named \`${name}\` in namespace \`${ns}\` using image \`${img}\`.
 Ensure it has a label \`${lbl}\`.
 
+\`\`\`setup
+kubectl create ns ${ns} --dry-run=client -o yaml | kubectl apply -f -
+# Clean up if exists
+kubectl delete pod ${name} -n ${ns} --force --grace-period=0 2>/dev/null || true
+\`\`\`
+
 \`\`\`verify
 kubectl get pod ${name} -n ${ns} --no-headers | grep Running
 kubectl get pod ${name} -n ${ns} -o jsonpath='{.metadata.labels.${labelKey}}' | grep ${labelVal}
@@ -44,6 +50,11 @@ Create a deployment named \`${name}\` in namespace \`${ns}\` using image \`${img
 Scale it to \`${replicas}\` replicas.
 Then, perform a rolling update to image \`${img}:latest\`.
 
+\`\`\`setup
+kubectl create ns ${ns} --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy ${name} -n ${ns} 2>/dev/null || true
+\`\`\`
+
 \`\`\`verify
 kubectl get deploy ${name} -n ${ns} -o jsonpath='{.spec.replicas}' | grep ${replicas}
 kubectl get deploy ${name} -n ${ns} -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "${img}:latest"
@@ -55,6 +66,12 @@ kubectl get deploy ${name} -n ${ns} -o jsonpath='{.spec.template.spec.containers
             tasks.push(`# Task ${i + 1}: Expose Service
 Expose the deployment \`${name}-dep\` as a Service named \`${name}\` in namespace \`${ns}\`.
 The service should listen on port \`${port}\` and be of type \`${svcType}\`.
+
+\`\`\`setup
+kubectl create ns ${ns} --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment ${name}-dep --image=nginx -n ${ns} --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete svc ${name} -n ${ns} 2>/dev/null || true
+\`\`\`
 
 \`\`\`verify
 kubectl get svc ${name} -n ${ns} -o jsonpath='{.spec.ports[0].port}' | grep ${port}
@@ -68,6 +85,11 @@ kubectl get svc ${name} -n ${ns} -o jsonpath='{.spec.type}' | grep ${svcType}
 Create a PersistentVolumeClaim named \`${name}\` in namespace \`${ns}\`.
 Request \`${cap}\` storage with access mode \`${mode}\`.
 
+\`\`\`setup
+kubectl create ns ${ns} --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete pvc ${name} -n ${ns} 2>/dev/null || true
+\`\`\`
+
 \`\`\`verify
 kubectl get pvc ${name} -n ${ns} -o jsonpath='{.spec.resources.requests.storage}' | grep ${cap}
 kubectl get pvc ${name} -n ${ns} -o jsonpath='{.spec.accessModes[0]}' | grep ${mode}
@@ -79,6 +101,11 @@ kubectl get pvc ${name} -n ${ns} -o jsonpath='{.spec.accessModes[0]}' | grep ${m
 Mark node \`${nodeName}\` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
+
+\`\`\`setup
+# Ensure node is uncordoned first
+kubectl uncordon ${nodeName} 2>/dev/null || true
+\`\`\`
 
 \`\`\`verify
 # Check if node exists and is ready (was uncordoned)
@@ -99,6 +126,10 @@ Create a pod named \`${name}\` with two containers.
 Container 1: image \`nginx\`, name \`c1\`.
 Container 2: image \`busybox\`, name \`c2\`, command "sleep 3600".
 
+\`\`\`setup
+kubectl delete pod ${name} --force --grace-period=0 2>/dev/null || true
+\`\`\`
+
 \`\`\`verify
 kubectl get pod ${name} -o jsonpath='{.spec.containers[*].name}' | grep c1
 kubectl get pod ${name} -o jsonpath='{.spec.containers[*].name}' | grep c2
@@ -117,6 +148,11 @@ function generateCKSTasks(count) {
 Create a NetworkPolicy named \`${name}\` in namespace \`default\`.
 Deny all ingress traffic to pods with label \`role=db\`.
 Allow egress only to port 53 (DNS).
+
+\`\`\`setup
+kubectl run db-pod-${name} --image=nginx --labels=role=db --restart=Never
+kubectl delete netpol ${name} 2>/dev/null || true
+\`\`\`
 
 \`\`\`verify
 kubectl get netpol ${name} -n default -o jsonpath='{.spec.podSelector.matchLabels.role}' | grep db

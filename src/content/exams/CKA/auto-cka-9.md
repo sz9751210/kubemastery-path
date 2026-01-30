@@ -10,61 +10,45 @@ duration: 120 mins
 This is an auto-generated exam to provide infinite practice questions.
 
 # Task 1: Node Maintenance
-Mark node `node-3` as unschedulable (cordon).
+Mark node `node-2` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
 
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-2 2>/dev/null || true
+```
+
 ```verify
 # Check if node exists and is ready (was uncordoned)
-kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+kubectl get node node-2 --no-headers | grep Ready | grep -v SchedulingDisabled
 ```
 
 
-# Task 2: Expose Service
-Expose the deployment `resource-1wb5po-dep` as a Service named `resource-1wb5po` in namespace `staging`.
-The service should listen on port `8700` and be of type `NodePort`.
-
-```verify
-kubectl get svc resource-1wb5po -n staging -o jsonpath='{.spec.ports[0].port}' | grep 8700
-kubectl get svc resource-1wb5po -n staging -o jsonpath='{.spec.type}' | grep NodePort
-```
-
-
-# Task 3: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-rfgbif` in namespace `frontend`.
+# Task 2: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-d26alj` in namespace `backend`.
 Request `1Gi` storage with access mode `ReadWriteMany`.
 
+```setup
+kubectl create ns backend --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete pvc resource-d26alj -n backend 2>/dev/null || true
+```
+
 ```verify
-kubectl get pvc resource-rfgbif -n frontend -o jsonpath='{.spec.resources.requests.storage}' | grep 1Gi
-kubectl get pvc resource-rfgbif -n frontend -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
+kubectl get pvc resource-d26alj -n backend -o jsonpath='{.spec.resources.requests.storage}' | grep 1Gi
+kubectl get pvc resource-d26alj -n backend -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
 ```
 
 
-# Task 4: Node Maintenance
-Mark node `node-5` as unschedulable (cordon).
-Then drain the node, ignoring daemonsets.
-Finally, uncordon the node.
-
-```verify
-# Check if node exists and is ready (was uncordoned)
-kubectl get node node-5 --no-headers | grep Ready | grep -v SchedulingDisabled
-```
-
-
-# Task 5: Expose Service
-Expose the deployment `resource-rqevb7-dep` as a Service named `resource-rqevb7` in namespace `frontend`.
-The service should listen on port `8175` and be of type `NodePort`.
-
-```verify
-kubectl get svc resource-rqevb7 -n frontend -o jsonpath='{.spec.ports[0].port}' | grep 8175
-kubectl get svc resource-rqevb7 -n frontend -o jsonpath='{.spec.type}' | grep NodePort
-```
-
-
-# Task 6: Node Maintenance
+# Task 3: Node Maintenance
 Mark node `node-1` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
+
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-1 2>/dev/null || true
+```
 
 ```verify
 # Check if node exists and is ready (was uncordoned)
@@ -72,63 +56,63 @@ kubectl get node node-1 --no-headers | grep Ready | grep -v SchedulingDisabled
 ```
 
 
-# Task 7: Node Maintenance
-Mark node `node-3` as unschedulable (cordon).
-Then drain the node, ignoring daemonsets.
-Finally, uncordon the node.
+# Task 4: Scale Deployment
+Create a deployment named `resource-7suds0` in namespace `test` using image `node:14`.
+Scale it to `5` replicas.
+Then, perform a rolling update to image `node:14:latest`.
+
+```setup
+kubectl create ns test --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy resource-7suds0 -n test 2>/dev/null || true
+```
 
 ```verify
-# Check if node exists and is ready (was uncordoned)
-kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
+kubectl get deploy resource-7suds0 -n test -o jsonpath='{.spec.replicas}' | grep 5
+kubectl get deploy resource-7suds0 -n test -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "node:14:latest"
 ```
 
 
-# Task 8: Persistent Volume Claim
-Create a PersistentVolumeClaim named `resource-6kgufo` in namespace `test`.
-Request `100Mi` storage with access mode `ReadWriteMany`.
-
-```verify
-kubectl get pvc resource-6kgufo -n test -o jsonpath='{.spec.resources.requests.storage}' | grep 100Mi
-kubectl get pvc resource-6kgufo -n test -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
-```
-
-
-# Task 9: Create a Pod
-Create a pod named `resource-6deu9y` in namespace `prod` using image `redis`.
-Ensure it has a label `tier=frontend`.
-
-```verify
-kubectl get pod resource-6deu9y -n prod --no-headers | grep Running
-kubectl get pod resource-6deu9y -n prod -o jsonpath='{.metadata.labels.tier}' | grep frontend
-```
-
-
-# Task 10: Node Maintenance
-Mark node `node-3` as unschedulable (cordon).
-Then drain the node, ignoring daemonsets.
-Finally, uncordon the node.
-
-```verify
-# Check if node exists and is ready (was uncordoned)
-kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
-```
-
-
-# Task 11: Scale Deployment
-Create a deployment named `resource-ennmft` in namespace `default` using image `mysql`.
-Scale it to `2` replicas.
+# Task 5: Scale Deployment
+Create a deployment named `resource-jqliq6` in namespace `test` using image `mysql`.
+Scale it to `5` replicas.
 Then, perform a rolling update to image `mysql:latest`.
 
+```setup
+kubectl create ns test --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy resource-jqliq6 -n test 2>/dev/null || true
+```
+
 ```verify
-kubectl get deploy resource-ennmft -n default -o jsonpath='{.spec.replicas}' | grep 2
-kubectl get deploy resource-ennmft -n default -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "mysql:latest"
+kubectl get deploy resource-jqliq6 -n test -o jsonpath='{.spec.replicas}' | grep 5
+kubectl get deploy resource-jqliq6 -n test -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "mysql:latest"
 ```
 
 
-# Task 12: Node Maintenance
+# Task 6: Expose Service
+Expose the deployment `resource-my5wc5-dep` as a Service named `resource-my5wc5` in namespace `staging`.
+The service should listen on port `7981` and be of type `NodePort`.
+
+```setup
+kubectl create ns staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment resource-my5wc5-dep --image=nginx -n staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete svc resource-my5wc5 -n staging 2>/dev/null || true
+```
+
+```verify
+kubectl get svc resource-my5wc5 -n staging -o jsonpath='{.spec.ports[0].port}' | grep 7981
+kubectl get svc resource-my5wc5 -n staging -o jsonpath='{.spec.type}' | grep NodePort
+```
+
+
+# Task 7: Node Maintenance
 Mark node `node-5` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
+
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-5 2>/dev/null || true
+```
 
 ```verify
 # Check if node exists and is ready (was uncordoned)
@@ -136,21 +120,31 @@ kubectl get node node-5 --no-headers | grep Ready | grep -v SchedulingDisabled
 ```
 
 
-# Task 13: Scale Deployment
-Create a deployment named `resource-z3bm36` in namespace `default` using image `nginx`.
-Scale it to `5` replicas.
-Then, perform a rolling update to image `nginx:latest`.
+# Task 8: Expose Service
+Expose the deployment `resource-dnzvl8-dep` as a Service named `resource-dnzvl8` in namespace `backend`.
+The service should listen on port `3310` and be of type `ClusterIP`.
+
+```setup
+kubectl create ns backend --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment resource-dnzvl8-dep --image=nginx -n backend --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete svc resource-dnzvl8 -n backend 2>/dev/null || true
+```
 
 ```verify
-kubectl get deploy resource-z3bm36 -n default -o jsonpath='{.spec.replicas}' | grep 5
-kubectl get deploy resource-z3bm36 -n default -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "nginx:latest"
+kubectl get svc resource-dnzvl8 -n backend -o jsonpath='{.spec.ports[0].port}' | grep 3310
+kubectl get svc resource-dnzvl8 -n backend -o jsonpath='{.spec.type}' | grep ClusterIP
 ```
 
 
-# Task 14: Node Maintenance
+# Task 9: Node Maintenance
 Mark node `node-3` as unschedulable (cordon).
 Then drain the node, ignoring daemonsets.
 Finally, uncordon the node.
+
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-3 2>/dev/null || true
+```
 
 ```verify
 # Check if node exists and is ready (was uncordoned)
@@ -158,64 +152,175 @@ kubectl get node node-3 --no-headers | grep Ready | grep -v SchedulingDisabled
 ```
 
 
-# Task 15: Scale Deployment
-Create a deployment named `resource-9wjccd` in namespace `default` using image `redis`.
+# Task 10: Create a Pod
+Create a pod named `resource-25mrmk` in namespace `frontend` using image `python:3.9`.
+Ensure it has a label `tier=frontend`.
+
+```setup
+kubectl create ns frontend --dry-run=client -o yaml | kubectl apply -f -
+# Clean up if exists
+kubectl delete pod resource-25mrmk -n frontend --force --grace-period=0 2>/dev/null || true
+```
+
+```verify
+kubectl get pod resource-25mrmk -n frontend --no-headers | grep Running
+kubectl get pod resource-25mrmk -n frontend -o jsonpath='{.metadata.labels.tier}' | grep frontend
+```
+
+
+# Task 11: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-nycvdu` in namespace `frontend`.
+Request `5Gi` storage with access mode `ReadOnlyMany`.
+
+```setup
+kubectl create ns frontend --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete pvc resource-nycvdu -n frontend 2>/dev/null || true
+```
+
+```verify
+kubectl get pvc resource-nycvdu -n frontend -o jsonpath='{.spec.resources.requests.storage}' | grep 5Gi
+kubectl get pvc resource-nycvdu -n frontend -o jsonpath='{.spec.accessModes[0]}' | grep ReadOnlyMany
+```
+
+
+# Task 12: Scale Deployment
+Create a deployment named `resource-pvbju5` in namespace `prod` using image `node:14`.
 Scale it to `4` replicas.
-Then, perform a rolling update to image `redis:latest`.
+Then, perform a rolling update to image `node:14:latest`.
+
+```setup
+kubectl create ns prod --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy resource-pvbju5 -n prod 2>/dev/null || true
+```
 
 ```verify
-kubectl get deploy resource-9wjccd -n default -o jsonpath='{.spec.replicas}' | grep 4
-kubectl get deploy resource-9wjccd -n default -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "redis:latest"
+kubectl get deploy resource-pvbju5 -n prod -o jsonpath='{.spec.replicas}' | grep 4
+kubectl get deploy resource-pvbju5 -n prod -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "node:14:latest"
 ```
 
 
-# Task 16: Create a Pod
-Create a pod named `resource-w77x67` in namespace `backend` using image `node:14`.
-Ensure it has a label `team=blue`.
+# Task 13: Expose Service
+Expose the deployment `resource-vzc30q-dep` as a Service named `resource-vzc30q` in namespace `staging`.
+The service should listen on port `6032` and be of type `NodePort`.
+
+```setup
+kubectl create ns staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment resource-vzc30q-dep --image=nginx -n staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete svc resource-vzc30q -n staging 2>/dev/null || true
+```
 
 ```verify
-kubectl get pod resource-w77x67 -n backend --no-headers | grep Running
-kubectl get pod resource-w77x67 -n backend -o jsonpath='{.metadata.labels.team}' | grep blue
+kubectl get svc resource-vzc30q -n staging -o jsonpath='{.spec.ports[0].port}' | grep 6032
+kubectl get svc resource-vzc30q -n staging -o jsonpath='{.spec.type}' | grep NodePort
 ```
 
 
-# Task 17: Expose Service
-Expose the deployment `resource-60b4re-dep` as a Service named `resource-60b4re` in namespace `staging`.
-The service should listen on port `5168` and be of type `ClusterIP`.
+# Task 14: Node Maintenance
+Mark node `node-4` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-4 2>/dev/null || true
+```
 
 ```verify
-kubectl get svc resource-60b4re -n staging -o jsonpath='{.spec.ports[0].port}' | grep 5168
-kubectl get svc resource-60b4re -n staging -o jsonpath='{.spec.type}' | grep ClusterIP
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-4 --no-headers | grep Ready | grep -v SchedulingDisabled
 ```
 
 
-# Task 18: Scale Deployment
-Create a deployment named `resource-ravh7b` in namespace `kube-system` using image `redis`.
-Scale it to `5` replicas.
-Then, perform a rolling update to image `redis:latest`.
+# Task 15: Create a Pod
+Create a pod named `resource-xd0jmi` in namespace `test` using image `postgres`.
+Ensure it has a label `release=stable`.
+
+```setup
+kubectl create ns test --dry-run=client -o yaml | kubectl apply -f -
+# Clean up if exists
+kubectl delete pod resource-xd0jmi -n test --force --grace-period=0 2>/dev/null || true
+```
 
 ```verify
-kubectl get deploy resource-ravh7b -n kube-system -o jsonpath='{.spec.replicas}' | grep 5
-kubectl get deploy resource-ravh7b -n kube-system -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "redis:latest"
+kubectl get pod resource-xd0jmi -n test --no-headers | grep Running
+kubectl get pod resource-xd0jmi -n test -o jsonpath='{.metadata.labels.release}' | grep stable
 ```
 
 
-# Task 19: Expose Service
-Expose the deployment `resource-c9gwli-dep` as a Service named `resource-c9gwli` in namespace `prod`.
-The service should listen on port `5296` and be of type `ClusterIP`.
+# Task 16: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-cgwstf` in namespace `test`.
+Request `1Gi` storage with access mode `ReadWriteMany`.
+
+```setup
+kubectl create ns test --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete pvc resource-cgwstf -n test 2>/dev/null || true
+```
 
 ```verify
-kubectl get svc resource-c9gwli -n prod -o jsonpath='{.spec.ports[0].port}' | grep 5296
-kubectl get svc resource-c9gwli -n prod -o jsonpath='{.spec.type}' | grep ClusterIP
+kubectl get pvc resource-cgwstf -n test -o jsonpath='{.spec.resources.requests.storage}' | grep 1Gi
+kubectl get pvc resource-cgwstf -n test -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteMany
 ```
 
 
-# Task 20: Expose Service
-Expose the deployment `resource-yxvpjw-dep` as a Service named `resource-yxvpjw` in namespace `staging`.
-The service should listen on port `8395` and be of type `ClusterIP`.
+# Task 17: Persistent Volume Claim
+Create a PersistentVolumeClaim named `resource-vc1bfu` in namespace `frontend`.
+Request `10Gi` storage with access mode `ReadWriteOnce`.
+
+```setup
+kubectl create ns frontend --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete pvc resource-vc1bfu -n frontend 2>/dev/null || true
+```
 
 ```verify
-kubectl get svc resource-yxvpjw -n staging -o jsonpath='{.spec.ports[0].port}' | grep 8395
-kubectl get svc resource-yxvpjw -n staging -o jsonpath='{.spec.type}' | grep ClusterIP
+kubectl get pvc resource-vc1bfu -n frontend -o jsonpath='{.spec.resources.requests.storage}' | grep 10Gi
+kubectl get pvc resource-vc1bfu -n frontend -o jsonpath='{.spec.accessModes[0]}' | grep ReadWriteOnce
+```
+
+
+# Task 18: Node Maintenance
+Mark node `node-2` as unschedulable (cordon).
+Then drain the node, ignoring daemonsets.
+Finally, uncordon the node.
+
+```setup
+# Ensure node is uncordoned first
+kubectl uncordon node-2 2>/dev/null || true
+```
+
+```verify
+# Check if node exists and is ready (was uncordoned)
+kubectl get node node-2 --no-headers | grep Ready | grep -v SchedulingDisabled
+```
+
+
+# Task 19: Scale Deployment
+Create a deployment named `resource-geffq8` in namespace `prod` using image `memcached`.
+Scale it to `3` replicas.
+Then, perform a rolling update to image `memcached:latest`.
+
+```setup
+kubectl create ns prod --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy resource-geffq8 -n prod 2>/dev/null || true
+```
+
+```verify
+kubectl get deploy resource-geffq8 -n prod -o jsonpath='{.spec.replicas}' | grep 3
+kubectl get deploy resource-geffq8 -n prod -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "memcached:latest"
+```
+
+
+# Task 20: Scale Deployment
+Create a deployment named `resource-er52ib` in namespace `prod` using image `httpd`.
+Scale it to `2` replicas.
+Then, perform a rolling update to image `httpd:latest`.
+
+```setup
+kubectl create ns prod --dry-run=client -o yaml | kubectl apply -f -
+kubectl delete deploy resource-er52ib -n prod 2>/dev/null || true
+```
+
+```verify
+kubectl get deploy resource-er52ib -n prod -o jsonpath='{.spec.replicas}' | grep 2
+kubectl get deploy resource-er52ib -n prod -o jsonpath='{.spec.template.spec.containers[0].image}' | grep "httpd:latest"
 ```
 

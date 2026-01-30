@@ -31,18 +31,28 @@ async function generateExams() {
                         continue;
                     }
 
-                    // Helper to extract verify block
-                    const extractVerify = (md) => {
+                    // Helper to extract verify and setup blocks
+                    const extractScripts = (md) => {
                         const verifyRegex = /```verify\n([\s\S]*?)\n```/g;
+                        const setupRegex = /```setup\n([\s\S]*?)\n```/g;
+
                         let verifyScript = '';
-                        const cleanMd = md.replace(verifyRegex, (match, script) => {
+                        let setupScript = '';
+
+                        let cleanMd = md.replace(verifyRegex, (match, script) => {
                             verifyScript += script + '\n';
                             return ''; // Remove from display
                         });
-                        return { cleanMd, verifyScript };
+
+                        cleanMd = cleanMd.replace(setupRegex, (match, script) => {
+                            setupScript += script + '\n';
+                            return ''; // Remove from display
+                        });
+
+                        return { cleanMd, verifyScript, setupScript };
                     };
 
-                    const { cleanMd: mainMarkdown, verifyScript: mainVerify } = extractVerify(markdownBody);
+                    const { cleanMd: mainMarkdown, verifyScript: mainVerify, setupScript: mainSetup } = extractScripts(markdownBody);
 
                     // Split tasks for randomization
                     // We look for "# Task" at the start of a line
@@ -51,8 +61,8 @@ async function generateExams() {
                         .map(t => '# Task ' + t); // Re-add the header back
 
                     const parsedTasks = rawTasks.map(t => {
-                        const { cleanMd, verifyScript } = extractVerify(t);
-                        return { markdown: cleanMd, verify: verifyScript };
+                        const { cleanMd, verifyScript, setupScript } = extractScripts(t);
+                        return { markdown: cleanMd, verify: verifyScript, setup: setupScript };
                     });
 
                     const finalTasks = parsedTasks.length > 1 ? parsedTasks : [];
@@ -65,6 +75,7 @@ async function generateExams() {
                         id: lessonId,
                         markdown: mainMarkdown,
                         verifyScript: mainVerify,
+                        setupScript: mainSetup,
                         tasks: finalTasks,
                     };
                 } catch (e) {
