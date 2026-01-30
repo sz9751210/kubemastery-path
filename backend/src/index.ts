@@ -87,6 +87,14 @@ function node-shell() {
       --image=alpine --privileged \
       --overrides='{"spec": {"nodeName": "'"\$NODE_NAME"'", "hostPID": true, "hostNetwork": true, "containers": [{"name": "shell", "image": "alpine", "stdin": true, "tty": true, "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "/bin/sh"], "securityContext": {"privileged": true}}]}}'
 }
+
+function crictl() {
+    NODE=\$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+    kubectl run crictl-\${RANDOM} --rm -i --quiet --restart=Never \
+      --image=alpine --privileged \
+      --overrides='{"spec": {"nodeName": "'"\$NODE"'", "hostPID": true, "containers": [{"name": "sol", "image": "alpine", "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "--", "crictl"], "stdin": true, "tty": true, "securityContext": {"privileged": true}}]}}' \
+      -- "\$@" 2>&1 | grep -v "pod " | grep -v "deleted"
+}
         `;
     }
 

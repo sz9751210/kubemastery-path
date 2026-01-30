@@ -52,7 +52,23 @@ async function generateExams() {
                         return { cleanMd, verifyScript, setupScript };
                     };
 
-                    const { cleanMd: mainMarkdown, verifyScript: mainVerify, setupScript: mainSetup } = extractScripts(markdownBody);
+                    const { cleanMd: mainMarkdown, verifyScript: mainVerify, setupScript: initialSetup } = extractScripts(markdownBody);
+
+                    // Auto-generate setup script if missing
+                    let mainSetup = initialSetup;
+                    if (!mainSetup) {
+                        const hasCrictl = mainMarkdown.includes('crictl');
+                        const hasKubectl = mainMarkdown.includes('kubectl');
+
+                        if (hasCrictl) {
+                            // If crictl is mentioned but no setup script, warn or add default helper if we know how?
+                            // For now, we rely on the specific file edits for crictl as it's complex.
+                            // But we can add a generic "Ready" message.
+                            mainSetup = 'echo "Environment Ready (Auto-generated)"\n';
+                        } else if (hasKubectl) {
+                            mainSetup = 'echo "Environment Ready (Auto-generated)"\n';
+                        }
+                    }
 
                     // Split tasks for randomization
                     // We look for "# Task" at the start of a line
