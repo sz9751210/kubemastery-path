@@ -264,8 +264,26 @@ function LabContent() {
                             </div>
                         </div>
                     )}
-
-                    )}
+                    <div className="flex gap-3">
+                        {activeVerifyScript && (
+                            <button
+                                onClick={handleVerify}
+                                disabled={verifying}
+                                className="flex-grow flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-lg active:scale-[0.98]"
+                            >
+                                {verifying ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle size={20} />}
+                                {verifying ? 'Verifying...' : 'Check Solution'}
+                            </button>
+                        )}
+                        <button
+                            onClick={handleSetup}
+                            disabled={settingUp}
+                            className="bg-white border border-slate-200 text-slate-600 p-3 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                            title="Reset Environment"
+                        >
+                            <RotateCw size={20} className={settingUp ? 'animate-spin' : ''} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
