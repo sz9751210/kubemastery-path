@@ -95,6 +95,32 @@ function crictl() {
       --overrides='{"spec": {"nodeName": "'"\$NODE"'", "hostPID": true, "containers": [{"name": "sol", "image": "alpine", "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "--", "crictl"], "stdin": true, "tty": true, "securityContext": {"privileged": true}}]}}' \
       -- "\$@" 2>&1 | grep -v "pod " | grep -v "deleted"
 }
+
+function ssh() {
+    TARGET=\$1
+    if [ -z "\$TARGET" ]; then
+        echo "usage: ssh <hostname> or <user>@<hostname>"
+        return 1
+    fi
+    
+    # Extract hostname if user@ is provided (e.g. root@master -> master)
+    NODE_NAME=\${TARGET#*@}
+    
+    # Simple check if node exists
+    if kubectl get node "\$NODE_NAME" >/dev/null 2>&1; then
+        echo "Connecting to \$NODE_NAME..."
+        
+        # We manually run the pod to control the command and environment (PS1, KUBECONFIG)
+        # Use simple random from bash
+        kubectl run ssh-\${RANDOM} --rm -i --quiet --restart=Never \\
+            --image=alpine --privileged \\
+            --overrides='{"spec": {"nodeName": "'"\$NODE_NAME"'", "hostPID": true, "hostNetwork": true, "containers": [{"name": "shell", "image": "alpine", "stdin": true, "tty": true, "command": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "--", "sh", "-c", "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml; export PS1=\"root@'"\$NODE_NAME"':~# \"; exec /bin/sh"], "securityContext": {"privileged": true}}]}}' \\
+            -- 2>&1 | grep -v "pod " | grep -v "deleted"
+    else
+        echo "ssh: Could not resolve hostname \$NODE_NAME: Name or service not known"
+        return 255
+    fi
+}
         `;
     }
 

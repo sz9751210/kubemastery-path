@@ -214,26 +214,72 @@ function LabContent() {
                         </div>
                     )}
 
-                    <div className="flex gap-3">
-                        <button
-                            onClick={handleSetup}
-                            disabled={settingUp}
-                            className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            <RotateCw size={16} className={settingUp ? "animate-spin" : ""} />
-                            Reset Lab
-                        </button>
-                        <button
-                            onClick={handleVerify}
-                            disabled={verifying || !lesson.verifyScript}
-                            className={`flex-[2] rounded-lg px-4 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2 transition-all
-                                ${!lesson.verifyScript ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 focus:ring-green-600'}
-                            `}
-                        >
-                            {verifying && <Loader2 size={16} className="animate-spin" />}
-                            {verifying ? 'Verifying...' : 'Verify Solution'}
-                        </button>
-                    </div>
+                    {/* Quiz UI */}
+                    {lesson.quizzes && lesson.quizzes.length > 0 ? (
+                        <div className="flex flex-col gap-4">
+                            {lesson.quizzes.map((quiz, idx) => (
+                                <div key={idx} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                    <h3 className="font-bold text-slate-800 mb-3">{idx + 1}. {quiz.question}</h3>
+                                    <div className="flex flex-col gap-2">
+                                        {quiz.options.map((option, optIdx) => {
+                                            const isSelected = verifyResult?.output === option;
+                                            const isCorrect = quiz.answer === option;
+                                            let btnColor = "bg-slate-50 border-slate-200 hover:bg-slate-100";
+                                            if (verifyResult && isSelected) {
+                                                btnColor = isCorrect ? "bg-green-100 border-green-300 text-green-800" : "bg-red-50 border-red-200 text-red-800";
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={optIdx}
+                                                    onClick={() => {
+                                                        const isCorrect = quiz.answer === option;
+                                                        setVerifyResult({
+                                                            success: isCorrect,
+                                                            message: isCorrect ? "Correct!" : "Incorrect",
+                                                            output: option
+                                                        });
+                                                    }}
+                                                    className={`w-full text-left px-4 py-3 rounded-md border text-sm transition-all flex justify-between items-center ${btnColor}`}
+                                                >
+                                                    {option}
+                                                    {verifyResult && isSelected && isCorrect && <CheckCircle size={16} className="text-green-600" />}
+                                                    {verifyResult && isSelected && !isCorrect && <XCircle size={16} className="text-red-600" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    {verifyResult?.output && quiz.options.includes(verifyResult.output) && (
+                                        <div className="mt-3 text-xs text-slate-500 italic">
+                                            {verifyResult.success ? "Great job!" : "Try again."}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        /* Standard Verify Button for Lab Tasks */
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleSetup}
+                                disabled={settingUp}
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                <RotateCw size={16} className={settingUp ? "animate-spin" : ""} />
+                                Reset Lab
+                            </button>
+                            <button
+                                onClick={handleVerify}
+                                disabled={verifying || !lesson.verifyScript}
+                                className={`flex-[2] rounded-lg px-4 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2 transition-all
+                                    ${!lesson.verifyScript ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 focus:ring-green-600'}
+                                `}
+                            >
+                                {verifying && <Loader2 size={16} className="animate-spin" />}
+                                {verifying ? 'Verifying...' : 'Verify Solution'}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -8,4 +8,11 @@ export interface Lesson {
     setupScript?: string; // Script to setup the whole lesson
     verifyScript?: string; // Script to verify the whole lesson
     tasks?: { markdown: string; verify?: string; setup?: string }[]; // Pool of tasks with verification/setup logic
+    quizzes?: {
+        id: string;
+        question: string;
+        options: string[];
+        answer: string; // The correct option string or index
+        explanation?: string;
+    }[];
 }
