@@ -8,6 +8,7 @@ import labRouter from './labRoutes';
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(mockK8s);
 app.use(labRouter);
 

@@ -25,13 +25,14 @@ function LabContent() {
 
     // Initial Setup
     useEffect(() => {
-        if (lesson?.setupScript && !setupRunRef.current) {
+        if (!setupRunRef.current) {
             handleSetup();
         }
     }, [lesson]);
 
     const handleSetup = async () => {
-        if (!lesson?.setupScript) return;
+        // Use provided script or a default 'ping' script to ensure environment is reachable
+        const scriptToRun = lesson?.setupScript || 'echo "Preparing environment..." && sleep 1 && echo "Environment Ready"';
 
         setupRunRef.current = true;
         setSettingUp(true);
@@ -42,7 +43,7 @@ function LabContent() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    script: lesson.setupScript,
+                    script: scriptToRun,
                     mode: 'real'
                 })
             });
@@ -96,6 +97,23 @@ function LabContent() {
         );
     }
 
+    // Determine badge state
+    let badgeText = 'Ready';
+    let badgeColor = 'bg-slate-100 text-slate-700 ring-slate-600/20';
+
+    if (settingUp) {
+        badgeText = 'Provisioning...';
+        badgeColor = 'bg-blue-50 text-blue-700 ring-blue-600/20 animate-pulse';
+    } else if (setupResult) {
+        if (setupResult.success) {
+            badgeText = 'Environment Ready';
+            badgeColor = 'bg-green-50 text-green-700 ring-green-600/20';
+        } else {
+            badgeText = 'Environment Error';
+            badgeColor = 'bg-red-50 text-red-700 ring-red-600/20';
+        }
+    }
+
     return (
         <div className="flex h-screen w-full bg-slate-100 font-sans relative">
 
@@ -119,10 +137,8 @@ function LabContent() {
                         Back to Lesson
                     </button>
                     <div className="flex gap-2">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset
-                            ${setupResult?.success !== false ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'}
-                         `}>
-                            {settingUp ? 'Provisioning...' : (setupResult?.success ? 'Environment Ready' : 'Environment Error')}
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeColor}`}>
+                            {badgeText}
                         </span>
                     </div>
                 </div>
