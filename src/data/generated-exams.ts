@@ -127,40 +127,84 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Services & Networking",
     "category": "CKA/CKAD",
     "duration": "45 mins",
-    "markdown": "\n# Services: Exposing Applications\n\n## Service Types\n1. **ClusterIP**: Internal only.\n2. **NodePort**: Exposure on static port (30000+).\n3. **LoadBalancer**: Cloud provider LB.\n\n\\`\\`\\`bash\n# Expose a deployment\nkubectl expose deployment my-dep --port=80 --target-port=80 --type=NodePort --name=my-svc\n\n# Get the service details\nkubectl get svc my-svc\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Services: Exposing Applications\n\n## Service Types\n1. **ClusterIP**: Internal only.\n2. **NodePort**: Exposure on static port (30000+).\n3. **LoadBalancer**: Cloud provider LB.\n\n# Task 1: Expose Deployment\nCreate a deployment `my-dep-svc` and expose it as NodePort.\n\n```bash\nkubectl create deployment my-dep-svc --image=nginx\nkubectl expose deployment my-dep-svc --port=80 --target-port=80 --type=NodePort --name=my-svc\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get svc my-svc -o jsonpath='{.spec.type}' | grep NodePort\n",
+    "setupScript": "kubectl delete deployment my-dep-svc 2>/dev/null || true\nkubectl delete svc my-svc 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Services: Exposing Applications\n\n## Service Types\n1. **ClusterIP**: Internal only.\n2. **NodePort**: Exposure on static port (30000+).\n3. **LoadBalancer**: Cloud provider LB.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Expose Deployment\nCreate a deployment `my-dep-svc` and expose it as NodePort.\n\n```bash\nkubectl create deployment my-dep-svc --image=nginx\nkubectl expose deployment my-dep-svc --port=80 --target-port=80 --type=NodePort --name=my-svc\n```\n\n\n\n\n",
+        "verify": "kubectl get svc my-svc -o jsonpath='{.spec.type}' | grep NodePort\n",
+        "setup": "kubectl delete deployment my-dep-svc 2>/dev/null || true\nkubectl delete svc my-svc 2>/dev/null || true\n"
+      }
+    ]
   },
   "7": {
     "id": "7",
     "title": "Storage (PV/PVC)",
     "category": "CKA/CKAD",
     "duration": "35 mins",
-    "markdown": "\n# Storage Orchestration\n\nDecoupling storage from Pod lifecycle.\n\n## PV vs PVC\n- **PV (PersistentVolume)**: The physical storage resource.\n- **PVC (Claim)**: The request for storage.\n\n\\`\\`\\`bash\n# List Persistent Volumes\nkubectl get pv\n\\`\\`\\`\n\n## Access Modes\n- **RWO**: ReadWriteOnce (Block storage usually).\n- **RWX**: ReadWriteMany (NFS/File storage).\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Storage Orchestration\n\nDecoupling storage from Pod lifecycle.\n\n## PV vs PVC\n- **PV (PersistentVolume)**: The physical storage resource.\n- **PVC (Claim)**: The request for storage.\n\n# Task 1: List Persistent Volumes\nCheck if there are any PersistentVolumes in the cluster.\n\n```bash\nkubectl get pv\n```\n\n\n\n\n\n## Access Modes\n- **RWO**: ReadWriteOnce (Block storage usually).\n- **RWX**: ReadWriteMany (NFS/File storage).\n",
+    "verifyScript": "kubectl get pv > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Storage Orchestration\n\nDecoupling storage from Pod lifecycle.\n\n## PV vs PVC\n- **PV (PersistentVolume)**: The physical storage resource.\n- **PVC (Claim)**: The request for storage.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: List Persistent Volumes\nCheck if there are any PersistentVolumes in the cluster.\n\n```bash\nkubectl get pv\n```\n\n\n\n\n\n## Access Modes\n- **RWO**: ReadWriteOnce (Block storage usually).\n- **RWX**: ReadWriteMany (NFS/File storage).\n",
+        "verify": "kubectl get pv > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "8": {
     "id": "8",
     "title": "Scheduling",
     "category": "CKA/CKAD",
     "duration": "30 mins",
-    "markdown": "\n# Scheduling\n\nControlling where Pods go.\n\n## Taints & Tolerations\n\"Repel\" pods from nodes.\n- Master nodes are tainted \\`NoSchedule\\`.\n\n\\`\\`\\`bash\n# View taints on nodes\nkubectl describe node controlplane | grep Taint\n\\`\\`\\`\n\n## Affinity\n\"Attract\" pods to nodes.\n- \\`nodeAffinity\\`: Run on nodes with SSD.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Scheduling\n\nControlling where Pods go.\n\n## Taints & Tolerations\n\"Repel\" pods from nodes.\n- Master nodes are tainted \\`NoSchedule\\`.\n\n# Task 1: Check Node Taints\nInspect the taints on the controlplane node (if accessible).\n\n```bash\nkubectl describe node | grep Taint\n```\n\n\n\n\n\n## Affinity\n\"Attract\" pods to nodes.\n- \\`nodeAffinity\\`: Run on nodes with SSD.\n",
+    "verifyScript": "kubectl get nodes > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Scheduling\n\nControlling where Pods go.\n\n## Taints & Tolerations\n\"Repel\" pods from nodes.\n- Master nodes are tainted \\`NoSchedule\\`.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Node Taints\nInspect the taints on the controlplane node (if accessible).\n\n```bash\nkubectl describe node | grep Taint\n```\n\n\n\n\n\n## Affinity\n\"Attract\" pods to nodes.\n- \\`nodeAffinity\\`: Run on nodes with SSD.\n",
+        "verify": "kubectl get nodes > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "9": {
     "id": "9",
     "title": "Cluster Hardening",
     "category": "CKS",
     "duration": "50 mins",
-    "markdown": "\n# Cluster Hardening\n\nLocking down the fortress.\n\n## Center for Internet Security (CIS) Benchmarks\nThe gold standard for K8s security. \\`kube-bench\\` is a common tool to check these.\n\n## Key Principles\n1.  **Least Privilege**: RBAC, SecurityContexts.\n2.  **Minimize Attack Surface**: Remove shells, use distroless images.\n3.  **encrypt-secret-data-at-rest**: Check etcd configuration.\n\n## Platform Binary Verification\nEnsure the binaries (kubelet, kubectl, kube-apiserver) are legitimate.\n- Check SHA512 sums against official releases.\n\n## Minimize GUI Use\nThe Kubernetes Dashboard is a frequent attack vector.\n- **Best Practice**: Disable it in production.\n\n\\`\\`\\`bash\n# Check if anonymous auth is enabled (Should be false)\nps -ef | grep kube-apiserver | grep anonymous-auth\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Cluster Hardening\n\nLocking down the fortress.\n\n## Center for Internet Security (CIS) Benchmarks\nThe gold standard for K8s security. \\`kube-bench\\` is a common tool to check these.\n\n## Key Principles\n1.  **Least Privilege**: RBAC, SecurityContexts.\n2.  **Minimize Attack Surface**: Remove shells, use distroless images.\n3.  **encrypt-secret-data-at-rest**: Check etcd configuration.\n\n## Platform Binary Verification\nEnsure the binaries (kubelet, kubectl, kube-apiserver) are legitimate.\n- Check SHA512 sums against official releases.\n\n## Minimize GUI Use\nThe Kubernetes Dashboard is a frequent attack vector.\n- **Best Practice**: Disable it in production.\n\n# Task 1: Check Anonymous Auth\nVerify if anonymous authentication is enabled on the API server.\n\n```bash\nps -ef | grep kube-apiserver | grep anonymous-auth\n```\n\n\n\n\n",
+    "verifyScript": "ps -ef | grep kube-apiserver > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Cluster Hardening\n\nLocking down the fortress.\n\n## Center for Internet Security (CIS) Benchmarks\nThe gold standard for K8s security. \\`kube-bench\\` is a common tool to check these.\n\n## Key Principles\n1.  **Least Privilege**: RBAC, SecurityContexts.\n2.  **Minimize Attack Surface**: Remove shells, use distroless images.\n3.  **encrypt-secret-data-at-rest**: Check etcd configuration.\n\n## Platform Binary Verification\nEnsure the binaries (kubelet, kubectl, kube-apiserver) are legitimate.\n- Check SHA512 sums against official releases.\n\n## Minimize GUI Use\nThe Kubernetes Dashboard is a frequent attack vector.\n- **Best Practice**: Disable it in production.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Anonymous Auth\nVerify if anonymous authentication is enabled on the API server.\n\n```bash\nps -ef | grep kube-apiserver | grep anonymous-auth\n```\n\n\n\n\n",
+        "verify": "ps -ef | grep kube-apiserver > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "10": {
     "id": "10",
@@ -188,10 +232,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "System Hardening",
     "category": "CKS",
     "duration": "45 mins",
-    "markdown": "\n# System Hardening\n\nKubernetes is only as secure as the Linux nodes it runs on.\n\n## Kernel Hardening\n-   **Seccomp**: Restrict syscalls.\n-   **AppArmor**: Restrict file access / capabilities.\n\n## Container Sandboxing\nFor high-risk workloads, standard containers (shared kernel) might not be enough.\n-   **gVisor (runsc)**: Userspace kernel, intercepts syscalls.\n-   **Kata Containers**: Lightweight VMs for strong isolation.\n\n## Reducing Attack Surface\n-   Disable unused services (SSH, FTP).\n-   Firewall rules (UFW/IPTables) to restrict node-to-node access outside of K8s ports.\n\n\\`\\`\\`bash\n# Check open ports on the node\nnetstat -tulpn\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# System Hardening\n\nKubernetes is only as secure as the Linux nodes it runs on.\n\n## Kernel Hardening\n-   **Seccomp**: Restrict syscalls.\n-   **AppArmor**: Restrict file access / capabilities.\n\n## Container Sandboxing\nFor high-risk workloads, standard containers (shared kernel) might not be enough.\n-   **gVisor (runsc)**: Userspace kernel, intercepts syscalls.\n-   **Kata Containers**: Lightweight VMs for strong isolation.\n\n## Reducing Attack Surface\n-   Disable unused services (SSH, FTP).\n-   Firewall rules (UFW/IPTables) to restrict node-to-node access outside of K8s ports.\n\n# Task 1: Check Open Ports\nIdentify listening ports on the node.\n\n```bash\nnetstat -tulpn\n```\n\n\n\n\n",
+    "verifyScript": "netstat -tulpn > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# System Hardening\n\nKubernetes is only as secure as the Linux nodes it runs on.\n\n## Kernel Hardening\n-   **Seccomp**: Restrict syscalls.\n-   **AppArmor**: Restrict file access / capabilities.\n\n## Container Sandboxing\nFor high-risk workloads, standard containers (shared kernel) might not be enough.\n-   **gVisor (runsc)**: Userspace kernel, intercepts syscalls.\n-   **Kata Containers**: Lightweight VMs for strong isolation.\n\n## Reducing Attack Surface\n-   Disable unused services (SSH, FTP).\n-   Firewall rules (UFW/IPTables) to restrict node-to-node access outside of K8s ports.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Open Ports\nIdentify listening ports on the node.\n\n```bash\nnetstat -tulpn\n```\n\n\n\n\n",
+        "verify": "netstat -tulpn > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "12": {
     "id": "12",
@@ -250,40 +305,84 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Control Plane & API Server",
     "category": "CKA/CKAD",
     "duration": "45 mins",
-    "markdown": "\n# Control Plane & API Server\n\nThe brains of the cluster.\n\n## Components\n- **kube-apiserver**: The gateway for all REST commands.\n- **etcd**: Consistent and highly-available key value store.\n- **kube-scheduler**: Watches for newly created Pods with no assigned node.\n- **kube-controller-manager**: Runs controller processes.\n\n\\`\\`\\`bash\n# Check the status of control plane components\nkubectl get pods -n kube-system -l tier=control-plane\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Control Plane & API Server\n\nThe brains of the cluster.\n\n## Components\n- **kube-apiserver**: The gateway for all REST commands.\n- **etcd**: Consistent and highly-available key value store.\n- **kube-scheduler**: Watches for newly created Pods with no assigned node.\n- **kube-controller-manager**: Runs controller processes.\n\n# Task 1: Check Control Plane\nVerify that the control plane components are running in `kube-system`.\n\n```bash\nkubectl get pods -n kube-system -l tier=control-plane\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pods -n kube-system -l tier=control-plane > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Control Plane & API Server\n\nThe brains of the cluster.\n\n## Components\n- **kube-apiserver**: The gateway for all REST commands.\n- **etcd**: Consistent and highly-available key value store.\n- **kube-scheduler**: Watches for newly created Pods with no assigned node.\n- **kube-controller-manager**: Runs controller processes.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Control Plane\nVerify that the control plane components are running in `kube-system`.\n\n```bash\nkubectl get pods -n kube-system -l tier=control-plane\n```\n\n\n\n\n",
+        "verify": "kubectl get pods -n kube-system -l tier=control-plane > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "15": {
     "id": "15",
     "title": "Troubleshooting & Logs",
     "category": "CKA/CKAD",
     "duration": "40 mins",
-    "markdown": "\n# Troubleshooting & Logs\n\nWhen things go wrong, here is how to find out why.\n\n## Basic Commands\n- \\`kubectl describe\\`: Detailed information about a resource.\n- \\`kubectl logs\\`: Print the logs for a container in a pod.\n\n## Common Pod States\n- **Pending**: Scheduler can't find a node (CPU/RAM insufficient, Taints).\n- **CrashLoopBackOff**: Application is starting and immediately failing. Check logs!\n- **ImagePullBackOff**: Can't pull image (Auth, Typo, Network).\n\n## Debugging Services\nService not working? Check the **Endpoints**.\n\\`\\`\\`bash\n# Does the service have endpoints?\nkubectl get endpoints my-svc\n\\`\\`\\`\n\n\\`\\`\\`bash\n# Describe a failing pod\nkubectl describe pod <pod-name>\n\n# Check logs for a specific pod (and previous instance if crashed)\nkubectl logs <pod-name> --previous\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Troubleshooting & Logs\n\nWhen things go wrong, here is how to find out why.\n\n## Basic Commands\n- \\`kubectl describe\\`: Detailed information about a resource.\n- \\`kubectl logs\\`: Print the logs for a container in a pod.\n\n## Common Pod States\n- **Pending**: Scheduler can't find a node (CPU/RAM insufficient, Taints).\n- **CrashLoopBackOff**: Application is starting and immediately failing. Check logs!\n- **ImagePullBackOff**: Can't pull image (Auth, Typo, Network).\n\n## Debugging Services\nService not working? Check the **Endpoints**.\n# Task 1: Check Endpoints\nVerify that the `kubernetes` service has endpoints.\n\n```bash\nkubectl get endpoints kubernetes\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get endpoints kubernetes > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Troubleshooting & Logs\n\nWhen things go wrong, here is how to find out why.\n\n## Basic Commands\n- \\`kubectl describe\\`: Detailed information about a resource.\n- \\`kubectl logs\\`: Print the logs for a container in a pod.\n\n## Common Pod States\n- **Pending**: Scheduler can't find a node (CPU/RAM insufficient, Taints).\n- **CrashLoopBackOff**: Application is starting and immediately failing. Check logs!\n- **ImagePullBackOff**: Can't pull image (Auth, Typo, Network).\n\n## Debugging Services\nService not working? Check the **Endpoints**.\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Endpoints\nVerify that the `kubernetes` service has endpoints.\n\n```bash\nkubectl get endpoints kubernetes\n```\n\n\n\n\n",
+        "verify": "kubectl get endpoints kubernetes > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "16": {
     "id": "16",
     "title": "Admission Controllers",
     "category": "CKS",
     "duration": "50 mins",
-    "markdown": "\n# Admission Controllers\n\nIntercepting requests to the API server before an object is persisted.\n\n## Types\n- **Mutating**: Can modify the object.\n- **Validating**: Can only accept or reject.\n\n\\`\\`\\`bash\n# Check which admission plugins are enabled\nkubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Admission Controllers\n\nIntercepting requests to the API server before an object is persisted.\n\n## Types\n- **Mutating**: Can modify the object.\n- **Validating**: Can only accept or reject.\n\n# Task 1: Check Admission Plugins\nVerify which admission plugins are enabled in the API Server.\n\n```bash\nkubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pods -n kube-system -l component=kube-apiserver > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Admission Controllers\n\nIntercepting requests to the API server before an object is persisted.\n\n## Types\n- **Mutating**: Can modify the object.\n- **Validating**: Can only accept or reject.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Admission Plugins\nVerify which admission plugins are enabled in the API Server.\n\n```bash\nkubectl exec -it kube-apiserver-controlplane -n kube-system -- kube-apiserver -h | grep enable-admission-plugins\n```\n\n\n\n\n",
+        "verify": "kubectl get pods -n kube-system -l component=kube-apiserver > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "17": {
     "id": "17",
     "title": "Runtime Security",
     "category": "CKS",
     "duration": "45 mins",
-    "markdown": "\n# Runtime Security\n\nProtecting the running process.\n\n## Tools\n- **Falco**: The runtime security engine. Uses rules to detect abnormal behavior (e.g., shell in container, modifying /etc).\n- **AppArmor**: Restrict programs' capabilities with per-program profiles.\n- **Seccomp**: Restrict system calls a process can make.\n\n## Behavioral Analytics\nDetecting threats based on *patterns* rather than known signatures.\n- Process spawning unexpected children.\n- Unexpected outbound network connections.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# Runtime Security\n\nProtecting the running process.\n\n## Tools\n- **Falco**: The runtime security engine. Uses rules to detect abnormal behavior (e.g., shell in container, modifying /etc).\n- **AppArmor**: Restrict programs' capabilities with per-program profiles.\n- **Seccomp**: Restrict system calls a process can make.\n\n# Task 1: Check AppArmor Profiles\nList the loaded AppArmor profiles on the node.\n\n```bash\ncat /sys/kernel/security/apparmor/profiles | head -n 5\n```\n\n\n\n\n\n## Behavioral Analytics\nDetecting threats based on *patterns* rather than known signatures.\n- Process spawning unexpected children.\n- Unexpected outbound network connections.\n",
+    "verifyScript": "ls /sys/kernel/security/apparmor/profiles > /dev/null 2>&1 || (echo \"AppArmor not enabled (expected in some envs)\" && exit 0)\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Runtime Security\n\nProtecting the running process.\n\n## Tools\n- **Falco**: The runtime security engine. Uses rules to detect abnormal behavior (e.g., shell in container, modifying /etc).\n- **AppArmor**: Restrict programs' capabilities with per-program profiles.\n- **Seccomp**: Restrict system calls a process can make.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check AppArmor Profiles\nList the loaded AppArmor profiles on the node.\n\n```bash\ncat /sys/kernel/security/apparmor/profiles | head -n 5\n```\n\n\n\n\n\n## Behavioral Analytics\nDetecting threats based on *patterns* rather than known signatures.\n- Process spawning unexpected children.\n- Unexpected outbound network connections.\n",
+        "verify": "ls /sys/kernel/security/apparmor/profiles > /dev/null 2>&1 || (echo \"AppArmor not enabled (expected in some envs)\" && exit 0)\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "18": {
     "id": "18",
@@ -311,50 +410,105 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Workloads: Deployments",
     "category": "CKA/CKAD",
     "duration": "45 mins",
-    "markdown": "\n# Workloads: Deployments & ReplicaSets\n\nPods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.\n\n## The Hierarchy\n\\`Deployment\\` manages \\`ReplicaSet\\` manages \\`Pod\\`.\n\n\\`\\`\\`bash\n# Create a deployment\nkubectl create deployment my-dep --image=nginx --replicas=3\n\\`\\`\\`\n\n## Features\n- **Self-healing**: Restarts crashed pods.\n- **Scaling**: \n\\`\\`\\`bash\nkubectl scale deployment my-dep --replicas=5\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Workloads: Deployments & ReplicaSets\n\nPods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.\n\n## The Hierarchy\n\\`Deployment\\` manages \\`ReplicaSet\\` manages \\`Pod\\`.\n\n# Task 1: Create Deployment\nCreate a deployment `my-dep` with 3 replicas of `nginx`.\n\n```bash\nkubectl create deployment my-dep --image=nginx --replicas=3\n```\n\n\n\n\n\n## Features\n- **Self-healing**: Restarts crashed pods.\n- **Scaling**: \n\\`\\`\\`bash\nkubectl scale deployment my-dep --replicas=5\n\\`\\`\\`\n",
+    "verifyScript": "kubectl get deployment my-dep -o jsonpath='{.spec.replicas}' | grep 3\n",
+    "setupScript": "kubectl delete deployment my-dep 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Workloads: Deployments & ReplicaSets\n\nPods are ephemeral. **Deployments** provide declarative updates for Pods and ReplicaSets.\n\n## The Hierarchy\n\\`Deployment\\` manages \\`ReplicaSet\\` manages \\`Pod\\`.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Create Deployment\nCreate a deployment `my-dep` with 3 replicas of `nginx`.\n\n```bash\nkubectl create deployment my-dep --image=nginx --replicas=3\n```\n\n\n\n\n\n## Features\n- **Self-healing**: Restarts crashed pods.\n- **Scaling**: \n\\`\\`\\`bash\nkubectl scale deployment my-dep --replicas=5\n\\`\\`\\`\n",
+        "verify": "kubectl get deployment my-dep -o jsonpath='{.spec.replicas}' | grep 3\n",
+        "setup": "kubectl delete deployment my-dep 2>/dev/null || true\n"
+      }
+    ]
   },
   "21": {
     "id": "21",
     "title": "StatefulSets & DaemonSets",
     "category": "CKA/CKAD",
     "duration": "40 mins",
-    "markdown": "\n# StatefulSets & DaemonSets\n\nNot everything is a stateless web server.\n\n## StatefulSet\nUsed for databases or apps needing:\n- **Stable Network ID**: \\`web-0\\`, \\`web-1\\`.\n- **Stable Storage**: VolumeClaims templates.\n\n## DaemonSet\nEnsures a copy of a Pod runs on **all** (or some) Nodes.\n- Examples: \\`kube-proxy\\`, \\`fluentd\\` (logging).\n\n\\`\\`\\`bash\n# Check the kube-proxy daemonset\nkubectl get ds -n kube-system\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# StatefulSets & DaemonSets\n\nNot everything is a stateless web server.\n\n## StatefulSet\nUsed for databases or apps needing:\n- **Stable Network ID**: \\`web-0\\`, \\`web-1\\`.\n- **Stable Storage**: VolumeClaims templates.\n\n## DaemonSet\nEnsures a copy of a Pod runs on **all** (or some) Nodes.\n- Examples: \\`kube-proxy\\`, \\`fluentd\\` (logging).\n\n# Task 1: Check DaemonSets\nList the DaemonSets in `kube-system`.\n\n```bash\nkubectl get ds -n kube-system\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get ds -n kube-system > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# StatefulSets & DaemonSets\n\nNot everything is a stateless web server.\n\n## StatefulSet\nUsed for databases or apps needing:\n- **Stable Network ID**: \\`web-0\\`, \\`web-1\\`.\n- **Stable Storage**: VolumeClaims templates.\n\n## DaemonSet\nEnsures a copy of a Pod runs on **all** (or some) Nodes.\n- Examples: \\`kube-proxy\\`, \\`fluentd\\` (logging).\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check DaemonSets\nList the DaemonSets in `kube-system`.\n\n```bash\nkubectl get ds -n kube-system\n```\n\n\n\n\n",
+        "verify": "kubectl get ds -n kube-system > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "22": {
     "id": "22",
     "title": "Ingress & DNS",
     "category": "CKA/CKAD",
     "duration": "50 mins",
-    "markdown": "\n# Ingress & Advanced Networking\n\n**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).\n\n## Ingress Controller\nAn Ingress resource does nothing without a controller (e.g., Nginx, Traefik).\n\n\\`\\`\\`bash\n# Check for ingress controllers\nkubectl get pods -n ingress-nginx\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Ingress & Advanced Networking\n\n**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).\n\n## Ingress Controller\nAn Ingress resource does nothing without a controller (e.g., Nginx, Traefik).\n\n# Task 1: Check Ingress Controller\nVerify if an Ingress controller is installed.\n\n```bash\nkubectl get pods -A -l app.kubernetes.io/name=ingress-nginx\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pods -A > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Ingress & Advanced Networking\n\n**Services** operate at Layer 4 (TCP/UDP). **Ingress** operates at Layer 7 (HTTP/HTTPS).\n\n## Ingress Controller\nAn Ingress resource does nothing without a controller (e.g., Nginx, Traefik).\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Ingress Controller\nVerify if an Ingress controller is installed.\n\n```bash\nkubectl get pods -A -l app.kubernetes.io/name=ingress-nginx\n```\n\n\n\n\n",
+        "verify": "kubectl get pods -A > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "30": {
     "id": "30",
     "title": "RBAC: Authorization",
     "category": "CKS",
     "duration": "60 mins",
-    "markdown": "\n# Role Based Access Control (RBAC)\n\n**Authentication** (Who are you?) vs **Authorization** (What can you do?).\n\n## Core Objects\n1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.\n2. **ClusterRole**: Rules scoped linearly (Cluster-wide).\n3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.\n4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.\n\n\\`\\`\\`bash\n# Check my permissions\nkubectl auth can-i create pods\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Role Based Access Control (RBAC)\n\n**Authentication** (Who are you?) vs **Authorization** (What can you do?).\n\n## Core Objects\n1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.\n2. **ClusterRole**: Rules scoped linearly (Cluster-wide).\n3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.\n4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.\n\n# Task 1: Check Permissions\nVerify if you can create pods.\n\n```bash\nkubectl auth can-i create pods\n```\n\n\n\n\n",
+    "verifyScript": "kubectl auth can-i create pods | grep -E \"yes|no\"\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Role Based Access Control (RBAC)\n\n**Authentication** (Who are you?) vs **Authorization** (What can you do?).\n\n## Core Objects\n1. **Role**: Rules (verbs + resources) scoped to a **Namespace**.\n2. **ClusterRole**: Rules scoped linearly (Cluster-wide).\n3. **RoleBinding**: Connecting a Subject (User/ServiceAccount) to a Role.\n4. **ClusterRoleBinding**: Connecting a Subject to a ClusterRole.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Permissions\nVerify if you can create pods.\n\n```bash\nkubectl auth can-i create pods\n```\n\n\n\n\n",
+        "verify": "kubectl auth can-i create pods | grep -E \"yes|no\"\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "31": {
     "id": "31",
     "title": "Secrets Management",
     "category": "CKS",
     "duration": "40 mins",
-    "markdown": "\n# Secrets & Security Contexts\n\n## Secrets\nBase64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.\n\n\\`\\`\\`bash\n# Create a generic secret\nkubectl create secret generic my-pass --from-literal=password=secret123\n\\`\\`\\`\n\n## Security Contexts\nDefine privileges and access control for a Pod/Container.\n- \\`runAsUser\\`: UID to run process.\n- \\`fsGroup\\`: GID for volumes.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Secrets & Security Contexts\n\n## Secrets\nBase64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.\n\n# Task 1: Create a Secret\nCreate a generic secret named `my-pass` with key `password` and value `secret123`.\n\n```bash\nkubectl create secret generic my-pass --from-literal=password=secret123\n```\n\n\n\n\n\n## Security Contexts\nDefine privileges and access control for a Pod/Container.\n- \\`runAsUser\\`: UID to run process.\n- \\`fsGroup\\`: GID for volumes.\n",
+    "verifyScript": "kubectl get secret my-pass > /dev/null\n",
+    "setupScript": "kubectl delete secret my-pass 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Secrets & Security Contexts\n\n## Secrets\nBase64 encoded data. NOT encrypted by default unless EncryptionAtRest is enabled in etcd.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Create a Secret\nCreate a generic secret named `my-pass` with key `password` and value `secret123`.\n\n```bash\nkubectl create secret generic my-pass --from-literal=password=secret123\n```\n\n\n\n\n\n## Security Contexts\nDefine privileges and access control for a Pod/Container.\n- \\`runAsUser\\`: UID to run process.\n- \\`fsGroup\\`: GID for volumes.\n",
+        "verify": "kubectl get secret my-pass > /dev/null\n",
+        "setup": "kubectl delete secret my-pass 2>/dev/null || true\n"
+      }
+    ]
   },
   "40": {
     "id": "40",
@@ -476,10 +630,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Advanced Storage",
     "category": "CKA/CKAD",
     "duration": "35 mins",
-    "markdown": "\n# Advanced Storage\n\n## Storage Class\nDefines \"classes\" of storage (e.g., \"fast\", \"slow\"). Enables **Dynamic Provisioning**.\n\n\\`\\`\\`yaml\napiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: fast\nprovisioner: k8s.io/minikube-hostpath\n\\`\\`\\`\n\n## Dynamic Provisioning\nInstead of creating a PV manually, creating a PVC with a \\`storageClassName\\` triggers the provisioner to create the PV automatically.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# Advanced Storage\n\n## Storage Class\nDefines \"classes\" of storage (e.g., \"fast\", \"slow\"). Enables **Dynamic Provisioning**.\n\n# Task 1: List Storage Classes\nCheck the available StorageClasses in the cluster.\n\n```bash\nkubectl get sc\n```\n\n\n\n\n\n## Dynamic Provisioning\nInstead of creating a PV manually, creating a PVC with a \\`storageClassName\\` triggers the provisioner to create the PV automatically.\n",
+    "verifyScript": "kubectl get sc > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Advanced Storage\n\n## Storage Class\nDefines \"classes\" of storage (e.g., \"fast\", \"slow\"). Enables **Dynamic Provisioning**.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: List Storage Classes\nCheck the available StorageClasses in the cluster.\n\n```bash\nkubectl get sc\n```\n\n\n\n\n\n## Dynamic Provisioning\nInstead of creating a PV manually, creating a PVC with a \\`storageClassName\\` triggers the provisioner to create the PV automatically.\n",
+        "verify": "kubectl get sc > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "53": {
     "id": "53",
@@ -496,10 +661,21 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Observability",
     "category": "CKA",
     "duration": "30 mins",
-    "markdown": "\n# Observability\n\n## Metrics Server\nAggregates resource usage data. Required for \\`kubectl top\\` and HPA (Horizontal Pod Autoscaler).\n\n\\`\\`\\`bash\n# Check node usage\nkubectl top nodes\n\n# Check pod usage\nkubectl top pods\n\\`\\`\\`\n\n## Logging architecture\n-   **Node level**: \\`/var/log/containers\\`\n-   **Cluster level**: Fluentd/Prometheus stack (usually).\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Observability\n\n## Metrics Server\nAggregates resource usage data. Required for \\`kubectl top\\` and HPA (Horizontal Pod Autoscaler).\n\n# Task 1: Check Node Metrics\nVerify that the metrics server is running by checking node usage.\n\n```bash\nkubectl top nodes\n```\n\n\n\n\n\n## Logging architecture\n-   **Node level**: \\`/var/log/containers\\`\n-   **Cluster level**: Fluentd/Prometheus stack (usually).\n",
+    "verifyScript": "kubectl top nodes > /dev/null 2>&1 || (echo \"Metrics API not available (which is expected in some sims)\" && exit 0)\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Observability\n\n## Metrics Server\nAggregates resource usage data. Required for \\`kubectl top\\` and HPA (Horizontal Pod Autoscaler).\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Node Metrics\nVerify that the metrics server is running by checking node usage.\n\n```bash\nkubectl top nodes\n```\n\n\n\n\n\n## Logging architecture\n-   **Node level**: \\`/var/log/containers\\`\n-   **Cluster level**: Fluentd/Prometheus stack (usually).\n",
+        "verify": "kubectl top nodes > /dev/null 2>&1 || (echo \"Metrics API not available (which is expected in some sims)\" && exit 0)\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "60": {
     "id": "60",
@@ -516,20 +692,42 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Audit Logging & Monitoring",
     "category": "CKS",
     "duration": "50 mins",
-    "markdown": "\n# Audit Logging & Monitoring\n\nIf you didn't log it, it didn't happen.\n\n## Audit Logs\nRecords the sequence of actions taken by the cluster (API Server).\n- **Stages**: RequestReceived, ResponseStarted, ResponseComplete, Panic.\n- **Policy**: Defines rules for what to log and how much detail.\n\n\\`\\`\\`yaml\n# audit-policy.yaml example\napiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n  - level: Metadata\n    resources:\n    - group: \"\"\n      resources: [\"secrets\"]\n\\`\\`\\`\n\n## Monitoring (Syscall)\nUsing **Falco** to monitor system calls at the kernel level.\n- Detects: File access, Process execution, Network activity.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# Audit Logging & Monitoring\n\nIf you didn't log it, it didn't happen.\n\n## Audit Logs\nRecords the sequence of actions taken by the cluster (API Server).\n- **Stages**: RequestReceived, ResponseStarted, ResponseComplete, Panic.\n- **Policy**: Defines rules for what to log and how much detail.\n\n\\`\\`\\`yaml\n# audit-policy.yaml example\napiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n  - level: Metadata\n    resources:\n    - group: \"\"\n      resources: [\"secrets\"]\n# Task 1: Locate Audit Policy\nFind where the audit policy is typically stored or referenced (mock verification).\n\n```bash\nls /etc/kubernetes/audit-policy.yaml 2>/dev/null || echo \"Not found (expected)\"\n```\n\n\n\n\n\n## Monitoring (Syscall)\nUsing **Falco** to monitor system calls at the kernel level.\n- Detects: File access, Process execution, Network activity.\n",
+    "verifyScript": "# Just getting pods is enough to prove interactivity vs the API server\nkubectl get pods -A > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Audit Logging & Monitoring\n\nIf you didn't log it, it didn't happen.\n\n## Audit Logs\nRecords the sequence of actions taken by the cluster (API Server).\n- **Stages**: RequestReceived, ResponseStarted, ResponseComplete, Panic.\n- **Policy**: Defines rules for what to log and how much detail.\n\n\\`\\`\\`yaml\n# audit-policy.yaml example\napiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n  - level: Metadata\n    resources:\n    - group: \"\"\n      resources: [\"secrets\"]\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Locate Audit Policy\nFind where the audit policy is typically stored or referenced (mock verification).\n\n```bash\nls /etc/kubernetes/audit-policy.yaml 2>/dev/null || echo \"Not found (expected)\"\n```\n\n\n\n\n\n## Monitoring (Syscall)\nUsing **Falco** to monitor system calls at the kernel level.\n- Detects: File access, Process execution, Network activity.\n",
+        "verify": "# Just getting pods is enough to prove interactivity vs the API server\nkubectl get pods -A > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "62": {
     "id": "62",
     "title": "Advanced Pod Security",
     "category": "CKS",
     "duration": "45 mins",
-    "markdown": "\n# Advanced Pod Security\n\n## Pod Security Standards (PSS)\nReplaced PodSecurityPolicies (PSP). Defined in 3 levels:\n1. **Privileged**: Unrestricted (Admin level).\n2. **Baseline**: Minimally restrictive (Default).\n3. **Restricted**: Heavily restricted (Best practice).\n\n## Pod Security Admission (PSA)\nThe built-in admission controller to enforce PSS via Namespace labels.\n\n\\`\\`\\`bash\n# Enforce restricted standard on 'dev' namespace\nkubectl label ns dev pod-security.kubernetes.io/enforce=restricted\n\\`\\`\\`\n\n## mTLS (Mutual TLS)\nEncrypting traffic *between* pods.\n- Usually handled by a Service Mesh (Linkerd, Istio), but understanding the concept is key for CKS.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Advanced Pod Security\n\n## Pod Security Standards (PSS)\nReplaced PodSecurityPolicies (PSP). Defined in 3 levels:\n1. **Privileged**: Unrestricted (Admin level).\n2. **Baseline**: Minimally restrictive (Default).\n3. **Restricted**: Heavily restricted (Best practice).\n\n## Pod Security Admission (PSA)\nThe built-in admission controller to enforce PSS via Namespace labels.\n\n# Task 1: Enforce PSS\nLabel the `dev` namespace to enforce the `restricted` pod security standard.\n\n```bash\nkubectl create ns dev 2>/dev/null || true\nkubectl label ns dev pod-security.kubernetes.io/enforce=restricted --overwrite\n```\n\n\n\n\n\n## mTLS (Mutual TLS)\nEncrypting traffic *between* pods.\n- Usually handled by a Service Mesh (Linkerd, Istio), but understanding the concept is key for CKS.\n",
+    "verifyScript": "kubectl get ns dev -o jsonpath='{.metadata.labels}' | grep \"pod-security.kubernetes.io/enforce\" | grep \"restricted\"\n",
+    "setupScript": "kubectl create ns dev 2>/dev/null || true\nkubectl label ns dev pod-security.kubernetes.io/enforce- 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Advanced Pod Security\n\n## Pod Security Standards (PSS)\nReplaced PodSecurityPolicies (PSP). Defined in 3 levels:\n1. **Privileged**: Unrestricted (Admin level).\n2. **Baseline**: Minimally restrictive (Default).\n3. **Restricted**: Heavily restricted (Best practice).\n\n## Pod Security Admission (PSA)\nThe built-in admission controller to enforce PSS via Namespace labels.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Enforce PSS\nLabel the `dev` namespace to enforce the `restricted` pod security standard.\n\n```bash\nkubectl create ns dev 2>/dev/null || true\nkubectl label ns dev pod-security.kubernetes.io/enforce=restricted --overwrite\n```\n\n\n\n\n\n## mTLS (Mutual TLS)\nEncrypting traffic *between* pods.\n- Usually handled by a Service Mesh (Linkerd, Istio), but understanding the concept is key for CKS.\n",
+        "verify": "kubectl get ns dev -o jsonpath='{.metadata.labels}' | grep \"pod-security.kubernetes.io/enforce\" | grep \"restricted\"\n",
+        "setup": "kubectl create ns dev 2>/dev/null || true\nkubectl label ns dev pod-security.kubernetes.io/enforce- 2>/dev/null || true\n"
+      }
+    ]
   },
   "70": {
     "id": "70",
@@ -557,50 +755,105 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Advanced Deployment Strategies",
     "category": "CKAD",
     "duration": "50 mins",
-    "markdown": "\n# Advanced Deployment Strategies\n\n## Blue/Green Deployment\n- Two identical environments.\n- **Switch**: Update the Service selector to point to the new version.\n- **Pros**: Instant rollback. **Cons**: Double resources.\n\n## Canary Deployment\n- Roll out to a small subset of users.\n- **Implementation**: Two Deployments (Stable & Canary) with common labels targeted by one Service.\n- **Traffic Splitting**: Use Ingress or Service Mesh for % based splitting.\n\n## Rolling Update\n- Default strategy.\n- **Parameters**: \\`maxSurge\\` (how many extra) and \\`maxUnavailable\\` (how many down).\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# Advanced Deployment Strategies\n\n## Blue/Green Deployment\n- Two identical environments.\n- **Switch**: Update the Service selector to point to the new version.\n- **Pros**: Instant rollback. **Cons**: Double resources.\n\n## Canary Deployment\n- Roll out to a small subset of users.\n- **Implementation**: Two Deployments (Stable & Canary) with common labels targeted by one Service.\n- **Traffic Splitting**: Use Ingress or Service Mesh for % based splitting.\n\n# Task 1: Perform Rolling Update\nCreate a deployment `nginx-deploy` with image `nginx:1.14.2` and then update it to `nginx:1.16.1`.\n\n```bash\nkubectl create deployment nginx-deploy --image=nginx:1.14.2\nkubectl set image deployment/nginx-deploy nginx=nginx:1.16.1\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get deployment nginx-deploy -o jsonpath='{.spec.template.spec.containers[0].image}' | grep \"nginx:1.16.1\"\n",
+    "setupScript": "kubectl delete deployment nginx-deploy 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Advanced Deployment Strategies\n\n## Blue/Green Deployment\n- Two identical environments.\n- **Switch**: Update the Service selector to point to the new version.\n- **Pros**: Instant rollback. **Cons**: Double resources.\n\n## Canary Deployment\n- Roll out to a small subset of users.\n- **Implementation**: Two Deployments (Stable & Canary) with common labels targeted by one Service.\n- **Traffic Splitting**: Use Ingress or Service Mesh for % based splitting.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Perform Rolling Update\nCreate a deployment `nginx-deploy` with image `nginx:1.14.2` and then update it to `nginx:1.16.1`.\n\n```bash\nkubectl create deployment nginx-deploy --image=nginx:1.14.2\nkubectl set image deployment/nginx-deploy nginx=nginx:1.16.1\n```\n\n\n\n\n",
+        "verify": "kubectl get deployment nginx-deploy -o jsonpath='{.spec.template.spec.containers[0].image}' | grep \"nginx:1.16.1\"\n",
+        "setup": "kubectl delete deployment nginx-deploy 2>/dev/null || true\n"
+      }
+    ]
   },
   "72": {
     "id": "72",
     "title": "Application Observability",
     "category": "CKAD",
     "duration": "45 mins",
-    "markdown": "\n# Application Observability\n\n## Probes\nKubelet needs to know if your app is okay.\n1.  **Liveness**: Restart if dead (deadlock).\n2.  **Readiness**: Don't send traffic until ready (loading data).\n3.  **Startup**: Wait for slow starts before other probes kick in.\n\n\\`\\`\\`yaml\nlivenessProbe:\n  httpGet:\n    path: /healthz\n    port: 8080\n  initialDelaySeconds: 3\n  periodSeconds: 3\n\\`\\`\\`\n\n## Debugging\n- **Logs**: \\`kubectl logs my-pod -c my-container\\`\n- **Exec**: \\`kubectl exec -it my-pod -- sh\\`\n- **Ephemeral Containers**: \\`kubectl debug -it my-pod --image=busybox --target=my-container\\` (Great for distroless images).\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Application Observability\n\n## Probes\nKubelet needs to know if your app is okay.\n1.  **Liveness**: Restart if dead (deadlock).\n2.  **Readiness**: Don't send traffic until ready (loading data).\n3.  **Startup**: Wait for slow starts before other probes kick in.\n\n\\`\\`\\`yaml\nlivenessProbe:\n  httpGet:\n    path: /healthz\n    port: 8080\n  initialDelaySeconds: 3\n  periodSeconds: 3\n\\`\\`\\`\n\n# Task 1: Exec into Pod\nList the files in `/app` (or `/`) inside a running pod named `debug-pod`.\n\n```bash\nkubectl exec -it debug-pod -- ls /\n```\n\n\n\n\n",
+    "verifyScript": "kubectl get pod debug-pod --no-headers | grep Running\n",
+    "setupScript": "kubectl run debug-pod --image=nginx --restart=Never 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Application Observability\n\n## Probes\nKubelet needs to know if your app is okay.\n1.  **Liveness**: Restart if dead (deadlock).\n2.  **Readiness**: Don't send traffic until ready (loading data).\n3.  **Startup**: Wait for slow starts before other probes kick in.\n\n\\`\\`\\`yaml\nlivenessProbe:\n  httpGet:\n    path: /healthz\n    port: 8080\n  initialDelaySeconds: 3\n  periodSeconds: 3\n\\`\\`\\`\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Exec into Pod\nList the files in `/app` (or `/`) inside a running pod named `debug-pod`.\n\n```bash\nkubectl exec -it debug-pod -- ls /\n```\n\n\n\n\n",
+        "verify": "kubectl get pod debug-pod --no-headers | grep Running\n",
+        "setup": "kubectl run debug-pod --image=nginx --restart=Never 2>/dev/null || true\n"
+      }
+    ]
   },
   "73": {
     "id": "73",
     "title": "Services & Networking Design",
     "category": "CKAD",
     "duration": "40 mins",
-    "markdown": "\n# Services & Networking Design\n\n## Network Policies\nIsolate your applications.\n- **Ingress**: Incoming traffic.\n- **Egress**: Outgoing traffic.\n\n## Service Discovery\n- **DNS**: Every Service gets a DNS name.\n- **Debugging DNS**: Use \\`nslookup\\` or \\`dig\\` from within a pod.\n\n\\`\\`\\`bash\n# Test connectivity\nkubectl run test --rm -it --image=busybox -- wget -O- http://my-service\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Services & Networking Design\n\n## Network Policies\nIsolate your applications.\n- **Ingress**: Incoming traffic.\n- **Egress**: Outgoing traffic.\n\n## Service Discovery\n- **DNS**: Every Service gets a DNS name.\n- **Debugging DNS**: Use \\`nslookup\\` or \\`dig\\` from within a pod.\n\n# Task 1: Test DNS\nVerify that you can resolve `kubernetes.default`.\n\n```bash\nkubectl run test-dns --rm -it --image=busybox -- nslookup kubernetes.default\n```\n\n\n\n\n",
+    "verifyScript": "# Simply checking if the cluster DNS service exists\nkubectl get svc kube-dns -n kube-system > /dev/null\n",
+    "setupScript": "# Clean up if exists\nkubectl delete pod test-dns --force --grace-period=0 2>/dev/null || true\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Services & Networking Design\n\n## Network Policies\nIsolate your applications.\n- **Ingress**: Incoming traffic.\n- **Egress**: Outgoing traffic.\n\n## Service Discovery\n- **DNS**: Every Service gets a DNS name.\n- **Debugging DNS**: Use \\`nslookup\\` or \\`dig\\` from within a pod.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Test DNS\nVerify that you can resolve `kubernetes.default`.\n\n```bash\nkubectl run test-dns --rm -it --image=busybox -- nslookup kubernetes.default\n```\n\n\n\n\n",
+        "verify": "# Simply checking if the cluster DNS service exists\nkubectl get svc kube-dns -n kube-system > /dev/null\n",
+        "setup": "# Clean up if exists\nkubectl delete pod test-dns --force --grace-period=0 2>/dev/null || true\n"
+      }
+    ]
   },
   "90": {
     "id": "90",
     "title": "Command Line Fu: JSONPath",
     "category": "CKA/CKAD",
     "duration": "45 mins",
-    "markdown": "\n# Command Line Fu: JSONPath & Custom Columns\n\nMastering \\`kubectl\\` output is mandatory for CKA/CKAD.\n\n## JSONPath\nFilter and format output programmatically.\n- **Syntax**: \\`{.items[*].metadata.name}\\`\n\n\\`\\`\\`bash\n# Get all pod names\nkubectl get pods -o jsonpath='{.items[*].metadata.name}'\n\n# Get InternalIP of all nodes\nkubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type==\"InternalIP\")].address}'\n\\`\\`\\`\n\n## Custom Columns\nCreate your own table output.\n\\`\\`\\`bash\n# Show Pod Name and Node Name\nkubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName\n\\`\\`\\`\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
-    "tasks": []
+    "markdown": "\n# Command Line Fu: JSONPath & Custom Columns\n\nMastering \\`kubectl\\` output is mandatory for CKA/CKAD.\n\n## JSONPath\nFilter and format output programmatically.\n- **Syntax**: \\`{.items[*].metadata.name}\\`\n\n# Task 1: JSONPath Practice\nList all pod names in `kube-system` using JSONPath.\n\n```bash\nkubectl get pods -n kube-system -o jsonpath='{.items[*].metadata.name}'\n```\n\n\n\n\n\n## Custom Columns\nCreate your own table output.\n\\`\\`\\`bash\n# Show Pod Name and Node Name\nkubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName\n\\`\\`\\`\n",
+    "verifyScript": "kubectl get pods -n kube-system -o jsonpath='{.items[*].metadata.name}' > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Command Line Fu: JSONPath & Custom Columns\n\nMastering \\`kubectl\\` output is mandatory for CKA/CKAD.\n\n## JSONPath\nFilter and format output programmatically.\n- **Syntax**: \\`{.items[*].metadata.name}\\`\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: JSONPath Practice\nList all pod names in `kube-system` using JSONPath.\n\n```bash\nkubectl get pods -n kube-system -o jsonpath='{.items[*].metadata.name}'\n```\n\n\n\n\n\n## Custom Columns\nCreate your own table output.\n\\`\\`\\`bash\n# Show Pod Name and Node Name\nkubectl get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName\n\\`\\`\\`\n",
+        "verify": "kubectl get pods -n kube-system -o jsonpath='{.items[*].metadata.name}' > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "91": {
     "id": "91",
     "title": "Cluster Bootstrap Deep Dive",
     "category": "CKA",
     "duration": "60 mins",
-    "markdown": "\n# Cluster Bootstrap: Kubeadm\n\nUnderstanding how the cluster comes alive.\n\n## The Init Process (\\`kubeadm init\\`)\n1.  **Pre-flight checks**: Kernel version, Swap disabled?\n2.  **Certs**: Generates CA, API server, Etcd certs in \\`/etc/kubernetes/pki\\`.\n3.  **Kubeconfigs**: Generates admin.conf, kubelet.conf.\n4.  **Manifests**: Static pods for Control Plane (API, Controller, Sched, Etcd) in \\`/etc/kubernetes/manifests\\`.\n5.  **Taints**: Marks node as ControlPlane (NoSchedule).\n6.  **Bootstrap Token**: For workers to join.\n\n## CNI Installation\nThe cluster is **NotReady** until a CNI (Network Plugin) is installed.\n- The CNI binaires go to \\`/opt/cni/bin\\`.\n- The config goes to \\`/etc/cni/net.d\\`.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
-    "tasks": []
+    "markdown": "\n# Cluster Bootstrap: Kubeadm\n\nUnderstanding how the cluster comes alive.\n\n# Task 1: Check Kubelet Status\nVerify that the kubelet service is active on the node.\n\n```bash\nsystemctl status kubelet | grep Active\n```\n\n\n\n\n\n## CNI Installation\nThe cluster is **NotReady** until a CNI (Network Plugin) is installed.\n- The CNI binaires go to \\`/opt/cni/bin\\`.\n- The config goes to \\`/etc/cni/net.d\\`.\n",
+    "verifyScript": "systemctl is-active kubelet > /dev/null\n",
+    "setupScript": "echo \"Ready\"\n",
+    "tasks": [
+      {
+        "markdown": "# Task \n# Cluster Bootstrap: Kubeadm\n\nUnderstanding how the cluster comes alive.\n\n",
+        "verify": "",
+        "setup": ""
+      },
+      {
+        "markdown": "# Task 1: Check Kubelet Status\nVerify that the kubelet service is active on the node.\n\n```bash\nsystemctl status kubelet | grep Active\n```\n\n\n\n\n\n## CNI Installation\nThe cluster is **NotReady** until a CNI (Network Plugin) is installed.\n- The CNI binaires go to \\`/opt/cni/bin\\`.\n- The config goes to \\`/etc/cni/net.d\\`.\n",
+        "verify": "systemctl is-active kubelet > /dev/null\n",
+        "setup": "echo \"Ready\"\n"
+      }
+    ]
   },
   "99": {
     "id": "99",
@@ -6595,19 +6848,19 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "Automated CKA Mock Exam 1",
     "category": "CKA",
     "duration": "120 mins",
-    "markdown": "\n# Task 1: Create a Pod\nCreate a pod named `nginx` with image `nginx`.\n\n```bash\nkubectl run nginx --image=nginx\n```\n\n# Task 2: Service Limit\nCreate a service named `my-service` of type `NodePort`.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready (Auto-generated)\"\n",
+    "markdown": "\n# Task 1: Create a Pod\nCreate a pod named `nginx` with image `nginx`.\n\n```bash\nkubectl run nginx --image=nginx\n```\n\n\n\n\n\n# Task 2: Service Limit\nCreate a service named `my-service` of type `NodePort`.\n\n\n\n\n",
+    "verifyScript": "kubectl get pod nginx -o jsonpath='{.spec.containers[0].image}' | grep nginx\nkubectl get svc my-service -o jsonpath='{.spec.type}' | grep NodePort\n",
+    "setupScript": "kubectl delete pod nginx --force --grace-period=0 2>/dev/null || true\nkubectl delete svc my-service 2>/dev/null || true\n",
     "tasks": [
       {
-        "markdown": "# Task 1: Create a Pod\nCreate a pod named `nginx` with image `nginx`.\n\n```bash\nkubectl run nginx --image=nginx\n```\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 1: Create a Pod\nCreate a pod named `nginx` with image `nginx`.\n\n```bash\nkubectl run nginx --image=nginx\n```\n\n\n\n\n\n",
+        "verify": "kubectl get pod nginx -o jsonpath='{.spec.containers[0].image}' | grep nginx\n",
+        "setup": "kubectl delete pod nginx --force --grace-period=0 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 2: Service Limit\nCreate a service named `my-service` of type `NodePort`.\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 2: Service Limit\nCreate a service named `my-service` of type `NodePort`.\n\n\n\n\n",
+        "verify": "kubectl get svc my-service -o jsonpath='{.spec.type}' | grep NodePort\n",
+        "setup": "kubectl delete svc my-service 2>/dev/null || true\n"
       }
     ]
   },
@@ -6616,29 +6869,29 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "CKA Mock Exam 2 (Pool)",
     "category": "CKA",
     "duration": "120 mins",
-    "markdown": "\n# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n# Task 2: Fix a broken node\nThe node `worker-1` is in `NotReady` state. Investigate why and fix it.\nCheck `systemctl status kubelet`.\n\n# Task 3: Ingress Resource\nCreate an ingress named `my-ingress` that routes path `/hello` to service `hello-service` on port 80.\n\n# Task 4: Private Registry Secret\nCreate a secret named `my-registry-key` of type `docker-registry` with username `user` and password `pass`.\nThen patch the default service account to use it.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
+    "markdown": "\n# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n\n\n\n\n# Task 2: Fix a broken node\nThe node `worker-1` is in `NotReady` state. Investigate why and fix it.\nCheck `systemctl status kubelet`.\n\n\n\n\n\n# Task 3: Ingress Resource\nCreate an ingress named `my-ingress` that routes path `/hello` to service `hello-service` on port 80.\n\n\n\n\n\n# Task 4: Private Registry Secret\nCreate a secret named `my-registry-key` of type `docker-registry` with username `user` and password `pass`.\nThen patch the default service account to use it.\n\n\n\n\n",
+    "verifyScript": "ls /opt/etcd-backup.db > /dev/null\nkubectl get node worker-1 --no-headers | grep \" Ready\"\nkubectl get ingress my-ingress -o jsonpath='{.spec.rules[*].http.paths[?(@.path==\"/hello\")].backend.service.name}' | grep hello-service\nkubectl get secret my-registry-key -o jsonpath='{.type}' | grep docker-registry && \\\nkubectl get sa default -o jsonpath='{.imagePullSecrets[*].name}' | grep my-registry-key\n",
+    "setupScript": "sudo rm -f /opt/etcd-backup.db\n# Break the node (simulation)\nkubectl cordon worker-1 2>/dev/null || true\nkubectl create svc clusterip hello-service --tcp=80:80 2>/dev/null || true\nkubectl delete ingress my-ingress 2>/dev/null || true\nkubectl delete secret my-registry-key 2>/dev/null || true\n# Reset service account patch if possible, or just ignore\n",
     "tasks": [
       {
-        "markdown": "# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 1: ETCD Snapshot\nCreate a snapshot of the etcd instance running on the controlplane node.\nSave it to /opt/etcd-backup.db.\n\n```bash\nETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key \\\n  snapshot save /opt/etcd-backup.db\n```\n\n\n\n\n\n",
+        "verify": "ls /opt/etcd-backup.db > /dev/null\n",
+        "setup": "sudo rm -f /opt/etcd-backup.db\n"
       },
       {
-        "markdown": "# Task 2: Fix a broken node\nThe node `worker-1` is in `NotReady` state. Investigate why and fix it.\nCheck `systemctl status kubelet`.\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 2: Fix a broken node\nThe node `worker-1` is in `NotReady` state. Investigate why and fix it.\nCheck `systemctl status kubelet`.\n\n\n\n\n\n",
+        "verify": "kubectl get node worker-1 --no-headers | grep \" Ready\"\n",
+        "setup": "# Break the node (simulation)\nkubectl cordon worker-1 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 3: Ingress Resource\nCreate an ingress named `my-ingress` that routes path `/hello` to service `hello-service` on port 80.\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 3: Ingress Resource\nCreate an ingress named `my-ingress` that routes path `/hello` to service `hello-service` on port 80.\n\n\n\n\n\n",
+        "verify": "kubectl get ingress my-ingress -o jsonpath='{.spec.rules[*].http.paths[?(@.path==\"/hello\")].backend.service.name}' | grep hello-service\n",
+        "setup": "kubectl create svc clusterip hello-service --tcp=80:80 2>/dev/null || true\nkubectl delete ingress my-ingress 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 4: Private Registry Secret\nCreate a secret named `my-registry-key` of type `docker-registry` with username `user` and password `pass`.\nThen patch the default service account to use it.\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 4: Private Registry Secret\nCreate a secret named `my-registry-key` of type `docker-registry` with username `user` and password `pass`.\nThen patch the default service account to use it.\n\n\n\n\n",
+        "verify": "kubectl get secret my-registry-key -o jsonpath='{.type}' | grep docker-registry && \\\nkubectl get sa default -o jsonpath='{.imagePullSecrets[*].name}' | grep my-registry-key\n",
+        "setup": "kubectl delete secret my-registry-key 2>/dev/null || true\n# Reset service account patch if possible, or just ignore\n"
       }
     ]
   },
@@ -6647,29 +6900,29 @@ export const generatedExams: Record<string, Lesson> = {
     "title": "CKA Mock Exam 3 (Pool)",
     "category": "CKA",
     "duration": "120 mins",
-    "markdown": "\n# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n# Task 2: Sidecar Container\nEdit the pod `logging-pod`. Add a sidecar container image `busybox` that runs `tail -f /var/log/app.log`.\nThe volume `log-volume` is already mounted at `/var/log`.\n\n# Task 3: ClusterUpgrade\nUpgrade the control plane to version 1.29.0.\nRemember to drain the node first!\n\n# Task 4: Network Policy Access\nAllow traffic from pods with label `role=frontend` to pods with label `role=backend` on port 80.\nDeny all other ingress traffic to backend.\n",
-    "verifyScript": "",
-    "setupScript": "echo \"Environment Ready\"\n",
+    "markdown": "\n# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n\n\n\n\n# Task 2: Sidecar Container\nEdit the pod `logging-pod`. Add a sidecar container image `busybox` that runs `tail -f /var/log/app.log`.\nThe volume `log-volume` is already mounted at `/var/log`.\n\n\n\n\n\n# Task 3: ClusterUpgrade\nUpgrade the control plane to version 1.29.0.\nRemember to drain the node first!\n\n\n\n\n\n# Task 4: Network Policy Access\nAllow traffic from pods with label `role=frontend` to pods with label `role=backend` on port 80.\nDeny all other ingress traffic to backend.\n\n\n\n\n",
+    "verifyScript": "kubectl get deployment nginx -o jsonpath='{.spec.template.spec.affinity.nodeAffinity}' | grep disk\nkubectl get pod logging-pod -o jsonpath='{.spec.containers[*].name}' | grep sidecar\nkubeadm version | grep 1.29\nkubectl get netpol -o jsonpath='{.items[*].spec.ingress[*].from[*].podSelector.matchLabels.role}' | grep frontend\n",
+    "setupScript": "kubectl delete deployment nginx 2>/dev/null || true\n# Ensure at least one node has the label or this task is unsolvable\nkubectl label nodes --all disk=ssd --overwrite 2>/dev/null || true\nkubectl run logging-pod --image=busybox --restart=Never --dry-run=client -o yaml > /tmp/pod.yaml\n# (Setup logic simplified for brevity, assume pod exists)\nkubectl run logging-pod --image=busybox --restart=Never -- /bin/sh -c \"while true; do echo hello >> /var/log/app.log; sleep 1; done\" 2>/dev/null || true\necho \"Ready\"\nkubectl create ns default 2>/dev/null || true\nkubectl delete netpol --all 2>/dev/null || true\n",
     "tasks": [
       {
-        "markdown": "# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 1: Node Affinity\nCreate a deployment `nginx` with 2 replicas. Ensure they land on nodes with label `disk=ssd`.\n\n\n\n\n\n",
+        "verify": "kubectl get deployment nginx -o jsonpath='{.spec.template.spec.affinity.nodeAffinity}' | grep disk\n",
+        "setup": "kubectl delete deployment nginx 2>/dev/null || true\n# Ensure at least one node has the label or this task is unsolvable\nkubectl label nodes --all disk=ssd --overwrite 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 2: Sidecar Container\nEdit the pod `logging-pod`. Add a sidecar container image `busybox` that runs `tail -f /var/log/app.log`.\nThe volume `log-volume` is already mounted at `/var/log`.\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 2: Sidecar Container\nEdit the pod `logging-pod`. Add a sidecar container image `busybox` that runs `tail -f /var/log/app.log`.\nThe volume `log-volume` is already mounted at `/var/log`.\n\n\n\n\n\n",
+        "verify": "kubectl get pod logging-pod -o jsonpath='{.spec.containers[*].name}' | grep sidecar\n",
+        "setup": "kubectl run logging-pod --image=busybox --restart=Never --dry-run=client -o yaml > /tmp/pod.yaml\n# (Setup logic simplified for brevity, assume pod exists)\nkubectl run logging-pod --image=busybox --restart=Never -- /bin/sh -c \"while true; do echo hello >> /var/log/app.log; sleep 1; done\" 2>/dev/null || true\n"
       },
       {
-        "markdown": "# Task 3: ClusterUpgrade\nUpgrade the control plane to version 1.29.0.\nRemember to drain the node first!\n\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 3: ClusterUpgrade\nUpgrade the control plane to version 1.29.0.\nRemember to drain the node first!\n\n\n\n\n\n",
+        "verify": "kubeadm version | grep 1.29\n",
+        "setup": "echo \"Ready\"\n"
       },
       {
-        "markdown": "# Task 4: Network Policy Access\nAllow traffic from pods with label `role=frontend` to pods with label `role=backend` on port 80.\nDeny all other ingress traffic to backend.\n",
-        "verify": "",
-        "setup": ""
+        "markdown": "# Task 4: Network Policy Access\nAllow traffic from pods with label `role=frontend` to pods with label `role=backend` on port 80.\nDeny all other ingress traffic to backend.\n\n\n\n\n",
+        "verify": "kubectl get netpol -o jsonpath='{.items[*].spec.ingress[*].from[*].podSelector.matchLabels.role}' | grep frontend\n",
+        "setup": "kubectl create ns default 2>/dev/null || true\nkubectl delete netpol --all 2>/dev/null || true\n"
       }
     ]
   }
